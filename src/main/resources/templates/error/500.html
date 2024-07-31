@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <title>問題が発生しました</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/css/common.css">
+</head>
+<body>
+<div id="header" th:replace="~{common/header::header}"></div>
+
+<div class="container h-100">
+    <div class="row h-100">
+        <div class="col">
+            <div class="d-flex align-items-center justify-content-center h-100">
+                <div class="text-center">
+                    <h1 th:text="${status} + ' ' + ${error}"></h1>
+                    <p>問題が発生しました</p>
+                    <a class="btn btn-primary" href="/">ログイン画面に戻る</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

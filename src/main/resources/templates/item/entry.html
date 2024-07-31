@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<!-- secタグを利用する場合はhtmlタグにxmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"を設定すること -->
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title th:text="${title}"></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+          integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+          crossorigin=""/>
+    <link rel="stylesheet" href="/css/common.css">
+</head>
+<body>
+    <div th:replace="~{common/header::header}"></div>
+    <div id="common" th:replace="~{common/common::common}"></div>
+
+
+<div class="container-fluid h-100">
+    <div class="row h-100">
+        <div th:replace="~{common/sidebar}"></div>
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h2 th:text="${title}"></h2>
+            </div>
+            <form th:action="@{/item/entry}" method="post" th:object="${itemForm}">
+                <input type="hidden" id="isRegister" name="isRegister" th:value="*{isRegister}">
+                <input type="hidden" id="id" name="id" th:value="*{id}">
+                <!--/* -->
+                <!-- 商品コード -->
+                <!-- */-->
+                <div class="row my-3">
+                    <div class="col-1 px-5">
+                        <label class="badge bg-primary">商品コード</label>
+                    </div>
+                    <!--/* -->
+                    <!-- 新規登録画面 -->
+                    <!-- */-->
+                    <th:block th:if="*{isRegister}">
+                        <div class="col-1 px-5">
+                            <span class="badge bg-danger">必須</span>
+                        </div>
+                        <div class="col">
+                            <input type="text" class="form-control" id="registerItemCode" name="itemCode" placeholder="ここに商品コードを入力" maxlength="20" th:value="*{itemCode}">
+                            <div class="text-danger" th:if="${#fields.hasErrors('itemCode')}" th:errors="*{itemCode}"></div>
+                        </div>
+                    </th:block>
+                    <!--/* -->
+                    <!-- 編集画面 -->
+                    <!-- */-->
+                    <th:block th:unless="*{isRegister}">
+                            <div class="col-1 px-5"></div>
+                            <input type="hidden" id="editItemCode" name="itemCode" th:value="*{itemCode}">
+                            <span class="col text-left" th:text="*{itemCode}"></span>
+                    </th:block>
+                </div>
+                <!--/* -->
+                <!-- 数量 -->
+                <!-- */-->
+                <div class="row my-3">
+                    <div class="col-1 px-5">
+                        <label class="badge bg-primary">数量</label>
+                    </div>
+                    <div class="col-1 px-5">
+                        <span class="badge bg-danger">必須</span>
+                    </div>
+                    <div class="col-4">
+                        <input type="text" class="form-control" id="count" name="count" placeholder="ここに数量を入力" maxlength="100" th:value="*{count}">
+                        <div class="text-danger" th:if="${#fields.hasErrors('count')}" th:errors="*{count}"></div>
+                    </div>
+                </div>
+                <div class="text-center p-2">
+                    <div class="px-5">
+                        <button class="btn btn-primary w-50" type="submit">確認</button>
+                    </div>
+                </div>
+            </form>
+            <div class="text-center m-2">
+                <a class="text-primary" href="/item/list">
+                    <i class="bi bi-people-fill"></i>
+                    物品購入一覧
+                </a>
+            </div>
+        </main>
+    </div>
+</div>
+<script src="/js/common.js" type="text/javascript"></script>
+<script src="/js/item/entry.js" type="text/javascript"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+</body>
+</html>

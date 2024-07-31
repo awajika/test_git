@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="pagination(page, url)"
+          th:with="currentPage = ${page.number + 1}, lastPage = ${page.totalPages}">
+    <nav aria-label="...">
+        <div class="text-center">
+            <ul class="pagination" style="justify-content: center;">
+                <li class="page-item" th:if="${true}" th:classappend="${page.first ? 'active' : ''}">
+                    <a class="page-link" th:text="${1}" th:disabled="${page.first}" th:href="@{${url}(page=0)}">1</a>
+                </li>
+                <li class="page-item disabled" th:if="${lastPage gt 5 && currentPage ge 4}">
+                    <span class="page-link">…</span>
+                </li>
+
+                <!--      追加 最終ページ選択時 -2ページまで表示      -->
+                <li class="page-item" th:if="${lastPage gt 3 && lastPage eq 5 && currentPage == lastPage}">
+                    <a class="page-link" th:text="${currentPage - 3}" th:href="@{${url}(page=${page.number - 3})}">3</a>
+                </li>
+                <li class="page-item" th:if="${lastPage gt 3 && currentPage == lastPage}">
+                    <a class="page-link" th:text="${currentPage - 2}" th:href="@{${url}(page=${page.number - 2})}">3</a>
+                </li>
+                <li class="page-item" th:if="${lastPage gt 3 && lastPage eq 5 && currentPage gt 3 && currentPage != lastPage}">
+                    <a class="page-link" th:text="${currentPage - 2}" th:href="@{${url}(page=${page.number - 2})}">3</a>
+                </li>
+                <li class="page-item" th:if="${lastPage gt 2 && currentPage ge 3}">
+                    <a class="page-link" th:text="${currentPage - 1}" th:href="@{${url}(page=${page.number - 1})}">4</a>
+                </li>
+                <li class="page-item" th:if="${currentPage ge 2}" th:classappend="${page.first ? '' : 'active'}">
+                    <span class="page-link" th:text="${currentPage}" th:onclick="|window.location.href='@{${url}(page=${page.number})}';|">5</span>
+                </li>
+                <li class="page-item" th:if="${currentPage lt lastPage}">
+                    <a class="page-link" th:text="${currentPage + 1}" th:href="@{${url}(page=${page.number + 1})}">6</a>
+                </li>
+                <!--      追加 最終ページ選択時 +2ページまで表示      -->
+                <li class="page-item" th:if="${lastPage gt 2 && currentPage == 1}">
+                    <a class="page-link" th:text="${currentPage + 2}" th:href="@{${url}(page=${page.number + 2})}">7</a>
+                </li>
+                <li class="page-item" th:if="${lastPage gt 2 && lastPage eq 5 && currentPage == 1}">
+                    <a class="page-link" th:text="${currentPage + 3}" th:href="@{${url}(page=${page.number + 3})}">7</a>
+                </li>
+                <!--      追加     -->
+                <li class="page-item" th:if="${lastPage gt 3 && currentPage == lastPage -2}">
+                    <a class="page-link" th:text="${currentPage + 2}" th:href="@{${url}(page=${page.number + 2})}">7</a>
+                </li>
+                <li class="page-item" th:if="${lastPage gt 3 && lastPage eq 5 && currentPage == lastPage -3}">
+                    <a class="page-link" th:text="${currentPage + 2}" th:href="@{${url}(page=${page.number + 2})}">7</a>
+                </li>
+                <li class="page-item disabled" th:if="${lastPage gt 5 && currentPage + 2 lt lastPage}">
+                    <span class="page-link">…</span>
+                </li>
+                <li class="page-item" th:if="${currentPage + 2 lt lastPage}">
+                    <a class="page-link" th:text="${lastPage}" th:href="@{${url}(page=${page.totalPages - 1})}">11</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</th:block>
+</html>

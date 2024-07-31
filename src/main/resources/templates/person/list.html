@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<!-- secタグを利用する場合はhtmlタグにxmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"を設定すること -->
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>従業員管理</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+        integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+        crossorigin="" />
+    <link rel="stylesheet" href="/css/common.css">
+</head>
+
+<body>
+    <input type="hidden" id="loginUserId" th:value="${loginUserId}">
+    <div th:replace="~{common/header::header}"></div>
+    <div id="common" th:replace="~{common/common::common}"></div>
+
+    <div class="container-fluid h-100">
+        <div class="row h-100">
+            <div th:replace="~{common/sidebar}"></div>
+
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div
+                    class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h2>従業員管理</h2>
+                </div>
+
+                <div class="mt-4">
+                    <div th:if="${successMessage} != null" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="toast-body">
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                            <span th:text="${successMessage}"></span>
+                        </div>
+                    </div>
+                    <div class="bg-light m-2 p-4">
+                        <form class="row" id="userSearchForm" method="get" th:action="@{/person/search}" th:object="${userSearchForm}">
+                            <input type="hidden" id="idSort" name="idSort">
+                            <input type="hidden" id="nameSort" name="nameSort">
+                            <input id="page" type="hidden" name="page" value="0">
+                            <input class="form-control col-5 me-1" type="text" placeholder="フリーワード(社員番号、氏名、氏名(カナ))" th:field="*{keyword}"/>
+                            <select class="form-select col-2" th:field="*{department}">
+                                <option value="">選択してください</option>
+                                <option th:each="departments : ${departmentList}"
+                                        th:value="${departments.departmentId}"
+                                        th:text="${departments.name}"
+                                        th:selected="${departments.departmentId == selectedValue}"></option>
+                            </select>
+                            <select class="form-select col-2" th:field="*{role}">
+                                <option value="">選択してください</option>
+                                <option th:each="role : ${roleList}"
+                                        th:value="${role.value}" th:text="${role.viewName}">
+                                </option>
+                            </select>
+                            <div class="text-right">
+                                <button class="btn btn-primary col-2" type="submit">検索</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="bg-light m-2 p-4" th:if="${role == T(org.example.util.Role).ADMIN.getValue()}">
+                        <form class="row" id="uploadForm" enctype="multipart/form-data">
+                            <input class="form-control col-5" type="file" name="file" />
+                            <button class="btn btn-primary mx-2 col-3" onclick="uploadFile()">CSV一括更新</button>
+                        </form>
+                    </div>
+                    <div class="text-right m-2">
+                        <button class="btn btn-danger m-1" th:if="${role == T(org.example.util.Role).ADMIN.getValue()}" onclick="deletePersonList(this)">一括削除</button>
+                        <a th:if="${role == T(org.example.util.Role).ADMIN.getValue()}" th:href="@{/person/form}" class="btn btn-primary m-1">新規登録</a>
+                    </div>
+                    <table class="table table-condensed table-striped table-bordered h-100">
+                        <thead class="">
+                            <tr>
+                                <th scope="col" class="col-1">
+                                    <div class="text-center">
+                                        <span class="me-auto">
+                                            <button th:if="${role == T(org.example.util.Role).ADMIN.getValue()}" class="btn btn-primary" name="allCheck" data-check="true"
+                                                onclick="allCheck(this)">全選択</button>
+                                        </span>
+                                    </div>
+                                </th>
+                                <th scope="col" class="col-2">
+                                    <div class="text-center">
+                                        <span class="me-auto">社員番号</span>
+                                        <button class="btn" th:onclick="|IdSortButton('category', '__${userSearchForm.idSort}__')|">
+                                            <i th:if="${userSearchForm.idSort} == 'desc'" class="bi bi-sort-down text-danger"></i>
+                                            <i th:if="${userSearchForm.idSort} == 'asc'" class="bi bi-sort-down-alt text-danger"></i>
+                                            <i th:if="${userSearchForm.idSort != 'asc' && userSearchForm.idSort != 'desc'}" class="bi bi-sort-down-alt text-secondary"></i>
+                                        </button>
+                                    </div>
+                                </th>
+                                <th scope="col" class="col-2">
+                                    <div class="text-center">
+                                        <span class="me-auto">氏名</span>
+                                        <button class="btn" th:onclick="|NameSortButton('category', '__${userSearchForm.nameSort}__')|">
+                                            <i th:if="${userSearchForm.nameSort} == 'desc'" class="bi bi-sort-down text-danger"></i>
+                                            <i th:if="${userSearchForm.nameSort} == 'asc'" class="bi bi-sort-down-alt text-danger"></i>
+                                            <i th:if="${userSearchForm.nameSort != 'asc' && userSearchForm.nameSort != 'desc'}" class="bi bi-sort-down-alt text-secondary"></i>
+                                        </button>
+                                    </div>
+                                </th>
+                                <th scope="col" class="col-2">
+                                    <div class="text-center">
+                                        <span class="me-auto">氏名(カナ)</span>
+                                    </div>
+                                </th>
+                                <th scope="col" class="col-1">
+                                    <div class="text-center">
+                                        <span class="me-auto">所属</span>
+                                    </div>
+                                </th>
+                                <th scope="col" class="col-1">
+                                    <div class="text-center">
+                                        <span class="me-auto">権限</span>
+                                    </div>
+                                </th>
+                                <th scope="col" class="col-1">
+                                </th>
+                                <th scope="col" class="col-1">
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="align-middle" th:each="list : ${userList}">
+                                <td class="text-center">
+                                    <input th:if="${list.userId != loginUserId && role == T(org.example.util.Role).ADMIN.getValue()}" th:id="${'person-id-' + list.userId}" type="checkbox">
+                                </td>
+                                <td class="text-center" th:text="${list.userId}"></td>
+                                <td class="text-center" th:text="${list.name}"></td>
+                                <td class="text-center" th:text="${list.nameKana}"></td>
+                                <td class="text-center"
+                                    th:each="department : ${departmentList}"
+                                    th:if="${department.getDepartmentId() == list.department}"
+                                    th:text="${department.getName()}"></td>
+                                <td class="text-center"
+                                    th:each="role : ${roleList}"
+                                    th:if="${role.getValue() == list.role}"
+                                    th:text="${role.getViewName()}"></td>
+                                <td class="text-center table-button">
+                                    <a th:if="${role == T(org.example.util.Role).ADMIN.getValue() || list.userId == loginUserId}"
+                                       th:href="@{/person/form(userId=${list.userId})}" class="btn btn-primary">編集</a>
+                                </td>
+                                <td class="text-center table-button">
+                                    <button th:if="${role == T(org.example.util.Role).ADMIN.getValue() && list.userId != loginUserId}"
+                                       class="btn btn-danger"
+                                       th:data-id="${list.userId}"
+                                       onclick="deletePerson(this)">削除</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-3 text-center" th:unless="${#lists.isEmpty(userList)}">
+                    <th:block th:unless="${#lists.size(userList.content) == 0}">
+                        <div th:replace="common/pagination.html :: pagination(${userList}, '/person/search')"></div>
+                    </th:block>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script src="/js/common.js" type="text/javascript"></script>
+    <script src="/js/person/list.js" type="text/javascript"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+</body>
+<footer class="fixed-bottom bg-primary flex-md-nowrap p-0 shadow">
+    <div></div>
+</footer>
+
+</html>

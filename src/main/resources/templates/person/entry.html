@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="/css/common.css">
+  <title th:text="${title}"></title>
+</head>
+<body>
+  <div th:replace="~{common/header::header}"></div>
+
+  <div class="container-fluid h-100">
+    <div class="row h-100">
+      <div th:replace="~{common/sidebar}"></div>
+
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h2 th:text="${title}"></h2>
+        </div>
+        <form class="text-center" th:action="@{/person/form}" method="post" th:object="${userForm}">
+          <input type="hidden" id="isRegister" name="isRegister" th:value="*{isRegister}">
+          <!--/* -->
+          <!-- 社員番号 -->
+          <!-- */-->
+          <div class="row my-3">
+            <div class="col-2 px-5">
+              <label class="badge bg-primary">社員番号</label>
+            </div>
+            <!--/* -->
+            <!-- 新規登録画面 -->
+            <!-- */-->
+            <th:block th:if="*{isRegister}">
+              <div class="col-1 px-5">
+                <span class="badge bg-danger">必須</span>
+              </div>
+              <div class="col">
+                <input type="text" class="form-control" id="signupUserId" name="userId" placeholder="社員番号を入力してください" maxlength="20" th:value="*{userId}">
+                <div class="text-danger" th:if="${#fields.hasErrors('userId')}" th:errors="*{userId}"></div>
+              </div>
+            </th:block>
+            <!--/* -->
+            <!-- 編集画面 -->
+            <!-- */-->
+            <th:block th:unless="*{isRegister}">
+              <div class="col-1 px-5"></div>
+              <input type="hidden" id="editUserId" name="userId" th:value="*{userId}">
+              <span class="col text-left" th:text="*{userId}">
+          </span>
+            </th:block>
+
+          </div>
+          <!--/* -->
+          <!-- 氏名 -->
+          <!-- */-->
+          <div class="row my-3">
+            <div class="col-2 px-5">
+              <label class="badge bg-primary">氏名</label>
+            </div>
+            <div class="col-1 px-5">
+              <span class="badge bg-danger">必須</span>
+            </div>
+            <div class="col">
+              <input type="text" class="form-control" id="name" name="name" placeholder="氏名を入力してください"
+                maxlength="20" th:value="*{name}">
+              <div class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+            </div>
+          </div>
+          <!--/* -->
+          <!-- 氏名(カナ) -->
+          <!-- */-->
+          <div class="row my-3">
+            <div class="col-2 px-5">
+              <label class="badge bg-primary">氏名(カナ)</label>
+            </div>
+            <div class="col-1 px-5">
+              <span class="badge bg-danger">必須</span>
+            </div>
+            <div class="col">
+              <input type="text" class="form-control" id="nameKana" name="nameKana" placeholder="氏名(カナ)を入力してください"
+                maxlength="20" th:value="*{nameKana}">
+              <div class="text-danger" th:if="${#fields.hasErrors('nameKana')}" th:errors="*{nameKana}"></div>
+            </div>
+          </div>
+          <!--/* -->
+          <!-- パスワード -->
+          <!-- */-->
+          <div class="row my-3">
+            <div class="col-2 px-5">
+              <label class="badge bg-primary">パスワード</label>
+            </div>
+            <div class="col-1 px-5">
+              <span class="badge bg-danger">必須</span>
+            </div>
+            <div class="col">
+              <input type="password" class="form-control" id="password" name="password" placeholder="パスワードを入力してください" maxlength="20">
+              <div class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+            </div>
+          </div>
+          <!--/* -->
+          <!-- パスワード(再入力) -->
+          <!-- */-->
+          <div class="row my-3">
+            <div class="col-2 px-5">
+              <label class="badge bg-primary">パスワード(再入力)</label>
+            </div>
+            <div class="col-1 px-5">
+              <span class="badge bg-danger">必須</span>
+            </div>
+            <div class="col">
+              <input type="password" class="form-control" id="passwordConfirm" name="passwordConfirm" placeholder="もう一度パスワードを入力してください" maxlength="20">
+              <div class="text-danger" th:if="${#fields.hasErrors('passwordConfirm')}" th:errors="*{passwordConfirm}"></div>
+            </div>
+          </div>
+          <div class="row my-3">
+            <div class="col px-5">
+              <span>パスワードは「8文字以上20文字以内、半角英数字の組み合わせ」で入力してください。</span>
+            </div>
+          </div>
+          <!--/* -->
+          <!-- 所属 -->
+          <!-- */-->
+          <div class="row my-3">
+            <div class="col-2 px-5">
+              <label class="badge bg-primary">所属</label>
+            </div>
+            <div class="col-1 px-5">
+              <span class="badge bg-danger">必須</span>
+            </div>
+            <div class="col">
+              <select class="form-select" th:field="*{department}">
+                <option value="">選択してください</option>
+                <option th:each="departments : ${departmentList}"
+                        th:value="${departments.departmentId}"
+                        th:text="${departments.name}"
+                        th:selected="${departments.departmentId == selectedValue}"></option>
+              </select>
+              <div class="text-danger" th:if="${#fields.hasErrors('department')}" th:errors="*{department}"></div>
+            </div>
+          </div>
+          <!--/* -->
+          <!-- 権限 -->
+          <!-- */-->
+          <div class="row my-3">
+            <div class="col-2 px-5">
+              <label class="badge bg-primary">権限</label>
+            </div>
+            <div class="col-1 px-5">
+              <span class="badge bg-danger">必須</span>
+            </div>
+            <div class="col">
+              <select class="form-select" th:field="*{role}">
+                <option value="">選択してください</option>
+                <option th:each="role : ${roleList}"
+                        th:value="${role.value}" th:text="${role.viewName}">
+                </option>
+              </select>
+              <div class="text-danger" th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></div>
+            </div>
+          </div>
+          <button class="btn btn-primary w-50 my-2" type="submit">確認</button>
+        </form>
+        <div class="text-center mt-2">
+          <a class="text-primary" href="/person/list">
+            <i class="bi bi-people-fill"></i>
+            従業員一覧
+          </a>
+        </div>
+      </main>
+    </div>
+  </div>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+</body>
+</html>

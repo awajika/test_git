@@ -1,0 +1,57 @@
+@import url("./bootstrap.min.css");
+@charset "UTF-8";
+
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+}
+
+#header_inner {
+    width: 100%;
+	min-width: 390px;
+    margin: 0px;
+    background-color:#007bff;
+    height: 2.7em;
+}
+#header_logo {
+	display: block;
+    width: auto;
+    height: 1.5em;
+    float: left;
+    margin: 0.5em 0.5em;
+}
+#header_menu {
+    position: relative;
+	display: block;
+    width: 2em;
+    height: 100%;
+    float: right;
+    margin: 0;
+}
+#header_title {
+	display: block;
+	font-size:1.5em;
+	color:white;
+    float: left;
+    width: calc(100% - 8em);
+	overflow: hidden;
+	text-align: center;
+	white-space: nowrap;
+	margin: 0.2em auto;
+}
+
+#sidebar {
+    background-color:#007bff;
+	color:white;
+}
+
+#sidebar a {
+	color:white;
+}
+
+td {
+  white-space: normal;
+}

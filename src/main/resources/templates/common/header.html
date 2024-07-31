@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+    </head>
+    <body>
+        <header class="navbar sticky-top flex-md-nowrap p-0 shadow" data-bs-theme="dark" id="header_inner">
+            <image id="header_logo" src="" alt="" href=""></image>
+            <div id="header_title">
+            </div>
+            <i class="bi bi-person-fill text-white"></i>
+            <label class="navbar-brand px-1 text-white" th:text="${#authentication.principal.username}"></label>
+        </header>
+    </body>
+</html>

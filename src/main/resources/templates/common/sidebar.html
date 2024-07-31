@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+</head>
+<body>
+    <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse" id="sidebar">
+        <div class="position-sticky pt-3">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="/item/list">
+                        <i class="bi bi-basket"></i>
+                        物品購入一覧
+                    </a>
+                </li>
+            </ul>
+            <ul class="nav flex-column mb-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/person/list">
+                        <i class="bi bi-person-fill"></i>
+                        従業員管理
+                    </a>
+                </li>
+            </ul>
+            <hr class="my-3">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <form role="form" name="logout" id="logout" th:action="@{/logout}" method="post">
+                        <input type="hidden" name="_csrf"
+                            value="DtJqSiuhNPdYbYwMrj9dB5P9BmVEf5aEo0C86Xy_riVsTEkda7YOKBvDUZF1Wbk5zxJpPqLPKwd3SaWpx3Le2knaykENdHt5" />
+                        <a class="nav-link" href="" onclick="document.logout.submit(); return false;">
+                            <i class="bi bi-box-arrow-left"></i>
+                            サインアウト
+                        </a>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</body>
+</html>
