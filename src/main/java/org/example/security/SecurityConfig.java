@@ -7,6 +7,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 /**
  * SpringSecurityを利用するための設定クラス
@@ -32,9 +33,23 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> auth
             .requestMatchers("/").permitAll()
             .requestMatchers("/top").permitAll()
+//            .requestMatchers("/sign_in").permitAll()
             .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
             .anyRequest().authenticated()
-        );
+            )
+            .formLogin(login -> login
+            .loginPage("/top")
+            .loginProcessingUrl("/sign_in")
+            .usernameParameter("userId")
+            .passwordParameter("password")
+            .defaultSuccessUrl("/person")
+            .failureUrl("/top?error")
+            .permitAll()
+            )
+            .logout(logout -> logout
+            .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+            .logoutSuccessUrl("/top?logout")
+            );
         return http.build();
     }
 }
