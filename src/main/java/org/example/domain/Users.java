@@ -6,25 +6,25 @@ import lombok.Data;
 public class Users {
 
     // 従業員ID
-    private String user_id;
+    private String userId;
     // パスワード
     private String password;
     // 氏名
     private String name;
     // 氏名（カナ）
-    private String name_kana;
+    private String nameKana;
     // 所属
-    private int department_id;
+    private int departmentId;
     // 権限
     private int role;
     // 作成者ID
-    private String create_user;
+    private String createUser;
     // 作成日
-    private String create_date;
+    private String createDate;
     // 最終更新者ID
-    private String update_user;
+    private String updateUser;
     // 最終更新日
-    private String update_date;
+    private String updateDate;
     // 削除フラグ
-    private boolean is_delete;
+    private boolean isDelete;
 }

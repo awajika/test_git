@@ -129,14 +129,14 @@
               <span class="badge bg-danger">必須</span>
             </div>
             <div class="col">
-              <select class="form-select" th:field="*{department}">
+              <select class="form-select" th:field="*{departmentId}">
                 <option value="">選択してください</option>
                 <option th:each="departments : ${departmentList}"
                         th:value="${departments.departmentId}"
                         th:text="${departments.name}"
-                        th:selected="${departments.departmentId == selectedValue}"></option>
+                        th:selected="${departments.departmentId == userForm.departmentId}"></option>
               </select>
-              <div class="text-danger" th:if="${#fields.hasErrors('department')}" th:errors="*{department}"></div>
+              <div class="text-danger" th:if="${#fields.hasErrors('departmentId')}" th:errors="*{departmentId}"></div>
             </div>
           </div>
           <!--/* -->
@@ -153,7 +153,7 @@
               <select class="form-select" th:field="*{role}">
                 <option value="">選択してください</option>
                 <option th:each="role : ${roleList}"
-                        th:value="${role.value}" th:text="${role.viewName}">
+                        th:value="${role.roleCode}" th:text="${role.label}">
                 </option>
               </select>
               <div class="text-danger" th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></div>

@@ -6,9 +6,12 @@ public interface UsersRepository {
 
     /**
      * 従業員IDとパスワードからユーザーを探す
-     * @param user_id
-     * @param password
-     * @return
+     * @return Users型の1件のデータ
      */
-    Users findByUserIdAndPassword(String user_id, String password);
+    Users findByUserIdAndPassword(String userId);
+
+    /**
+     * ユーザーを登録する
+     */
+    void save (Users user);
 }

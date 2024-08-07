@@ -14,12 +14,18 @@ public class UsersRepositoryImpl implements UsersRepository{
 
     /**
      * 従業員IDとパスワードからユーザーを探す
-     * @param user_id
-     * @param password
-     * @return
+     * @return Users型の1件のデータ
      */
     @Override
-    public Users findByUserIdAndPassword(String user_id, String password) {
-        return this.sqlsessiontemplate.getMapper(UsersMapper.class).findByUserIdAndPassword(user_id, password);
+    public Users findByUserIdAndPassword(String userId) {
+        return this.sqlsessiontemplate.getMapper(UsersMapper.class).findByUserIdAndPassword(userId);
+    }
+
+    /**
+     * ユーザーを登録する
+     */
+    @Override
+    public void save(Users user) {
+        this.sqlsessiontemplate.getMapper(UsersMapper.class).save(user);
     }
 }

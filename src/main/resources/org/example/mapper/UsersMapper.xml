@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper
+3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.mapper.UsersMapper">
+<resultMap id="Users" type="org.example.domain.Users">
+    <id property="userId" column="user_id"></id>
+    <result property="password" column="password"></result>
+    <result property="name" column="name"></result>
+    <result property="nameKana" column="name_kana"></result>
+    <result property="departmentId" column="department_id"></result>
+    <result property="role" column="role"></result>
+    <result property="createUser" column="create_user"></result>
+    <result property="createDate" column="create_date"></result>
+    <result property="updateUser" column="update_user"></result>
+    <result property="updateDate" column="update_date"></result>
+    <result property="isDelete" column="is_delete"></result>
+</resultMap>
+<select id="findByUserIdAndPassword" resultMap="Users">
+    SELECT
+        user_id,
+        password,
+        name,
+        name_kana,
+        department_id,
+        role
+    FROM users
+    WHERE
+        user_id = #{userId}
+    AND
+        is_delete = 0
+</select>
+<insert id="save">
+    INSERT INTO users
+        (user_id, password, name, name_kana, department_id, role,
+            create_user, create_date, update_user, update_date, is_delete)
+    VALUES
+        (#{userId}, #{password}, #{name}, #{nameKana}, #{departmentId}, #{role},
+            #{createUser}, #{createDate}, #{updateUser}, #{updateDate}, 0)
+</insert>
+</mapper>
