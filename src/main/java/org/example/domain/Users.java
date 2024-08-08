@@ -2,6 +2,8 @@ package org.example.domain;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 public class Users {
 
@@ -20,11 +22,11 @@ public class Users {
     // 作成者ID
     private String createUser;
     // 作成日
-    private String createDate;
+    private LocalDateTime createDate;
     // 最終更新者ID
     private String updateUser;
     // 最終更新日
-    private String updateDate;
+    private LocalDateTime updateDate;
     // 削除フラグ
     private boolean isDelete;
 }

@@ -3,7 +3,11 @@ package org.example.service;
 import org.example.domain.Users;
 import org.example.form.UserForm;
 
+import java.util.List;
+
 public interface UsersService {
+
+    List<Users> findAll();
 
     /**
      * 従業員IDからログインユーザーの認証を行う
@@ -20,10 +24,10 @@ public interface UsersService {
     /**
      * ユーザーを登録する
      */
-    void save (UserForm userForm);
+    void save(Users user);
 
     /**
      * ユーザーを編集する
      */
-    void update (UserForm userForm);
+    void update(Users user);
 }

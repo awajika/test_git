@@ -2,6 +2,8 @@ package org.example.constant;
 
 import lombok.Getter;
 
+import java.util.Arrays;
+
 @Getter
 public enum Role {
 
@@ -14,5 +16,12 @@ public enum Role {
     Role(int roleCode, String label) {
         this.roleCode = roleCode;
         this.label = label;
+    }
+
+    public static Role getRole(int roleCode) {
+        return Arrays.stream(Role.values())
+                .filter(data -> data.getRoleCode() == roleCode)
+                .findFirst()
+                .orElse(null);
     }
 }

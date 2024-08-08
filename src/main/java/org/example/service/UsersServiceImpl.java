@@ -4,10 +4,8 @@ import org.example.domain.Users;
 import org.example.form.UserForm;
 import org.example.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.List;
 
 @Service
 public class UsersServiceImpl implements UsersService{
@@ -15,8 +13,10 @@ public class UsersServiceImpl implements UsersService{
     @Autowired
     UsersRepository usersRepository;
 
-    @Autowired
-    PasswordEncoder passwordEncoder;
+    @Override
+    public List<Users> findAll() {
+        return usersRepository.findAll();
+    }
 
     /**
      * 従業員IDからログインユーザーの認証を行う
@@ -49,23 +49,7 @@ public class UsersServiceImpl implements UsersService{
      * ユーザーを登録する
      */
     @Override
-    public void save(UserForm userForm) {
-        Users user = new Users();
-
-        Calendar cl = Calendar.getInstance();
-        SimpleDateFormat currentTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-        user.setUserId(userForm.getUserId());
-        user.setPassword(passwordEncoder.encode(userForm.getPassword()));
-        user.setName(userForm.getName());
-        user.setNameKana(userForm.getNameKana());
-        user.setDepartmentId(userForm.getDepartmentId());
-        user.setRole(userForm.getRole());
-        user.setCreateUser("0001");
-        user.setCreateDate(currentTime.format(cl.getTime()));
-        user.setUpdateUser("0001");
-        user.setUpdateDate(currentTime.format(cl.getTime()));
-
+    public void save(Users user) {
         usersRepository.save(user);
     }
 
@@ -73,21 +57,7 @@ public class UsersServiceImpl implements UsersService{
      * ユーザーを編集する
      */
     @Override
-    public void update(UserForm userForm) {
-        Users user = new Users();
-
-        Calendar cl = Calendar.getInstance();
-        SimpleDateFormat currentTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-        user.setUserId(userForm.getUserId());
-        user.setPassword(passwordEncoder.encode(userForm.getPassword()));
-        user.setName(userForm.getName());
-        user.setNameKana(userForm.getNameKana());
-        user.setDepartmentId(userForm.getDepartmentId());
-        user.setRole(userForm.getRole());
-        user.setUpdateUser("0001");
-        user.setUpdateDate(currentTime.format(cl.getTime()));
-
+    public void update(Users user) {
         usersRepository.update(user);
     }
 }
