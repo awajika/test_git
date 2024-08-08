@@ -28,4 +28,12 @@ public class UsersRepositoryImpl implements UsersRepository{
     public void save(Users user) {
         this.sqlsessiontemplate.getMapper(UsersMapper.class).save(user);
     }
+
+    /**
+     * ユーザーを編集する
+     */
+    @Override
+    public void update(Users user) {
+        this.sqlsessiontemplate.getMapper(UsersMapper.class).update(user);
+    }
 }

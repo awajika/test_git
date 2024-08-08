@@ -37,4 +37,17 @@
         (#{userId}, #{password}, #{name}, #{nameKana}, #{departmentId}, #{role},
             #{createUser}, #{createDate}, #{updateUser}, #{updateDate}, 0)
 </insert>
+<update id="update">
+    UPDATE users
+    SET
+        password = #{password},
+        name = #{name},
+        name_kana = #{nameKana},
+        department_id = #{departmentId},
+        role = #{role},
+        update_user = #{updateUser},
+        update_date = #{updateDate}
+    WHERE
+        user_id = #{userId}
+</update>
 </mapper>

@@ -21,4 +21,6 @@ public interface UsersService {
      * ユーザーを登録する
      */
     void save (UserForm userForm);
+
+    void update (UserForm userForm);
 }

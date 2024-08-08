@@ -12,4 +12,11 @@
         name
     FROM departments
 </select>
+<select id="findByDepartmentId" resultMap="Departments">
+    SELECT
+        department_id
+    FROM departments
+    WHERE
+        department_id = #{departmentId}
+</select>
 </mapper>

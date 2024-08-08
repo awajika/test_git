@@ -68,4 +68,26 @@ public class UsersServiceImpl implements UsersService{
 
         usersRepository.save(user);
     }
+
+    /**
+     * ユーザーを編集する
+     */
+    @Override
+    public void update(UserForm userForm) {
+        Users user = new Users();
+
+        Calendar cl = Calendar.getInstance();
+        SimpleDateFormat currentTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        user.setUserId(userForm.getUserId());
+        user.setPassword(passwordEncoder.encode(userForm.getPassword()));
+        user.setName(userForm.getName());
+        user.setNameKana(userForm.getNameKana());
+        user.setDepartmentId(userForm.getDepartmentId());
+        user.setRole(userForm.getRole());
+        user.setUpdateUser("0001");
+        user.setUpdateDate(currentTime.format(cl.getTime()));
+
+        usersRepository.update(user);
+    }
 }

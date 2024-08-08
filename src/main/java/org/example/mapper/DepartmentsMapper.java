@@ -12,4 +12,10 @@ public interface DepartmentsMapper {
      * @return List<Departments>
      */
     List<Departments> findAll();
+
+    /**
+     * 所属IDから所属を探す
+     * @return Departments
+     */
+    Departments findByDepartmentId(int departmentId);
 }

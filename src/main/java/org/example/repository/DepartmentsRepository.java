@@ -10,4 +10,10 @@ public interface DepartmentsRepository {
      * @return List<Departments>
      */
     List<Departments> findAll();
+
+    /**
+     * 所属IDから所属を探す
+     * @return 所属IDからDepartments型のデータを1件取得
+     */
+    Departments findByDepartmentId(int departmentId);
 }

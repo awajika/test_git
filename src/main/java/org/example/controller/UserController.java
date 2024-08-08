@@ -12,9 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Controller
@@ -29,29 +27,33 @@ public class UserController {
     @RequestMapping(path = "/person/form", method = RequestMethod.GET)
     public String forwardEntry(Model model) {
 
+        // セッション情報から権限をチェックする
+
+        UserForm userForm = new UserForm();
+        userForm.setIsRegister(true);
+        model.addAttribute("title", "ユーザー登録");
+
+        List<Departments> departmentList = departmentsService.findAll();
+
+        model.addAttribute("userForm", userForm);
+        model.addAttribute("departmentList", departmentList);
+        model.addAttribute("roleList", Role.values());
+
+        // person/entry.htmlへフォワード
+        return "person/entry";
+    }
+
+    @RequestMapping(path = "/person/form/{userId}", method = RequestMethod.GET)
+    public String forwardEntry(@PathVariable String userId, Model model) {
+
         /*
         セッション情報から権限をチェックする
         もしくは、useIdが変更したいデータのuserIdと一致しているかチェックする
          */
 
-        /*
-        パラメータにuserIdがあるかチェックする
-        userIdがある→ユーザー編集
-        userIdがない→ユーザー登録
-         */
-        UserForm userForm = new UserForm();
-
-        // 現在ユーザー登録のみ実装済のため、条件分岐が確実に追加となるようあえて""を設定
-        String userId = "";
-
-        if (!("".equals(userId))) {
-            userForm = usersService.editUserByUserId(userId);
-            userForm.setIsRegister(false);
-            model.addAttribute("title", "ユーザー編集");
-        } else {
-            userForm.setIsRegister(true);
-            model.addAttribute("title", "ユーザー登録");
-        }
+        UserForm userForm = usersService.editUserByUserId(userId);
+        userForm.setIsRegister(false);
+        model.addAttribute("title", "ユーザー編集");
 
         List<Departments> departmentList = departmentsService.findAll();
 
@@ -66,12 +68,17 @@ public class UserController {
     @RequestMapping(path = "/person/form", method = RequestMethod.POST)
     public String forwardEntryConfirm(@Validated @ModelAttribute UserForm userForm, BindingResult bindingResult, Model model) {
 
-        // セッション情報から権限をチェックする
+        /*
+        セッション情報から権限をチェックする
+        もしくは、useIdが変更したいデータのuserIdと一致しているかチェックする
+         */
+
+        List<Departments> departmentList = departmentsService.findAll();
+        String title = judge(userForm.getIsRegister());
 
         // @で対処可能なValidationのチェック
         if (bindingResult.hasErrors()) {
-            List<Departments> departmentList = departmentsService.findAll();
-            model.addAttribute("title", "ユーザー新規登録");
+            model.addAttribute("title", title);
             model.addAttribute("userForm", userForm);
             model.addAttribute("departmentList", departmentList);
             model.addAttribute("roleList", Role.values());
@@ -85,8 +92,7 @@ public class UserController {
         }
 
         if (bindingResult.hasErrors()) {
-            List<Departments> departmentList = departmentsService.findAll();
-            model.addAttribute("title", "ユーザー新規登録");
+            model.addAttribute("title", title);
             model.addAttribute("userForm", userForm);
             model.addAttribute("departmentList", departmentList);
             model.addAttribute("roleList", Role.values());
@@ -94,9 +100,7 @@ public class UserController {
         }
 
         // person/entry_confirmへフォワード
-        List<Departments> departmentList = departmentsService.findAll();
-
-        model.addAttribute("title", "ユーザー新規登録");
+        model.addAttribute("title", title);
         model.addAttribute("userForm", userForm);
         model.addAttribute("departmentList", departmentList);
         model.addAttribute("roleList", Role.values());
@@ -106,14 +110,22 @@ public class UserController {
 
     @RequestMapping(path = "/person/confirm", method = RequestMethod.POST)
     public String save(UserForm userForm) {
-        // セッションから作成者のuser_idを取得する
-        // userForm.setAuthor(作成者のuser_id)
+
+        /*
+        セッション情報から権限をチェックする
+        もしくは、useIdが変更したいデータのuserIdと一致しているかチェックする
+        セッションから作成者のuser_idを取得する
+        userForm.setAuthor(作成者のuser_id)
+         */
 
         // ユーザー登録かユーザー編集かをチェック
+        if (userForm.getIsRegister()) {
+            usersService.save(userForm);
+        } else {
+            usersService.update(userForm);
+        }
 
-        usersService.save(userForm);
-
-        return "redirect:/person/form";
+        return "redirect:/person/form/0003";
     }
 
     /**
@@ -125,11 +137,13 @@ public class UserController {
         FieldError error = null;
         boolean result = true;
 
-        // 既に登録済の社員番号かチェック
-        Users user = usersService.findByUserId(userForm.getUserId());
-        if (user != null) {
-            error = new FieldError(bindingResult.getObjectName(), "userId",
-                    "この社員番号は既に使用されています。別の社員番号を入力してください");
+        // 既に登録済の社員番号かチェック(登録時のみ)
+        if (userForm.getIsRegister()) {
+            Users user = usersService.findByUserId(userForm.getUserId());
+            if (user != null) {
+                error = new FieldError(bindingResult.getObjectName(), "userId",
+                        "この社員番号は既に使用されています。別の社員番号を入力してください");
+            }
         }
 
         // パスワードとパスワード（再入力）一致チェック
@@ -139,14 +153,7 @@ public class UserController {
         }
 
         // マスタにない所属が入力されていないかチェック
-        List<Departments> departmentList = departmentsService.findAll();
-        for (Departments department : departmentList) {
-            if (department.getDepartmentId().equals(userForm.getDepartmentId())) {
-                result = false;
-                break;
-            }
-        }
-        if (result) {
+        if (departmentsService.checkDepartment(userForm.getDepartmentId())) {
             error = new FieldError(bindingResult.getObjectName(), "departmentId",
                     "不正な値が入力されました");
         }
@@ -163,5 +170,17 @@ public class UserController {
                     "不正な値が入力されました");
         }
         return error;
+    }
+
+    /**
+     * ユーザー登録かユーザー編集なのかを判断する
+     * @return String型　titleに使用
+     */
+    public String judge(Boolean result) {
+        if (result) {
+            return "ユーザー登録";
+        } else {
+            return "ユーザー編集";
+        }
     }
 }

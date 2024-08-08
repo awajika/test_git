@@ -21,4 +21,13 @@ public class DepartmentsRepositoryImpl implements DepartmentsRepository{
     public List<Departments> findAll() {
         return this.sqlSessionTemplate.getMapper(DepartmentsMapper.class).findAll();
     }
+
+    /**
+     * 所属IDから所属を探す
+     * @return 所属IDからDepartments型のデータを1件取得
+     */
+    @Override
+    public Departments findByDepartmentId(int departmentId) {
+        return this.sqlSessionTemplate.getMapper(DepartmentsMapper.class).findByDepartmentId(departmentId);
+    }
 }

@@ -15,4 +15,6 @@ public interface UsersMapper {
      * ユーザーを登録する
      */
     void save (Users user);
+
+    void update(Users user);
 }
