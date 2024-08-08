@@ -14,7 +14,7 @@ public interface DepartmentsMapper {
     List<Departments> findAll();
 
     /**
-     * 所属IDから所属を探す
+     * 所属IDから所属を1件取得する
      * @return Departments
      */
     Departments findByDepartmentId(int departmentId);

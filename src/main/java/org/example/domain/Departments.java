@@ -4,6 +4,8 @@ import lombok.Data;
 
 @Data
 public class Departments {
-    Integer departmentId;
-    String name;
+    // 所属ID
+    private Integer departmentId;
+    //　所属名
+    private String name;
 }
