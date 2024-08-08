@@ -13,7 +13,7 @@ public interface DepartmentsService {
 
     /**
      * 登録されている所属かチェックする
-     * @return 登録されている場合false,　されていない場合true
+     * @return 登録されていない場合true、されている場合falseを返す
      */
     boolean checkDepartment(int departmentId);
 }
