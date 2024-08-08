@@ -24,7 +24,7 @@ public class DepartmentsRepositoryImpl implements DepartmentsRepository{
 
     /**
      * 所属IDから所属を探す
-     * @return Departments
+     * @return 所属IDからDepartments型のデータを1件取得
      */
     @Override
     public Departments findByDepartmentId(int departmentId) {

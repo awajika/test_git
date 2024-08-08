@@ -24,7 +24,7 @@ public class UsersServiceImpl implements UsersService{
      */
     @Override
     public Users findByUserId(String userId) {
-       return usersRepository.findByUserId(userId);
+       return usersRepository.findByUserIdAndPassword(userId);
     }
 
     /**
@@ -33,7 +33,7 @@ public class UsersServiceImpl implements UsersService{
      */
     @Override
     public UserForm editUserByUserId(String userId) {
-        Users user = usersRepository.findByUserId(userId);
+        Users user = usersRepository.findByUserIdAndPassword(userId);
 
         UserForm userForm = new UserForm();
         userForm.setUserId(user.getUserId());

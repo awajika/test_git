@@ -6,7 +6,7 @@ import org.example.form.UserForm;
 public interface UsersService {
 
     /**
-     * 従業員IDからログインユーザーの認証を行う
+     * 従業員IDとパスワードからユーザーを探す
      * @return Users型の1件のデータ
      */
     Users findByUserId(String userId);
@@ -22,8 +22,5 @@ public interface UsersService {
      */
     void save (UserForm userForm);
 
-    /**
-     * ユーザーを編集する
-     */
     void update (UserForm userForm);
 }

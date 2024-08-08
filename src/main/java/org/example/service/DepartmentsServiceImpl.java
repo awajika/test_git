@@ -24,7 +24,7 @@ public class DepartmentsServiceImpl implements DepartmentsService{
 
     /**
      * 登録されている所属かチェックする
-     * @return 登録されていない場合true、されている場合falseを返す
+     * @return 登録されている場合false,　されていない場合true
      */
     @Override
     public boolean checkDepartment(int departmentId) {

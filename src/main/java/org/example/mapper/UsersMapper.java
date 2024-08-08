@@ -9,15 +9,12 @@ public interface UsersMapper {
      * ユーザーIDとパスワードからユーザーを探す
      * @return Users型の1件のデータ
      */
-    Users findByUserId(String userId);
+    Users findByUserIdAndPassword(String userId);
 
     /**
      * ユーザーを登録する
      */
     void save (Users user);
 
-    /**
-     * ユーザーを更新する
-     */
     void update(Users user);
 }

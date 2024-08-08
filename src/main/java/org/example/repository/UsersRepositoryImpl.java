@@ -14,11 +14,11 @@ public class UsersRepositoryImpl implements UsersRepository{
 
     /**
      * 従業員IDとパスワードからユーザーを探す
-     * @return Users
+     * @return Users型の1件のデータ
      */
     @Override
-    public Users findByUserId(String userId) {
-        return this.sqlsessiontemplate.getMapper(UsersMapper.class).findByUserId(userId);
+    public Users findByUserIdAndPassword(String userId) {
+        return this.sqlsessiontemplate.getMapper(UsersMapper.class).findByUserIdAndPassword(userId);
     }
 
     /**
@@ -30,7 +30,7 @@ public class UsersRepositoryImpl implements UsersRepository{
     }
 
     /**
-     * ユーザーを更新する
+     * ユーザーを編集する
      */
     @Override
     public void update(Users user) {

@@ -26,13 +26,13 @@ public class UserForm {
     private String nameKana;
     // パスワード
     @NotBlank(message = "パスワードを入力してください")
-    @Pattern(regexp = "^[0-9a-zA-Z]*$", message = "パスワードは英数字の組み合わせで入力してください")
-    @Size(min = 8, max = 20, message = "8文字～20文字以内で入力してください")
+    @Pattern(regexp = "^[a-zA-Z0-9]{1,22}$", message = "パスワードは英数字の組み合わせで入力してください")
+    @Size(min = 7, max = 21, message = "8文字～20文字以内で入力してください")
     private String password;
     // パスワード（再入力）
     @NotBlank(message = "パスワード（再入力）を入力してください")
-    @Pattern(regexp = "^[0-9a-zA-Z]*$", message = "パスワードは英数字の組み合わせで入力してください")
-    @Size(min = 8, max = 20, message = "8文字～20文字以内で入力してください")
+    @Pattern(regexp = "^[a-zA-Z0-9]{1,22}$", message = "パスワードは英数字の組み合わせで入力してください")
+    @Size(min = 7, max = 21, message = "8文字～20文字以内で入力してください")
     private String passwordConfirm;
     // 所属
     @NotNull(message = "所属を入力してください")

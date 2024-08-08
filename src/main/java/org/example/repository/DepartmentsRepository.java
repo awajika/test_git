@@ -13,7 +13,7 @@ public interface DepartmentsRepository {
 
     /**
      * 所属IDから所属を探す
-     * @return Departments
+     * @return 所属IDからDepartments型のデータを1件取得
      */
     Departments findByDepartmentId(int departmentId);
 }
