@@ -125,7 +125,7 @@ public class UserController {
             usersService.update(userForm);
         }
 
-        return "redirect:/person/form/0003";
+        return "redirect:/person/list";
     }
 
     /**
