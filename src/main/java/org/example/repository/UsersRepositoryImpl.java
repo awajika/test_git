@@ -6,11 +6,22 @@ import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public class UsersRepositoryImpl implements UsersRepository{
 
     @Autowired
     SqlSessionTemplate sqlsessiontemplate;
+
+    /**
+     * 登録されているユーザーを昇順で全件取得する
+     * @return List <Users>
+     */
+    @Override
+    public List<Users> findAll() {
+        return this.sqlsessiontemplate.getMapper(UsersMapper.class).findAll();
+    }
 
     /**
      * 従業員IDとパスワードからユーザーを探す

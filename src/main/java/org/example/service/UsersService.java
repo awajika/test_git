@@ -3,7 +3,15 @@ package org.example.service;
 import org.example.domain.Users;
 import org.example.form.UserForm;
 
+import java.util.List;
+
 public interface UsersService {
+
+    /**
+     * 登録されているユーザーを昇順で全件取得する
+     * @return List <Users>
+     */
+    List<Users> findAll();
 
     /**
      * 従業員IDからログインユーザーの認証を行う

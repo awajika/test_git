@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 
 @Service
 public class UsersServiceImpl implements UsersService{
@@ -19,12 +20,21 @@ public class UsersServiceImpl implements UsersService{
     PasswordEncoder passwordEncoder;
 
     /**
+     * 登録されているユーザーを昇順で全件取得する
+     * @return List <Users>
+     */
+    @Override
+    public List<Users> findAll() {
+        return usersRepository.findAll();
+    }
+
+    /**
      * 従業員IDからログインユーザーの認証を行う
      * @return Users型の1件のデータ
      */
     @Override
     public Users findByUserId(String userId) {
-       return usersRepository.findByUserId(userId);
+        return usersRepository.findByUserId(userId);
     }
 
     /**

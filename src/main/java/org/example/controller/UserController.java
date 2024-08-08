@@ -4,6 +4,7 @@ import org.example.constant.Role;
 import org.example.domain.Departments;
 import org.example.domain.Users;
 import org.example.form.UserForm;
+import org.example.form.UserSearchForm;
 import org.example.service.DepartmentsService;
 import org.example.service.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import java.util.List;
 
 @Controller
@@ -23,6 +26,28 @@ public class UserController {
 
     @Autowired
     DepartmentsService departmentsService;
+
+    @RequestMapping(path = "/person/list", method = RequestMethod.GET)
+    public String forwardList(@ModelAttribute("successMessage")String message, Model model) {
+
+        /*
+        セッションにログインユーザー情報が入っているか確認
+        入っていなければログイン画面へリダイレクト
+        (ここはSpringSecurityの範疇？)
+         */
+
+        UserSearchForm userSearchForm = new UserSearchForm();
+        List<Users> userList = usersService.findAll();
+        List<Departments> departmentList = departmentsService.findAll();
+
+        model.addAttribute("userSearchForm", userSearchForm);
+        model.addAttribute("userList", userList);
+        model.addAttribute("departmentList", departmentList);
+        model.addAttribute("roleList", Role.values());
+        model.addAttribute("successMessage", message);
+
+        return "person/list";
+    }
 
     @RequestMapping(path = "/person/form", method = RequestMethod.GET)
     public String forwardEntry(Model model) {
@@ -74,7 +99,7 @@ public class UserController {
          */
 
         List<Departments> departmentList = departmentsService.findAll();
-        String title = judge(userForm.getIsRegister());
+        String title = judgeTitle(userForm.getIsRegister());
 
         // @で対処可能なValidationのチェック
         if (bindingResult.hasErrors()) {
@@ -86,7 +111,7 @@ public class UserController {
         }
 
         // @で対処できないValidationのチェック
-        FieldError error = personValidation(userForm, bindingResult);
+        FieldError error = checkPersonValidation(userForm, bindingResult);
         if (error != null) { // personValidationでerrorにnullを入れて初期化しているため
             bindingResult.addError(error);
         }
@@ -109,7 +134,7 @@ public class UserController {
     }
 
     @RequestMapping(path = "/person/confirm", method = RequestMethod.POST)
-    public String save(UserForm userForm) {
+    public String save(UserForm userForm, RedirectAttributes redirectAttributes) {
 
         /*
         セッション情報から権限をチェックする
@@ -121,8 +146,10 @@ public class UserController {
         // ユーザー登録かユーザー編集かをチェック
         if (userForm.getIsRegister()) {
             usersService.save(userForm);
+            redirectAttributes.addFlashAttribute("successMessage", "登録完了しました");
         } else {
             usersService.update(userForm);
+            redirectAttributes.addFlashAttribute("successMessage", "編集完了しました");
         }
 
         return "redirect:/person/list";
@@ -132,7 +159,7 @@ public class UserController {
      * personのvalidationチェックを行う
      * @return FieldError型　エラーメッセージ
      */
-    public FieldError personValidation(UserForm userForm, BindingResult bindingResult) {
+    public FieldError checkPersonValidation(UserForm userForm, BindingResult bindingResult) {
 
         FieldError error = null;
         boolean result = true;
@@ -176,7 +203,7 @@ public class UserController {
      * ユーザー登録かユーザー編集なのかを判断する
      * @return String型　titleに使用
      */
-    public String judge(Boolean result) {
+    public String judgeTitle(Boolean result) {
         if (result) {
             return "ユーザー登録";
         } else {

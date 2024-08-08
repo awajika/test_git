@@ -15,6 +15,18 @@
     <result property="updateDate" column="update_date"></result>
     <result property="isDelete" column="is_delete"></result>
 </resultMap>
+<select id="findAll" resultMap="Users">
+    SELECT
+        user_id,
+        password,
+        name,
+        name_kana,
+        department_id,
+        role
+    FROM users
+    WHERE
+        is_delete = 0
+</select>
 <select id="findByUserId" resultMap="Users">
     SELECT
         user_id,

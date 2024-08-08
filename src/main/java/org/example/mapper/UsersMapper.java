@@ -2,12 +2,21 @@ package org.example.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.example.domain.Users;
+
+import java.util.List;
+
 @Mapper
 public interface UsersMapper {
 
     /**
+     * 登録されているユーザーを昇順で全件取得する
+     * @return List <Users>
+     */
+    List<Users> findAll();
+
+    /**
      * ユーザーIDとパスワードからユーザーを探す
-     * @return Users型の1件のデータ
+     * @return Users
      */
     Users findByUserId(String userId);
 
