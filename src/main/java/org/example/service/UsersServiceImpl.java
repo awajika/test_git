@@ -2,8 +2,12 @@ package org.example.service;
 
 import org.example.domain.Users;
 import org.example.form.UserForm;
+import org.example.form.UserSearchForm;
 import org.example.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -14,8 +18,13 @@ public class UsersServiceImpl implements UsersService{
     UsersRepository usersRepository;
 
     @Override
-    public List<Users> findAll() {
-        return usersRepository.findAll();
+    public Page<Users> findAll(Pageable pageable, UserSearchForm userSearchForm) {
+        List<Users> userList = usersRepository.findAll(userSearchForm);
+
+        // リストの総数
+        int count = usersRepository.selectUsersCount();
+
+        return new PageImpl<Users>(userList, pageable, count);
     }
 
     /**

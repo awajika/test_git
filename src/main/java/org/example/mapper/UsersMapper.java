@@ -1,14 +1,17 @@
 package org.example.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.example.domain.Users;
-
+import org.example.form.UserSearchForm;
 import java.util.List;
 
 @Mapper
 public interface UsersMapper {
 
-    List<Users> findAll();
+    int selectUsersCount();
+
+    List<Users> findAll(@Param("userSearchForm") UserSearchForm userSearchForm);
 
     /**
      * ユーザーIDとパスワードからユーザーを探す

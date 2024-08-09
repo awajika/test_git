@@ -15,7 +15,11 @@
     <result property="updateDate" column="update_date"></result>
     <result property="isDelete" column="is_delete"></result>
 </resultMap>
-<select id="findAll" resultMap="Users">
+<select id="selectUsersCount" resultType="_int">
+    SELECT count(*)
+    FROM users
+</select>
+<select id="findAll" parameterType="org.example.form.UserSearchForm" resultMap="Users">
     SELECT
         user_id,
         password,
@@ -26,6 +30,9 @@
     FROM users
     WHERE
         is_delete = 0
+    <if test="userSearchForm.size != null and userSearchForm.page != null">
+        limit #{userSearchForm.page}, #{userSearchForm.size}
+    </if>
 </select>
 <select id="findByUserId" resultMap="Users">
     SELECT

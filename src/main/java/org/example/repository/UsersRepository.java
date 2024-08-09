@@ -1,12 +1,15 @@
 package org.example.repository;
 
 import org.example.domain.Users;
+import org.example.form.UserSearchForm;
 
 import java.util.List;
 
 public interface UsersRepository {
 
-    List<Users> findAll();
+    int selectUsersCount();
+
+    List<Users> findAll(UserSearchForm userSearchForm);
 
     /**
      * 従業員IDとパスワードからユーザーを探す

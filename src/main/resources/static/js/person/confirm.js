@@ -1,3 +1,3 @@
-function EditBackButton() {
-  window.location.href = `list.html`;
+function BackButton() {
+  window.location.href = `entry.html`;
 }

@@ -10,5 +10,7 @@ public class UserSearchForm {
     private Integer role;
     private String idSort;
     private String nameSort;
+    private int page;
+    private int size;
 
 }

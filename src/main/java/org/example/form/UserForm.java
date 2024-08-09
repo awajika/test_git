@@ -11,6 +11,8 @@ public class UserForm {
 
     // 従業員登録の有無
     private Boolean isRegister;
+    // 戻るボタン押下を判断するためのフラグ
+    private int backFlg;
     // 従業員ID
     @NotBlank(message = "社員番号を入力してください")
     @Size(max = 20, message = "20文字以内で入力してください")

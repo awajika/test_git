@@ -2,12 +2,13 @@ package org.example.service;
 
 import org.example.domain.Users;
 import org.example.form.UserForm;
-
-import java.util.List;
+import org.example.form.UserSearchForm;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface UsersService {
 
-    List<Users> findAll();
+    Page<Users> findAll(Pageable pageable, UserSearchForm userSearchForm);
 
     /**
      * 従業員IDからログインユーザーの認証を行う

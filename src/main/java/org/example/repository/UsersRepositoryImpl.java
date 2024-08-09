@@ -1,11 +1,11 @@
 package org.example.repository;
 
 import org.example.domain.Users;
+import org.example.form.UserSearchForm;
 import org.example.mapper.UsersMapper;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
 
 @Repository
@@ -15,8 +15,13 @@ public class UsersRepositoryImpl implements UsersRepository{
     SqlSessionTemplate sqlsessiontemplate;
 
     @Override
-    public List<Users> findAll() {
-        return this.sqlsessiontemplate.getMapper(UsersMapper.class).findAll();
+    public int selectUsersCount() {
+        return this.sqlsessiontemplate.getMapper(UsersMapper.class).selectUsersCount();
+    }
+
+    @Override
+    public List<Users> findAll(UserSearchForm userSearchForm) {
+        return this.sqlsessiontemplate.getMapper(UsersMapper.class).findAll(userSearchForm);
     }
 
     /**

@@ -8,6 +8,9 @@ import org.example.form.UserSearchForm;
 import org.example.service.DepartmentsService;
 import org.example.service.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,7 +35,9 @@ public class UserController {
     PasswordEncoder passwordEncoder;
 
     @RequestMapping(path = "/person/list", method = RequestMethod.GET)
-    public String forwardList(@ModelAttribute("successMessage")String message, Model model) {
+    public String forwardList(@ModelAttribute("successMessage")String message,
+                              @RequestParam("page") int page,
+                              Model model) {
 
         /*
         セッションにログインユーザー情報が入っているか確認
@@ -40,8 +45,17 @@ public class UserController {
         (ここはSpringSecurityの範疇？)
          */
 
+        // 最大表示件数を設定
+        int maxPageSize = 5;
+
+        // pageableの設定
+        Pageable pageable = PageRequest.of(page, maxPageSize);
+
         UserSearchForm userSearchForm = new UserSearchForm();
-        List<Users> userList = usersService.findAll();
+        userSearchForm.setPage(page * maxPageSize);
+        userSearchForm.setSize(maxPageSize);
+
+        Page<Users> userList = usersService.findAll(pageable, userSearchForm);
         List<Departments> departmentList = departmentsService.findAll();
 
         model.addAttribute("userSearchForm", userSearchForm);
@@ -125,7 +139,7 @@ public class UserController {
     }
 
     @RequestMapping(path = "/person/confirm", method = RequestMethod.POST)
-    public String save(UserForm userForm, RedirectAttributes redirectAttributes) {
+    public String save(UserForm userForm, Model model, RedirectAttributes redirectAttributes) {
 
         /*
         セッション情報から権限をチェックする
@@ -133,6 +147,16 @@ public class UserController {
         セッションから作成者のuser_idを取得する
         userForm.setAuthor(作成者のuser_id)
          */
+
+        // entry.htmlで戻るボタンが押下されたとき
+        if (userForm.getBackFlg() == 0) {
+            List<Departments> departmentList = departmentsService.findAll();
+
+            model.addAttribute("userForm", userForm);
+            model.addAttribute("departmentList", departmentList);
+            model.addAttribute("roleList", Role.values());
+            return "person/entry";
+        }
 
         Users user = mapUsers(userForm);
 
@@ -145,7 +169,7 @@ public class UserController {
             redirectAttributes.addFlashAttribute("successMessage", "編集完了しました");
         }
 
-        return "redirect:/person/list";
+        return "redirect:/person/list?page=0";
     }
 
     /**
