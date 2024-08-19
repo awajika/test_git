@@ -18,13 +18,13 @@ public class LoginController {
         return "login/login";
     }
 
-    @RequestMapping("/sign_in")
-    public String sign() {
-        return "redirect:/person/list";
-    }
+//    @RequestMapping("/sign_in")
+//    public String sign() {
+//        return "redirect:/person/list";
+//    }
 
     @RequestMapping("/person")
     public String person() {
-        return "person/list";
+        return "redirect:/person/list?page=0";
     }
 }

@@ -87,3 +87,36 @@ window.addEventListener("load", function() {
         return toast;
     });
 });
+
+// 社員番号ソートボタン押下
+function IdSortButton(name, nowSort) {
+    const idSort = document.getElementById("idSort");
+    const idSortBtn = document.getElementById("idSortBtn");
+
+    if (!nowSort == false || nowSort == "asc") {
+        idSort.setAttribute("value", "desc");
+        idSortBtn.setAttribute("form", "userSearchForm")
+    }
+
+    if (nowSort == "desc") {
+        idSort.setAttribute("value", "asc");
+        idSortBtn.setAttribute("form", "userSearchForm")
+    }
+}
+
+// 氏名ソートボタン押下
+ function nameSortButton(name, nowSort) {
+     const nameSort = document.getElementById("nameSort");
+     const nameSortBtn = document.getElementById("nameSortBtn");
+
+     if (!nowSort == false || nowSort == "asc") {
+         nameSort.setAttribute("value", "desc");
+         nameSortBtn.setAttribute("form", "userSearchForm")
+     }
+
+     if (nowSort == "desc") {
+         nameSort.setAttribute("value", "asc");
+         nameSortBtn.setAttribute("form", "userSearchForm")
+     }
+ }
+

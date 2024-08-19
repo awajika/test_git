@@ -2,16 +2,18 @@ package org.example.service;
 
 import org.example.domain.Users;
 import org.example.form.UserForm;
-
-import java.util.List;
+import org.example.form.UserSearchForm;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface UsersService {
 
     /**
-     * 登録されているユーザーを昇順で全件取得する
-     * @return List <Users>
+     * 従業員データをpageableで設定した件数分取得する
+     * もしuserSearchForm(検索条件)に値が入っていた場合、その条件に沿ったデータを取得する
+     * @return Page <Users>型
      */
-    List<Users> findAll();
+    Page<Users> findAll(Pageable pageable, UserSearchForm userSearchForm);
 
     /**
      * 従業員IDからログインユーザーの認証を行う
@@ -28,10 +30,10 @@ public interface UsersService {
     /**
      * ユーザーを登録する
      */
-    void save (UserForm userForm);
+    void save(Users user);
 
     /**
      * ユーザーを編集する
      */
-    void update (UserForm userForm);
+    void update(Users user);
 }

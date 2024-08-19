@@ -2,12 +2,13 @@ package org.example.service;
 
 import org.example.domain.Users;
 import org.example.form.UserForm;
+import org.example.form.UserSearchForm;
 import org.example.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.List;
 
 @Service
@@ -16,16 +17,19 @@ public class UsersServiceImpl implements UsersService{
     @Autowired
     UsersRepository usersRepository;
 
-    @Autowired
-    PasswordEncoder passwordEncoder;
-
     /**
-     * 登録されているユーザーを昇順で全件取得する
-     * @return List <Users>
+     * 従業員データをpageableで設定した件数分取得する
+     * もしuserSearchForm(検索条件)に値が入っていた場合、その条件に沿ったデータを取得する
+     * @return Page <Users>型
      */
     @Override
-    public List<Users> findAll() {
-        return usersRepository.findAll();
+    public Page<Users> findAll(Pageable pageable, UserSearchForm userSearchForm) {
+        List<Users> userList = usersRepository.findAll(userSearchForm);
+
+        // リストの総数
+        int count = usersRepository.selectUsersCount(userSearchForm);
+
+        return new PageImpl<>(userList, pageable, count);
     }
 
     /**
@@ -59,23 +63,7 @@ public class UsersServiceImpl implements UsersService{
      * ユーザーを登録する
      */
     @Override
-    public void save(UserForm userForm) {
-        Users user = new Users();
-
-        Calendar cl = Calendar.getInstance();
-        SimpleDateFormat currentTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-        user.setUserId(userForm.getUserId());
-        user.setPassword(passwordEncoder.encode(userForm.getPassword()));
-        user.setName(userForm.getName());
-        user.setNameKana(userForm.getNameKana());
-        user.setDepartmentId(userForm.getDepartmentId());
-        user.setRole(userForm.getRole());
-        user.setCreateUser("0001");
-        user.setCreateDate(currentTime.format(cl.getTime()));
-        user.setUpdateUser("0001");
-        user.setUpdateDate(currentTime.format(cl.getTime()));
-
+    public void save(Users user) {
         usersRepository.save(user);
     }
 
@@ -83,21 +71,7 @@ public class UsersServiceImpl implements UsersService{
      * ユーザーを編集する
      */
     @Override
-    public void update(UserForm userForm) {
-        Users user = new Users();
-
-        Calendar cl = Calendar.getInstance();
-        SimpleDateFormat currentTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-        user.setUserId(userForm.getUserId());
-        user.setPassword(passwordEncoder.encode(userForm.getPassword()));
-        user.setName(userForm.getName());
-        user.setNameKana(userForm.getNameKana());
-        user.setDepartmentId(userForm.getDepartmentId());
-        user.setRole(userForm.getRole());
-        user.setUpdateUser("0001");
-        user.setUpdateDate(currentTime.format(cl.getTime()));
-
+    public void update(Users user) {
         usersRepository.update(user);
     }
 }

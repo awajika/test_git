@@ -15,7 +15,27 @@
     <result property="updateDate" column="update_date"></result>
     <result property="isDelete" column="is_delete"></result>
 </resultMap>
-<select id="findAll" resultMap="Users">
+<select id="selectUsersCount" parameterType="org.example.form.UserSearchForm" resultType="_int">
+    SELECT count(*)
+    FROM users
+    WHERE is_delete = 0
+    <if test="userSearchForm.aryKeywords != null">
+        <foreach item="keyword" collection="userSearchForm.aryKeywords">
+            AND (
+                user_id LIKE CONCAT('%', #{keyword}, '%')
+                OR name LIKE CONCAT('%', #{keyword}, '%')
+                OR name_kana LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </foreach>
+    </if>
+    <if test="userSearchForm.departmentId != null">
+        AND department_id = #{userSearchForm.departmentId}
+    </if>
+    <if test="userSearchForm.role != null">
+        AND role = #{userSearchForm.role}
+    </if>
+</select>
+<select id="findAll" parameterType="org.example.form.UserSearchForm" resultMap="Users">
     SELECT
         user_id,
         password,
@@ -26,6 +46,36 @@
     FROM users
     WHERE
         is_delete = 0
+    <if test="userSearchForm.aryKeywords != null">
+        <foreach item="keyword" collection="userSearchForm.aryKeywords">
+            AND (
+                user_id LIKE CONCAT('%', #{keyword}, '%')
+                OR name LIKE CONCAT('%', #{keyword}, '%')
+                OR name_kana LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </foreach>
+    </if>
+    <if test="userSearchForm.departmentId != null">
+        AND department_id = #{userSearchForm.departmentId}
+    </if>
+    <if test="userSearchForm.role != null">
+        AND role = #{userSearchForm.role}
+    </if>
+    <if test="userSearchForm.idSort == 'asc'">
+        ORDER BY user_id
+    </if>
+    <if test="userSearchForm.idSort == 'desc'">
+        ORDER BY user_id DESC
+    </if>
+    <if test="userSearchForm.nameSort == 'asc'">
+        ORDER BY name_kana
+    </if>
+    <if test="userSearchForm.nameSort == 'desc'">
+        ORDER BY name_kana DESC
+    </if>
+    <if test="userSearchForm.size != null and userSearchForm.page != null">
+        LIMIT #{userSearchForm.page}, #{userSearchForm.size}
+    </if>
 </select>
 <select id="findByUserId" resultMap="Users">
     SELECT
