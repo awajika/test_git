@@ -1,7 +1,6 @@
 package org.example.service;
 
 import org.example.domain.Users;
-import org.example.form.UserForm;
 import org.example.form.UserSearchForm;
 import org.example.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +23,7 @@ public class UsersServiceImpl implements UsersService{
         // リストの総数
         int count = usersRepository.selectUsersCount();
 
-        return new PageImpl<Users>(userList, pageable, count);
+        return new PageImpl<>(userList, pageable, count);
     }
 
     /**
@@ -38,20 +37,11 @@ public class UsersServiceImpl implements UsersService{
 
     /**
      * 従業員IDを元に編集するユーザーを探す
-     * @return UserForm型の1件のデータ
+     * @return Users型の1件のデータ
      */
     @Override
-    public UserForm editUserByUserId(String userId) {
-        Users user = usersRepository.findByUserId(userId);
-
-        UserForm userForm = new UserForm();
-        userForm.setUserId(user.getUserId());
-        userForm.setName(user.getName());
-        userForm.setNameKana(user.getNameKana());
-        userForm.setDepartmentId(user.getDepartmentId());
-        userForm.setRole(user.getRole());
-
-        return userForm;
+    public Users editUserByUserId(String userId) {
+        return usersRepository.findByUserId(userId);
     }
 
     /**

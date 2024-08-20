@@ -1,7 +1,6 @@
 package org.example.service;
 
 import org.example.domain.Users;
-import org.example.form.UserForm;
 import org.example.form.UserSearchForm;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +19,7 @@ public interface UsersService {
      * 従業員IDを元に編集するユーザーを探す
      * @return UserForm型の1件のデータ
      */
-    UserForm editUserByUserId(String userId);
+    Users editUserByUserId(String userId);
 
     /**
      * ユーザーを登録する
