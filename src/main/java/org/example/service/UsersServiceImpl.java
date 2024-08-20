@@ -1,13 +1,9 @@
 package org.example.service;
 
 import org.example.domain.Users;
-import org.example.form.UserForm;
 import org.example.form.UserSearchForm;
 import org.example.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -17,23 +13,23 @@ public class UsersServiceImpl implements UsersService{
     @Autowired
     UsersRepository usersRepository;
 
+    @Override
+    public int selectUsersCount(UserSearchForm userSearchForm) {
+        return usersRepository.selectUsersCount(userSearchForm);
+    }
+
     /**
      * 従業員データをpageableで設定した件数分取得する
      * もしuserSearchForm(検索条件)に値が入っていた場合、その条件に沿ったデータを取得する
      * @return Page <Users>型
      */
     @Override
-    public Page<Users> findAll(Pageable pageable, UserSearchForm userSearchForm) {
-        List<Users> userList = usersRepository.findAll(userSearchForm);
-
-        // リストの総数
-        int count = usersRepository.selectUsersCount(userSearchForm);
-
-        return new PageImpl<>(userList, pageable, count);
+    public List<Users> findUsers(UserSearchForm userSearchForm) {
+        return usersRepository.findUsers(userSearchForm);
     }
 
     /**
-     * 従業員IDからログインユーザーの認証を行う
+     * 従業員IDからユーザーを探す
      * @return Users型の1件のデータ
      */
     @Override
@@ -43,20 +39,11 @@ public class UsersServiceImpl implements UsersService{
 
     /**
      * 従業員IDを元に編集するユーザーを探す
-     * @return UserForm型の1件のデータ
+     * @return Users型の1件のデータ
      */
     @Override
-    public UserForm editUserByUserId(String userId) {
-        Users user = usersRepository.findByUserId(userId);
-
-        UserForm userForm = new UserForm();
-        userForm.setUserId(user.getUserId());
-        userForm.setName(user.getName());
-        userForm.setNameKana(user.getNameKana());
-        userForm.setDepartmentId(user.getDepartmentId());
-        userForm.setRole(user.getRole());
-
-        return userForm;
+    public Users editUserByUserId(String userId) {
+        return usersRepository.findByUserId(userId);
     }
 
     /**

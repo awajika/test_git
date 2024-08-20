@@ -1,22 +1,27 @@
 package org.example.service;
 
 import org.example.domain.Users;
-import org.example.form.UserForm;
 import org.example.form.UserSearchForm;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import java.util.List;
 
 public interface UsersService {
+
+    /**
+     * 削除フラグが建っていない従業員のレコード件数を取得する
+     * もしuserSearchForm(検索条件)に値が入っていた場合、その条件に沿ったレコードの件数を取得する
+     * @return int
+     */
+    int selectUsersCount(UserSearchForm userSearchForm);
 
     /**
      * 従業員データをpageableで設定した件数分取得する
      * もしuserSearchForm(検索条件)に値が入っていた場合、その条件に沿ったデータを取得する
      * @return Page <Users>型
      */
-    Page<Users> findAll(Pageable pageable, UserSearchForm userSearchForm);
+    List<Users> findUsers(UserSearchForm userSearchForm);
 
     /**
-     * 従業員IDからログインユーザーの認証を行う
+     * 従業員IDからユーザーを探す
      * @return Users型の1件のデータ
      */
     Users findByUserId(String userId);
@@ -25,7 +30,7 @@ public interface UsersService {
      * 従業員IDを元に編集するユーザーを探す
      * @return UserForm型の1件のデータ
      */
-    UserForm editUserByUserId(String userId);
+    Users editUserByUserId(String userId);
 
     /**
      * ユーザーを登録する

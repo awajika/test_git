@@ -35,7 +35,7 @@
         AND role = #{userSearchForm.role}
     </if>
 </select>
-<select id="findAll" parameterType="org.example.form.UserSearchForm" resultMap="Users">
+<select id="findUsers" parameterType="org.example.form.UserSearchForm" resultMap="Users">
     SELECT
         user_id,
         password,

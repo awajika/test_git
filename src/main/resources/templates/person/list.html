@@ -41,7 +41,7 @@
                         </div>
                     </div>
                     <div class="bg-light m-2 p-4">
-                        <form class="row" id="userSearchForm" method="get" th:action="@{/person/search}" th:object="${userSearchForm}">
+                        <form class="row" id="userSearchForm" method="get" th:action="@{/person/list}" th:object="${userSearchForm}">
                             <input type="hidden" id="idSort" name="idSort" value="sort">
                             <input type="hidden" id="nameSort" name="nameSort" value="sort">
                             <input id="page" type="hidden" name="page" value="0">
@@ -64,14 +64,14 @@
                             </div>
                         </form>
                     </div>
-                    <div class="bg-light m-2 p-4" th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}">
-                        <form class="row" id="uploadForm" enctype="multipart/form-data">
+                    <div class="bg-light m-2 p-4"> <!--th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}"-->
+                        <form class="row" id="uploadForm" enctype="multipart/form-data" th:action="@{/person/update}" method="post">
                             <input class="form-control col-5" type="file" name="file" />
                             <button class="btn btn-primary mx-2 col-3" onclick="uploadFile()">CSV一括更新</button>
                         </form>
                     </div>
                     <div class="text-right m-2">
-                        <button class="btn btn-danger m-1" th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}" onclick="deletePersonList(this)">一括削除</button>
+                        <button class="btn btn-danger m-1" onclick="deletePersonList(this)">一括削除</button><!--th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}"-->
                         <a th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}" th:href="@{/person/form}" class="btn btn-primary m-1">新規登録</a>
                     </div>
                     <table class="table table-condensed table-striped table-bordered h-100">
@@ -80,8 +80,8 @@
                                 <th scope="col" class="col-1">
                                     <div class="text-center">
                                         <span class="me-auto">
-                                            <button th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}" class="btn btn-primary" name="allCheck" data-check="true"
-                                                onclick="allCheck(this)">全選択</button>
+                                            <button class="btn btn-primary" name="allCheck" data-check="true"
+                                                onclick="allCheck(this)">全選択</button> <!--th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}"-->
                                         </span>
                                     </div>
                                 </th>
@@ -129,7 +129,7 @@
                         <tbody>
                             <tr class="align-middle" th:each="list : ${userList}">
                                 <td class="text-center">
-                                    <input th:if="${list.userId != loginUserId && role == T(org.example.constant.Role).ADMIN.getRoleCode()}" th:id="${'person-id-' + list.userId}" type="checkbox">
+                                    <input th:id="${'person-id-' + list.userId}" type="checkbox"> <!-- th:if="${list.userId != loginUserId && role == T(org.example.constant.Role).ADMIN.getRoleCode()}" -->
                                 </td>
                                 <td class="text-center" th:text="${list.userId}"></td>
                                 <td class="text-center" th:text="${list.name}"></td>
@@ -158,7 +158,7 @@
                 </div>
                 <div class="mt-3 text-center" th:unless="${#lists.isEmpty(userList)}">
                     <th:block th:unless="${#lists.size(userList) == 0}">
-                        <div th:replace="common/pagination.html :: pagination(${userList}, ${userSearchForm.currentUrl})"></div>
+                        <div th:replace="common/pagination.html :: pagination(${userList}, '/person/list')"></div>
                     </th:block>
                 </div>
             </main>

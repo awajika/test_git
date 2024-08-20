@@ -30,12 +30,12 @@ public class UsersRepositoryImpl implements UsersRepository{
      * @return List <Users>型
      */
     @Override
-    public List<Users> findAll(UserSearchForm userSearchForm) {
-        return this.sqlsessiontemplate.getMapper(UsersMapper.class).findAll(userSearchForm);
+    public List<Users> findUsers(UserSearchForm userSearchForm) {
+        return this.sqlsessiontemplate.getMapper(UsersMapper.class).findUsers(userSearchForm);
     }
 
     /**
-     * 従業員IDとパスワードからユーザーを探す
+     * 従業員IDからユーザーを探す
      * @return Users
      */
     @Override

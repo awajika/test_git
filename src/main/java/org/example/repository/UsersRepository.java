@@ -19,10 +19,10 @@ public interface UsersRepository {
      * もしuserSearchForm(検索条件)に値が入っていた場合、その条件に沿ったデータを取得する
      * @return List <Users>型
      */
-    List<Users> findAll(UserSearchForm userSearchForm);
+    List<Users> findUsers(UserSearchForm userSearchForm);
 
     /**
-     * 従業員IDとパスワードからユーザーを探す
+     * 従業員IDからユーザーを探す
      * @return Users
      */
     Users findByUserId(String userId);

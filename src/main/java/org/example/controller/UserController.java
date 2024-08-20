@@ -7,23 +7,33 @@ import org.example.form.UserForm;
 import org.example.form.UserSearchForm;
 import org.example.service.DepartmentsService;
 import org.example.service.UsersService;
+import org.example.view.UserInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Controller
+@SessionAttributes(types = UserSearchForm.class)
 public class UserController {
 
     @Autowired
@@ -35,46 +45,12 @@ public class UserController {
     @Autowired
     PasswordEncoder passwordEncoder;
 
-    // 最大表示件数を設定
-    private final int maxPageSize = 5;
+    @Autowired
+    MessageSource messageSource;
 
     @RequestMapping(path = "/person/list", method = RequestMethod.GET)
     public String forwardList(@ModelAttribute("successMessage")String message,
                               @RequestParam("page") int page,
-                              Model model) {
-
-        /*
-        セッションにログインユーザー情報が入っているか確認
-        入っていなければログイン画面へリダイレクト
-         */
-
-        // pageableの設定
-        Pageable pageable = PageRequest.of(page, maxPageSize);
-
-        UserSearchForm userSearchForm = new UserSearchForm();
-        userSearchForm.setPage(page * maxPageSize);
-        userSearchForm.setSize(maxPageSize);
-
-        // urlの設定
-        userSearchForm.setCurrentUrl("list");
-
-        // 初期ソートの設定
-        userSearchForm.setIdSort("asc");
-
-        Page<Users> userList = usersService.findAll(pageable, userSearchForm);
-        List<Departments> departmentList = departmentsService.findAll();
-
-        model.addAttribute("userSearchForm", userSearchForm);
-        model.addAttribute("userList", userList);
-        model.addAttribute("departmentList", departmentList);
-        model.addAttribute("roleList", Role.values());
-        model.addAttribute("successMessage", message);
-
-        return "person/list";
-    }
-
-    @RequestMapping(path = "person/search", method = RequestMethod.GET)
-    public String forwardList(@RequestParam("page") int page,
                               UserSearchForm userSearchForm, Model model) {
 
         /*
@@ -82,26 +58,35 @@ public class UserController {
         入っていなければログイン画面へリダイレクト
          */
 
+        // 最大表示件数の設定
+        int maxPageSize = 5;
+
         // pageableの設定
         Pageable pageable = PageRequest.of(page, maxPageSize);
         userSearchForm.setPage(page * maxPageSize);
         userSearchForm.setSize(maxPageSize);
 
-        // urlの設定
-        setUrl(userSearchForm);
+        // 初期ソートの設定
+        if (userSearchForm.getIdSort() == null && userSearchForm.getNameSort() == null) {
+            userSearchForm.setIdSort("asc");
+        }
+
+        // 前回のフリーワードが残っている可能性があるので、nullを入れて初期化
+        userSearchForm.setAryKeywords(null);
 
         // 検索キーワードを半角、または全角区切りの配列にする
-        if (!"".equals(userSearchForm.getKeyword())) {
+        if (userSearchForm.getKeyword() != null && !userSearchForm.getKeyword().isEmpty()) {
             changeAryKeywords(userSearchForm);
         }
 
-        Page<Users> userList = usersService.findAll(pageable, userSearchForm);
+        Page<UserInfo> userList = mapUserInfo(pageable, userSearchForm);
         List<Departments> departmentList = departmentsService.findAll();
 
         model.addAttribute("userSearchForm", userSearchForm);
         model.addAttribute("userList", userList);
         model.addAttribute("departmentList", departmentList);
         model.addAttribute("roleList", Role.values());
+        model.addAttribute("successMessage", message);
 
         return "person/list";
     }
@@ -132,7 +117,10 @@ public class UserController {
         ログインユーザーのID＝パラメータのID
          */
 
-        UserForm userForm = usersService.editUserByUserId(userId);
+        Users user = usersService.editUserByUserId(userId);
+        UserForm userForm = mapUserForm(user);
+
+        // ユーザー編集のリクエストのため判断フラグにfalseをセット
         userForm.setIsRegister(false);
 
         List<Departments> departmentList = departmentsService.findAll();
@@ -202,12 +190,51 @@ public class UserController {
         // ユーザー登録かユーザー編集かをチェック
         if (userForm.getIsRegister()) {
             usersService.save(user);
-            redirectAttributes.addFlashAttribute("successMessage", "登録完了しました");
+            redirectAttributes.addFlashAttribute("successMessage",
+                    messageSource.getMessage("user.save.successMessage", null, Locale.JAPAN));
         } else {
             usersService.update(user);
-            redirectAttributes.addFlashAttribute("successMessage", "編集完了しました");
+            redirectAttributes.addFlashAttribute("successMessage",
+                    messageSource.getMessage("user.update.successMessage", null, Locale.JAPAN));
         }
 
+        return "redirect:/person/list?page=0";
+    }
+
+    @RequestMapping(path = "/person/update", method = RequestMethod.POST)
+    public String batchUpdate(@RequestParam("file")MultipartFile multipartFile) {
+        try (InputStream inputStream = multipartFile.getInputStream();
+             BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
+
+            /*
+            セッション情報から権限をチェックする
+            セッションから作成者のuser_idを取得する
+            userForm.setAuthor(作成者のuser_id)
+             */
+
+            String line;
+
+            // csvファイルの行がなくなるまで繰り返す
+            while ((line = br.readLine()) != null) {
+                String[] csvSplit = line.split(",");
+
+                UserForm userForm = new UserForm();
+                userForm.setUserId(csvSplit[0]);
+                userForm.setName(csvSplit[1]);
+                userForm.setNameKana(csvSplit[2]);
+                userForm.setPassword(csvSplit[3]);
+                userForm.setPasswordConfirm(csvSplit[4]);
+                userForm.setDepartmentId(Role.getRoleCode(csvSplit[5]));
+                userForm.setRole(Role.getRoleCode(csvSplit[6]));
+
+                Users user = mapUsers(userForm);
+
+                usersService.save(user);
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return "redirect:/person/list?page=0";
     }
 
@@ -224,7 +251,7 @@ public class UserController {
             Users user = usersService.findByUserId(form.getUserId());
             if (user != null) {
                 error = new FieldError(bindingResult.getObjectName(), "userId",
-                        "この社員番号は既に使用されています。別の社員番号を入力してください");
+                        messageSource.getMessage("errMsg.duplicate.userId", null, Locale.JAPAN));
             }
         }
 
@@ -232,7 +259,7 @@ public class UserController {
         if (form.getPassword() != null && form.getPasswordConfirm() != null) {
             if (!(form.getPassword().equals(form.getPasswordConfirm()))) {
                 error = new FieldError(bindingResult.getObjectName(), "password",
-                        "パスワードが一致しません");
+                        messageSource.getMessage("errMsg.mismatch.password", null, Locale.JAPAN));
             }
         }
 
@@ -240,7 +267,7 @@ public class UserController {
         if (form.getDepartmentId() != null) {
             if (departmentsService.checkDepartment(form.getDepartmentId())) {
                 error = new FieldError(bindingResult.getObjectName(), "departmentId",
-                        "不正な値が入力されました");
+                        messageSource.getMessage("errMsg.invalidValue", null, Locale.JAPAN));
             }
         }
 
@@ -248,7 +275,7 @@ public class UserController {
         if (form.getRole() != null) {
             if (Role.getRole(form.getRole()) == null) {
                 error = new FieldError(bindingResult.getObjectName(), "role",
-                        "不正な値が入力されました");
+                        messageSource.getMessage("errMsg.invalidValue", null, Locale.JAPAN));
             }
         }
         return error;
@@ -276,6 +303,46 @@ public class UserController {
     }
 
     /**
+     * UsersからUserFormに詰め替える
+     * @return UserForm
+     */
+    private UserForm mapUserForm(Users user) {
+        UserForm userForm = new UserForm();
+
+        userForm.setUserId(user.getUserId());
+        userForm.setName(user.getName());
+        userForm.setNameKana(user.getNameKana());
+        userForm.setDepartmentId(user.getDepartmentId());
+        userForm.setRole(user.getRole());
+
+        return userForm;
+    }
+
+    /**
+     * UsersからUserInfoに詰め替える
+     * @return Page型のUserInfo
+     */
+    private Page<UserInfo> mapUserInfo(Pageable pageable, UserSearchForm form) {
+        List<Users> userList = usersService.findUsers(form);
+
+        List<UserInfo> userInfoList = new ArrayList<>();
+        for(Users user : userList) {
+            UserInfo info = new UserInfo();
+            info.setUserId(user.getUserId());
+            info.setName(user.getName());
+            info.setNameKana(user.getNameKana());
+            info.setDepartmentId(user.getDepartmentId());
+            info.setRole(user.getRole());
+            userInfoList.add(info);
+        }
+
+        // リストの総数
+        int count = usersService.selectUsersCount(form);
+
+        return new PageImpl<>(userInfoList, pageable, count);
+    }
+
+    /**
      * フリーワードが複数入力されている場合、半角または全角で区切る
      */
     private void changeAryKeywords(UserSearchForm form) {
@@ -288,37 +355,5 @@ public class UserController {
             keyword = new String[]{form.getKeyword()};
         }
         form.setAryKeywords(keyword);
-    }
-
-    /**
-     * person/searchでリクエストを受け取った際のurlとリクエストパラメータの設定を行う
-     */
-    private void setUrl(UserSearchForm form) {
-
-        /*
-        urlとリクエストパラメータの設定を行う
-        リクエストパラメータの設定を行うにあたり、departmentIdとroleにnullが入ると400エラーとなるため条件分岐を行う
-         */
-
-        String url = "search?idSort=" + form.getIdSort()
-                   + "&nameSort=" + form.getNameSort()
-                   + "&keyword=" + form.getKeyword();
-
-        if (form.getDepartmentId() == null && form.getRole() == null) {
-            form.setCurrentUrl(url + "&departmentId=" + "&role=");
-            return;
-        }
-
-        if (form.getDepartmentId() == null) {
-            form.setCurrentUrl(url + "&departmentId=" + "&role=" + form.getRole());
-            return;
-        }
-
-        if (form.getRole() == null) {
-            form.setCurrentUrl(url + "&departmentId=" + form.getDepartmentId() + "&role=");
-            return;
-        }
-
-        form.setCurrentUrl(url + "&departmentId=" + form.getDepartmentId() + "&role=" + form.getRole());
     }
 }

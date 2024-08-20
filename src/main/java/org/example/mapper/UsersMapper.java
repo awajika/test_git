@@ -21,10 +21,10 @@ public interface UsersMapper {
      * もしuserSearchForm(検索条件)に値が入っていた場合、その条件に沿ったデータを取得する
      * @return List <Users>型
      */
-    List<Users> findAll(@Param("userSearchForm") UserSearchForm userSearchForm);
+    List<Users> findUsers(@Param("userSearchForm") UserSearchForm userSearchForm);
 
     /**
-     * ユーザーIDとパスワードからユーザーを探す
+     * ユーザーIDからユーザーを探す
      * @return Users型の1件のデータ
      */
     Users findByUserId(String userId);
