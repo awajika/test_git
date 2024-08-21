@@ -1,3 +1,4 @@
 function BackButton() {
-  window.location.href = `entry.html`;
+    const backFlg = document.getElementById("backFlg");
+    backFlg.setAttribute("value", 1);
 }
