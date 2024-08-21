@@ -42,8 +42,8 @@
                     </div>
                     <div class="bg-light m-2 p-4">
                         <form class="row" id="userSearchForm" method="get" th:action="@{/person/list}" th:object="${userSearchForm}">
-                            <input type="hidden" id="idSort" name="idSort" value="sort">
-                            <input type="hidden" id="nameSort" name="nameSort" value="sort">
+                            <input type="hidden" id="idSort" name="idSort">
+                            <input type="hidden" id="nameSort" name="nameSort">
                             <input id="page" type="hidden" name="page" value="0">
                             <input class="form-control col-5 me-1" type="text" placeholder="フリーワード(社員番号、氏名、氏名(カナ))" th:field="*{keyword}"/>
                             <select class="form-select col-2" th:field="*{departmentId}">

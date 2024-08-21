@@ -9,18 +9,21 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+/**
+ * ログインユーザーのパスワードチェックを行う.
+ */
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    @Autowired
-    UsersRepository usersRepository;
+  @Autowired
+  UsersRepository usersRepository;
 
-    @Override
-    public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
-        Users user = usersRepository.findByUserId(userId);
-        if (user == null) {
-            throw new UsernameNotFoundException("User not found");
-        }
-        return new LoginUser(user);
+  @Override
+  public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
+    Users user = usersRepository.findByUserId(userId);
+    if (user == null) {
+      throw new UsernameNotFoundException("User not found");
     }
+    return new LoginUser(user);
+  }
 }

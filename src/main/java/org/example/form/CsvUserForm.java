@@ -5,22 +5,16 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
- * ユーザー登録・編集のform.
+ * CSVファイルで登録されるユーザーのフォーム.
  */
 @Data
-public class UserForm {
+public class CsvUserForm {
 
-  @Autowired
-  MessageSource messageSource;
-
-  // 従業員登録の有無
-  private Boolean isRegister;
-  // 戻るボタン押下を判断するためのフラグ
-  private int backFlg;
+  // アップロードされたファイル
+  private MultipartFile file;
   // 従業員ID
   @NotBlank
   @Size(max = 20)

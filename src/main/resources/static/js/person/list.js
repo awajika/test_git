@@ -109,6 +109,8 @@ function IdSortButton(name, nowSort) {
      const nameSort = document.getElementById("nameSort");
      const nameSortBtn = document.getElementById("nameSortBtn");
 
+     console.log(nameSort);
+
      if (!nowSort == false || nowSort == "asc") {
          nameSort.setAttribute("value", "desc");
          nameSortBtn.setAttribute("form", "userSearchForm")

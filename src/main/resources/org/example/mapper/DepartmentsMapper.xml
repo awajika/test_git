@@ -12,11 +12,17 @@
         name
     FROM departments
 </select>
-<select id="findByDepartmentId" resultMap="Departments">
+<select id="findByDepartmentId" parameterType="org.example.form.DepartmentForm" resultMap="Departments">
     SELECT
         department_id
     FROM departments
+    <if test="departmentForm.departmentId != null">
     WHERE
-        department_id = #{departmentId}
+        department_id = #{departmentForm.departmentId}
+    </if>
+    <if test="departmentForm.name != null">
+    WHERE
+        name = #{departmentForm.name}
+    </if>
 </select>
 </mapper>
