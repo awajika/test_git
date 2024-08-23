@@ -17,8 +17,9 @@
 
       <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-           <h2 th:text="${title}"></h2>
-          </div>
+            <h2 th:if="${userForm.isRegister}">ユーザー登録</h2>
+            <h2 th:unless="${userForm.isRegister}">ユーザー編集</h2>
+        </div>
 
         <form th:action="@{/person/confirm}" method="post" th:object="${userForm}">
             <input type="hidden" id="isRegister" name="isRegister" th:value="*{isRegister}">
@@ -79,9 +80,9 @@
               </div>
               <div class="col-9">
                 <span th:each="department : ${departmentList}"
-                      th:if="${department.getDepartmentId() == userForm.department}"
+                      th:if="${department.getDepartmentId() == userForm.departmentId}"
                       th:text="${department.getName()}"></span>
-                <input type="hidden" id="department" name="department" th:value="*{department}">
+                <input type="hidden" id="departmentId" name="departmentId" th:value="*{departmentId}">
               </div>
             </div>
 
@@ -94,8 +95,8 @@
               </div>
               <div class="col-9">
                 <span th:each="role : ${roleList}"
-                      th:if="${role.getValue() == userForm.role}"
-                      th:text="${role.getViewName()}"></span>
+                      th:if="${role.getRoleCode() == userForm.role}"
+                      th:text="${role.getLabel()}"></span>
                 <input type="hidden" id="role" name="role" th:value="*{role}">
               </div>
             </div>

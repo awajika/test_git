@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper
+3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.mapper.DepartmentsMapper">
+<resultMap id="Departments" type="org.example.domain.Departments">
+    <id property="departmentId" column="department_id"></id>
+    <result property="name" column="name"></result>
+</resultMap>
+<select id="findAll" resultMap="Departments">
+    SELECT
+        department_id,
+        name
+    FROM departments
+</select>
+<select id="findByDepartmentId" resultMap="Departments">
+    SELECT
+        department_id
+    FROM departments
+    WHERE
+        department_id = #{departmentId}
+</select>
+</mapper>

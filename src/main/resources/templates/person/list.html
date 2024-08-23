@@ -46,17 +46,17 @@
                             <input type="hidden" id="nameSort" name="nameSort">
                             <input id="page" type="hidden" name="page" value="0">
                             <input class="form-control col-5 me-1" type="text" placeholder="フリーワード(社員番号、氏名、氏名(カナ))" th:field="*{keyword}"/>
-                            <select class="form-select col-2" th:field="*{department}">
+                            <select class="form-select col-2" th:field="*{departmentId}">
                                 <option value="">選択してください</option>
                                 <option th:each="departments : ${departmentList}"
                                         th:value="${departments.departmentId}"
                                         th:text="${departments.name}"
-                                        th:selected="${departments.departmentId == selectedValue}"></option>
+                                        th:selected="${departments.departmentId == userSearchForm.departmentId}"></option>
                             </select>
                             <select class="form-select col-2" th:field="*{role}">
                                 <option value="">選択してください</option>
                                 <option th:each="role : ${roleList}"
-                                        th:value="${role.value}" th:text="${role.viewName}">
+                                        th:value="${role.roleCode}" th:text="${role.label}">
                                 </option>
                             </select>
                             <div class="text-right">
@@ -64,15 +64,15 @@
                             </div>
                         </form>
                     </div>
-                    <div class="bg-light m-2 p-4" th:if="${role == T(org.example.util.Role).ADMIN.getValue()}">
+                    <div class="bg-light m-2 p-4" th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}">
                         <form class="row" id="uploadForm" enctype="multipart/form-data">
                             <input class="form-control col-5" type="file" name="file" />
                             <button class="btn btn-primary mx-2 col-3" onclick="uploadFile()">CSV一括更新</button>
                         </form>
                     </div>
                     <div class="text-right m-2">
-                        <button class="btn btn-danger m-1" th:if="${role == T(org.example.util.Role).ADMIN.getValue()}" onclick="deletePersonList(this)">一括削除</button>
-                        <a th:if="${role == T(org.example.util.Role).ADMIN.getValue()}" th:href="@{/person/form}" class="btn btn-primary m-1">新規登録</a>
+                        <button class="btn btn-danger m-1" th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}" onclick="deletePersonList(this)">一括削除</button>
+                        <a th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}" th:href="@{/person/form}" class="btn btn-primary m-1">新規登録</a>
                     </div>
                     <table class="table table-condensed table-striped table-bordered h-100">
                         <thead class="">
@@ -80,7 +80,7 @@
                                 <th scope="col" class="col-1">
                                     <div class="text-center">
                                         <span class="me-auto">
-                                            <button th:if="${role == T(org.example.util.Role).ADMIN.getValue()}" class="btn btn-primary" name="allCheck" data-check="true"
+                                            <button th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}" class="btn btn-primary" name="allCheck" data-check="true"
                                                 onclick="allCheck(this)">全選択</button>
                                         </span>
                                     </div>
@@ -129,25 +129,25 @@
                         <tbody>
                             <tr class="align-middle" th:each="list : ${userList}">
                                 <td class="text-center">
-                                    <input th:if="${list.userId != loginUserId && role == T(org.example.util.Role).ADMIN.getValue()}" th:id="${'person-id-' + list.userId}" type="checkbox">
+                                    <input th:if="${list.userId != loginUserId && role == T(org.example.constant.Role).ADMIN.getRoleCode()}" th:id="${'person-id-' + list.userId}" type="checkbox">
                                 </td>
                                 <td class="text-center" th:text="${list.userId}"></td>
                                 <td class="text-center" th:text="${list.name}"></td>
                                 <td class="text-center" th:text="${list.nameKana}"></td>
                                 <td class="text-center"
                                     th:each="department : ${departmentList}"
-                                    th:if="${department.getDepartmentId() == list.department}"
+                                    th:if="${department.getDepartmentId() == list.departmentId}"
                                     th:text="${department.getName()}"></td>
                                 <td class="text-center"
                                     th:each="role : ${roleList}"
-                                    th:if="${role.getValue() == list.role}"
-                                    th:text="${role.getViewName()}"></td>
+                                    th:if="${role.getRoleCode() == list.role}"
+                                    th:text="${role.getLabel()}"></td>
                                 <td class="text-center table-button">
-                                    <a th:if="${role == T(org.example.util.Role).ADMIN.getValue() || list.userId == loginUserId}"
-                                       th:href="@{/person/form(userId=${list.userId})}" class="btn btn-primary">編集</a>
+                                    <a th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode() || list.userId == loginUserId}"
+                                       th:href="@{/person/form/{userId}(userId=${list.userId})}" class="btn btn-primary">編集</a>
                                 </td>
                                 <td class="text-center table-button">
-                                    <button th:if="${role == T(org.example.util.Role).ADMIN.getValue() && list.userId != loginUserId}"
+                                    <button th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode() && list.userId != loginUserId}"
                                        class="btn btn-danger"
                                        th:data-id="${list.userId}"
                                        onclick="deletePerson(this)">削除</button>
@@ -157,8 +157,8 @@
                     </table>
                 </div>
                 <div class="mt-3 text-center" th:unless="${#lists.isEmpty(userList)}">
-                    <th:block th:unless="${#lists.size(userList.content) == 0}">
-                        <div th:replace="common/pagination.html :: pagination(${userList}, '/person/search')"></div>
+                    <th:block th:unless="${#lists.size(userList) == 0}">
+                        <div th:replace="common/pagination.html :: pagination(${userList}, '/person/list')"></div>
                     </th:block>
                 </div>
             </main>
