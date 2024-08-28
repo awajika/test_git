@@ -93,32 +93,83 @@ function IdSortButton(name, nowSort) {
     const idSort = document.getElementById("idSort");
     const idSortBtn = document.getElementById("idSortBtn");
 
-    if (!nowSort == false || nowSort == "asc") {
+    if (nowSort == "asc") {
         idSort.setAttribute("value", "desc");
         idSortBtn.setAttribute("form", "userSearchForm")
     }
 
-    if (nowSort == "desc") {
+    if (nowSort == "" || nowSort == "desc") {
         idSort.setAttribute("value", "asc");
         idSortBtn.setAttribute("form", "userSearchForm")
     }
 }
 
 // 氏名ソートボタン押下
- function nameSortButton(name, nowSort) {
-     const nameSort = document.getElementById("nameSort");
-     const nameSortBtn = document.getElementById("nameSortBtn");
+function nameSortButton(name, nowSort) {
+    const nameSort = document.getElementById("nameSort");
+    const nameSortBtn = document.getElementById("nameSortBtn");
 
-     console.log(nameSort);
+    if (nowSort == "asc") {
+            nameSort.setAttribute("value", "desc");
+            nameSortBtn.setAttribute("form", "userSearchForm")
+        }
 
-     if (!nowSort == false || nowSort == "asc") {
-         nameSort.setAttribute("value", "desc");
-         nameSortBtn.setAttribute("form", "userSearchForm")
-     }
+    if (nowSort == "" || nowSort == "desc") {
+        nameSort.setAttribute("value", "asc");
+        nameSortBtn.setAttribute("form", "userSearchForm")
+    }
+}
 
-     if (nowSort == "desc") {
-         nameSort.setAttribute("value", "asc");
-         nameSortBtn.setAttribute("form", "userSearchForm")
-     }
- }
+function uploadFile() {
+    // ファイルを取得
+    let file = $("#file")[0].files[0];
+
+    // フォームデータを取得
+    let formData = new FormData();
+    formData.append("file", file);
+
+    //　SpringSecurityの閲覧禁止を回避するために、csrf情報をセット
+    let token = $("meta[name='_csrf']").attr("content");
+    let header = $("meta[name='_csrf_header']").attr("content");
+
+    // Ajax通信時に、リクエストヘッダにトークンを埋め込むよう記述
+    $(document).ajaxSend(function(e, xhr, options){
+        xhr.setRequestHeader(header, token);
+    });
+
+    $.ajax({
+      type: "post",
+      url: "/person/update",
+      data: formData,
+      cache       : false,
+      contentType : false,
+      processData : false,
+      dataType    : "json"
+    }).then(function () {
+      const row = $(".toast-body").children("span");
+      row.text("更新完了しました");
+    }, function (response) {
+
+      // リクエストヘッダのmessageにエラーメッセージが存在するか確認
+      if (response.responseJSON.message != null) {
+        let errorList = response.responseJSON.message;
+
+        // サーバから受け取ったerrorListを取り出し、モーダルに書き込む
+        let errorMessages = "";
+        $.each(errorList, function(i, error) {
+            errorMessages = errorMessages + (error + '\r\n');
+        })
+
+        // モーダルにエラーメッセージを追加
+        $('#common-ng-message').text(errorMessages);
+
+        // モーダル表示
+        $('#common-ng').modal('show');
+      }
+
+    });
+}
+
+
+
 

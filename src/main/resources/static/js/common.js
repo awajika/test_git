@@ -27,11 +27,13 @@ function removeLoading() {
 }
 
 // エラーメッセージPOPUPを表示
-function showError(response) {
-  let errorMessage = response.responseJSON.message;
-  $('#common-ng-message').text(errorMessage);
-  $('#common-ng').modal('show');
-}
+//window.addEventListener("load", showError);
+
+//function showError(response) {
+//  let errorMessage = response.responseJSON.message;
+//  $('#common-ng-message').text(errorMessage);
+//  $('#common-ng').modal('show');
+//}
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));

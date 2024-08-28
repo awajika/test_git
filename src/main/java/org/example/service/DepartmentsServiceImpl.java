@@ -29,6 +29,7 @@ public class DepartmentsServiceImpl implements DepartmentsService {
   /**
    * 登録されている所属かチェックする.
    *
+   * @param departmentForm DepartmentForm
    * @return 登録されていない場合true、されている場合falseを返す
    */
   @Override
@@ -39,10 +40,11 @@ public class DepartmentsServiceImpl implements DepartmentsService {
   /**
    * 所属名から該当する所属IDを取得する.
    *
+   * @param departmentForm DepartmentForm
    * @return departmentId
    */
   @Override
-  public Integer getDepartmentId(DepartmentForm departmentForm) {
-    return departmentsRepository.findByDepartmentId(departmentForm).getDepartmentId();
+  public Departments findDepartmentId(DepartmentForm departmentForm) {
+    return departmentsRepository.findByDepartmentId(departmentForm);
   }
 }

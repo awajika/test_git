@@ -22,6 +22,7 @@ public interface DepartmentsMapper {
   /**
    * 所属IDもしくは所属名から一致する所属IDを探す.
    *
+   * @param departmentForm DepartmentForm
    * @return Departments
    */
   Departments findByDepartmentId(@Param("departmentForm")DepartmentForm departmentForm);

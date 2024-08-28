@@ -19,6 +19,7 @@ public interface DepartmentsService {
   /**
    * 登録されている所属かチェックする.
    *
+   * @param departmentForm DepartmentForm
    * @return 登録されていない場合true、されている場合falseを返す
    */
   boolean checkDepartment(DepartmentForm departmentForm);
@@ -26,7 +27,8 @@ public interface DepartmentsService {
   /**
    * 所属名から該当する所属IDを取得する.
    *
+   * @param departmentForm DepartmentForm
    * @return departmentId
    */
-  Integer getDepartmentId(DepartmentForm departmentForm);
+  Departments findDepartmentId(DepartmentForm departmentForm);
 }

@@ -88,8 +88,6 @@
     FROM users
     WHERE
         user_id = #{userId}
-    AND
-        is_delete = 0
 </select>
 <insert id="save">
     INSERT INTO users
@@ -112,4 +110,23 @@
     WHERE
         user_id = #{userId}
 </update>
+<update id="delete">
+    UPDATE users
+    SET
+        is_delete = 1
+    WHERE
+        user_id = #{userId}
+</update>
+<insert id="saveFromCsvFile" parameterType="java.util.List">
+    INSERT INTO users
+        (user_id, password, name, name_kana, department_id, role,
+            create_user, create_date, update_user, update_date, is_delete)
+    VALUES
+    <foreach item="user" collection="userList" open="" separator="," close="">
+        (#{user.userId}, #{user.password}, #{user.name}, #{user.nameKana}, #{user.departmentId}, #{user.role},
+        #{user.createUser}, #{user.createDate}, #{user.updateUser}, #{user.updateDate}, #{user.isDelete})
+    </foreach>
+    ON DUPLICATE KEY UPDATE
+        is_delete = VALUES(is_delete)
+</insert>
 </mapper>

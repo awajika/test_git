@@ -16,6 +16,7 @@ public interface UsersMapper {
    * 削除フラグが建っていない従業員のレコード件数を取得する.
    * もしuserSearchForm(検索条件)に値が入っていた場合、その条件に沿ったレコードの件数を取得する
    *
+   * @param userSearchForm UserSearchForm
    * @return int
    */
   int selectUsersCount(@Param("userSearchForm") UserSearchForm userSearchForm);
@@ -24,6 +25,7 @@ public interface UsersMapper {
    * 従業員データをpageableで設定した件数分取得する.
    * もしuserSearchForm(検索条件)に値が入っていた場合、その条件に沿ったデータを取得する
    *
+   * @param userSearchForm UserSearchForm
    * @return List型のUsers
    */
   List<Users> findUsers(@Param("userSearchForm") UserSearchForm userSearchForm);
@@ -31,17 +33,36 @@ public interface UsersMapper {
   /**
    * ユーザーIDからユーザーを探す.
    *
+   * @param userId 社員番号
    * @return Users型の1件のデータ
    */
   Users findByUserId(String userId);
 
   /**
    * ユーザーを登録する.
+   *
+   * @param user Users
    */
   void save(Users user);
 
   /**
    * ユーザーを更新する.
+   *
+   * @param user Users
    */
   void update(Users user);
+
+  /**
+   * ユーザーを論理削除する.
+   *
+   * @param userId 社員番号
+   */
+  void delete(String userId);
+
+  /**
+   * csvファイルから取得したユーザーを登録、または論理削除する.
+   *
+   * @param userList csvファイルから取得したユーザーレコードが入っているlist
+   */
+  void saveFromCsvFile(@Param("userList") List<Users> userList);
 }
