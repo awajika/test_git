@@ -66,7 +66,7 @@
                     </div>
                     <div class="bg-light m-2 p-4 d-flex"> <!--th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}"-->
                         <input class="form-control col-5" type="file" id="file">
-                        <button class="btn btn-primary mx-2 col-3" onclick="uploadFile()">CSV一括更新</button>
+                        <button class="btn btn-primary mx-2 col-3" id="csv-upload-btn">CSV一括更新</button>
                     </div>
                     <div class="text-right m-2">
                         <button class="btn btn-danger m-1" onclick="deletePersonList(this)">一括削除</button><!--th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}"-->

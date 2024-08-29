@@ -55,9 +55,11 @@ public interface UsersMapper {
   /**
    * ユーザーを論理削除する.
    *
-   * @param userId 社員番号
+   * @param lists 社員番号
    */
-  void delete(String userId);
+  void delete(String[] lists);
+
+  void test(String id);
 
   /**
    * csvファイルから取得したユーザーを登録、または論理削除する.

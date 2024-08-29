@@ -81,8 +81,13 @@ public class UsersServiceImpl implements UsersService {
    * @param userId 社員番号
    */
   @Override
-  public void delete(String userId) {
+  public void delete(String[] userId) {
     usersRepository.delete(userId);
+  }
+
+  @Override
+  public void test(String id) {
+    usersRepository.test(id);
   }
 
   /**

@@ -114,8 +114,16 @@
     UPDATE users
     SET
         is_delete = 1
-    WHERE
-        user_id = #{userId}
+    WHERE user_id IN
+    <foreach collection="lists" item="userId" open="(" separator="," close=")">
+        #{userId}
+    </foreach>
+</update>
+<update id="test">
+    UPDATE users
+    SET
+        is_delete = 1
+    WHERE user_id = #{userId}
 </update>
 <insert id="saveFromCsvFile" parameterType="java.util.List">
     INSERT INTO users

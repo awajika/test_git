@@ -62,7 +62,9 @@ public interface UsersService {
    *
    * @param userId 社員番号
    */
-  void delete(String userId);
+  void delete(String[] userId);
+
+  void test(String id);
 
   /**
    * csvファイルから取得したユーザーを登録、または論理削除する.

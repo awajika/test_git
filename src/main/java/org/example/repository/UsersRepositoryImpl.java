@@ -78,8 +78,13 @@ public class UsersRepositoryImpl implements UsersRepository {
    * @param userId 社員番号
    */
   @Override
-  public void delete(String userId) {
+  public void delete(String[] userId) {
     this.sqlsessiontemplate.getMapper(UsersMapper.class).delete(userId);
+  }
+
+  @Override
+  public void test(String id) {
+    this.sqlsessiontemplate.getMapper(UsersMapper.class).test(id);
   }
 
   /**

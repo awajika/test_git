@@ -270,7 +270,7 @@ public class UserController {
    * csvファイルを読み込んでユーザー一括登録または削除を行う.
    *
    * @param file アップロードされたファイル
-   * @return ステータスコード200
+   * @return ステータスコード200、validationエラー時は400とエラーメッセージ
    */
   @RequestMapping(path = "/person/update", method = RequestMethod.POST)
   public ResponseEntity updateUsers(@RequestParam(value = "file", required = false)
@@ -353,6 +353,36 @@ public class UserController {
     } catch (IOException | CsvException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  /**
+   * 選択されたユーザーの一括削除を行う.
+   *
+   * @param lists 削除するユーザーのuserId
+   * @return ステータスコード200
+   */
+  @RequestMapping(path = "/person/delete", method = RequestMethod.POST)
+  public ResponseEntity deleteUsers(@RequestParam(value = "lists", required = false)
+                                    String[] lists) {
+
+    /*
+    セッション情報から権限をチェックする
+    セッションからログインユーザーののuser_idを取得する
+    String loginUser = ログインユーザーのuserId
+
+    削除するユーザーのuserIdがログインユーザーのuserIdと一致しないか確認
+    for (String list : lists) {
+      if (userId.equals(list)) {
+        エラー処理
+      }
+    }
+
+    usersService.delete(lists);
+     */
+
+    usersService.delete(lists);
+
+    return new ResponseEntity(HttpStatus.OK);
   }
 
   /**
