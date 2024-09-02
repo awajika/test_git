@@ -67,12 +67,6 @@ public class UserController {
   @Autowired
   MessageSource messageSource;
 
-  // 最大表示件数の設定
-  final int maxPageSize = 5;
-
-  // ファイルサイズ(1MB)
-  private static final long MAX_FILE_SIZE = 1024 * 1024;
-
   /**
    * ユーザー一覧表示機能.
    *
@@ -91,9 +85,15 @@ public class UserController {
     userSearchForm.setNameSort("");
 
     // pageableの設定
-    Pageable pageable = PageRequest.of(page, maxPageSize);
-    userSearchForm.setPage(page * maxPageSize);
-    userSearchForm.setSize(maxPageSize);
+    Pageable pageable = PageRequest.of(page,
+        Integer.parseInt(messageSource.getMessage("MAX_PAGE_SIZE", null, Locale.getDefault())));
+
+    userSearchForm.setPage(page * Integer.parseInt(
+        messageSource.getMessage("MAX_PAGE_SIZE", null, Locale.getDefault())));
+
+    userSearchForm.setSize(
+        Integer.parseInt(messageSource.getMessage("MAX_PAGE_SIZE", null, Locale.getDefault())));
+
 
     Page<UserInfo> userList = mapUserInfo(pageable, userSearchForm);
     List<Departments> departmentList = departmentsService.findAll();
@@ -141,9 +141,15 @@ public class UserController {
     }
 
     // pageableの設定
-    Pageable pageable = PageRequest.of(page, maxPageSize);
-    userSearchForm.setPage(page * maxPageSize);
-    userSearchForm.setSize(maxPageSize);
+    Pageable pageable = PageRequest.of(page,
+        Integer.parseInt(messageSource.getMessage("MAX_PAGE_SIZE", null, Locale.getDefault())));
+
+    userSearchForm.setPage(page * Integer.parseInt(
+        messageSource.getMessage("MAX_PAGE_SIZE", null, Locale.getDefault())));
+
+    userSearchForm.setSize(
+        Integer.parseInt(messageSource.getMessage("MAX_PAGE_SIZE", null, Locale.getDefault())));
+
 
     Page<UserInfo> userList = mapUserInfo(pageable, userSearchForm);
     List<Departments> departmentList = departmentsService.findAll();
@@ -650,7 +656,8 @@ public class UserController {
     }
 
     // ファイルサイズのチェック
-    if (file.getSize() > MAX_FILE_SIZE) {
+    if (file.getSize() > Integer.parseInt(messageSource.getMessage("MAX_FILE_SIZE",
+        null, Locale.getDefault()))) {
       error.add(messageSource.getMessage("errMsg.tooLargeFile", null, Locale.JAPAN));
     }
     return error;
