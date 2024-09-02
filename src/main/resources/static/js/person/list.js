@@ -113,12 +113,12 @@ function nameSortButton(name, nowSort) {
 
     if (nowSort == "asc") {
             nameSort.setAttribute("value", "desc");
-            nameSortBtn.setAttribute("form", "userSearchForm")
+            nameSortBtn.setAttribute("form", "userSearchForm");
         }
 
     if (nowSort == "" || nowSort == "desc") {
         nameSort.setAttribute("value", "asc");
-        nameSortBtn.setAttribute("form", "userSearchForm")
+        nameSortBtn.setAttribute("form", "userSearchForm");
     }
 }
 
@@ -217,7 +217,8 @@ function deleteUsers() {
       // reload()だと下のページングの数字に不具合が生じるためlocation.hrefを使ってページの再読み込み
       location.href = "/person/list?page=0";
     }, function () {
-      console.log("エラー");
+      const row = $(".toast-body").children("span");
+      row.text("削除に失敗しました");
     });
 }
 

@@ -81,13 +81,43 @@ public class UserController {
    * @param model   viewへ変数を渡す
    * @return list.html
    */
-  @ModelAttribute(value = "UserSearchForm")
   @RequestMapping(path = "/person/list", method = RequestMethod.GET)
   public String forwardList(@ModelAttribute("successMessage") String message,
-                            @ModelAttribute("errorList")
                             @RequestParam("page") int page,
-                            UserSearchForm userSearchForm,
                             Model model) {
+
+    UserSearchForm userSearchForm = new UserSearchForm();
+    userSearchForm.setIdSort("asc");
+    userSearchForm.setNameSort("");
+
+    // pageableの設定
+    Pageable pageable = PageRequest.of(page, maxPageSize);
+    userSearchForm.setPage(page * maxPageSize);
+    userSearchForm.setSize(maxPageSize);
+
+    Page<UserInfo> userList = mapUserInfo(pageable, userSearchForm);
+    List<Departments> departmentList = departmentsService.findAll();
+
+    model.addAttribute("userSearchForm", userSearchForm);
+    model.addAttribute("userList", userList);
+    model.addAttribute("departmentList", departmentList);
+    model.addAttribute("roleList", Role.values());
+    model.addAttribute("successMessage", message);
+
+    return "person/list";
+
+  }
+
+  /**
+   * ユーザー検索機能.
+   *
+   * @param page    現在何ページ目にいるのかを取得
+   * @param model   viewへ変数を渡す
+   * @return list.html
+   */
+  @RequestMapping(path = "/person/search", method = RequestMethod.GET)
+  public String search(@RequestParam("page") int page,
+                       UserSearchForm userSearchForm, Model model) {
 
     /*
     セッションにログインユーザー情報が入っているか確認
@@ -95,7 +125,9 @@ public class UserController {
      */
 
     // 初期ソートの設定
-    if (userSearchForm.getIdSort() == null && userSearchForm.getNameSort() == null) {
+    if (StringUtils.isEmpty(userSearchForm.getIdSort())
+        && StringUtils.isEmpty(userSearchForm.getNameSort())) {
+
       userSearchForm.setIdSort("asc");
       userSearchForm.setNameSort("");
     }
@@ -120,7 +152,6 @@ public class UserController {
     model.addAttribute("userList", userList);
     model.addAttribute("departmentList", departmentList);
     model.addAttribute("roleList", Role.values());
-    model.addAttribute("successMessage", message);
 
     return "person/list";
   }
@@ -343,12 +374,7 @@ public class UserController {
 
       usersService.saveFromCsvFile(userList);
 
-      // successメッセージを表示させるための処理
-      HashMap<String, String> success = new HashMap<>();
-      success.put("message",
-          messageSource.getMessage("user.update.successMessage", null, Locale.getDefault()));
-
-      return new ResponseEntity(success, HttpStatus.OK);
+      return new ResponseEntity(HttpStatus.OK);
 
     } catch (IOException | CsvException e) {
       throw new RuntimeException(e);

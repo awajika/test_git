@@ -24,7 +24,6 @@ public class UserSearchForm {
   private int page;
   // データの最大表示件数
   private int size;
-  // 現在のURL
-  private String currentUrl;
 
+  private boolean flag;
 }
