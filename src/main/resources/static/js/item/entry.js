@@ -21,3 +21,8 @@ yesButton.addEventListener("click", async function() {
   await sleep(1000);
   removeLoading();
 });
+
+function BackButton() {
+    const backFlg = document.getElementById("backFlg");
+    backFlg.setAttribute("value", 1);
+}
