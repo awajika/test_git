@@ -304,7 +304,7 @@ public class UserController {
    * @return ステータスコード200、validationエラー時は400とエラーメッセージ
    */
   @RequestMapping(path = "/person/update", method = RequestMethod.POST)
-  public ResponseEntity updateUsers(@RequestParam(value = "file", required = false)
+  public ResponseEntity<Object> updateUsers(@RequestParam(value = "file", required = false)
                                     MultipartFile file) {
     /*
     セッション情報から権限をチェックする
@@ -319,7 +319,7 @@ public class UserController {
     List<String> errorList = checkCsvFileValidation(file);
     if (!errorList.isEmpty()) {
       error.put("message", errorList);
-      return new ResponseEntity(error, HttpStatus.BAD_REQUEST);
+      return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     // csvファイルを読み込む
@@ -336,7 +336,7 @@ public class UserController {
 
       if (!errorList.isEmpty()) {
         error.put("message", errorList);
-        return new ResponseEntity(error, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
       }
 
       // ヘッダー行を取り除く
@@ -369,12 +369,12 @@ public class UserController {
       // validationチェックでerrorがあった際の処理
       if (!errorList.isEmpty()) {
         error.put("message", errorList);
-        return new ResponseEntity(error, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
       }
 
       usersService.saveFromCsvFile(userList);
 
-      return new ResponseEntity(HttpStatus.OK);
+      return new ResponseEntity<>(HttpStatus.OK);
 
     } catch (IOException | CsvException e) {
       throw new RuntimeException(e);
@@ -388,7 +388,7 @@ public class UserController {
    * @return ステータスコード200
    */
   @RequestMapping(path = "/person/delete", method = RequestMethod.POST)
-  public ResponseEntity deleteUsers(@RequestParam(value = "lists", required = false)
+  public ResponseEntity<Object> deleteUsers(@RequestParam(value = "lists", required = false)
                                     String[] lists) {
 
     /*
@@ -408,7 +408,7 @@ public class UserController {
 
     usersService.delete(lists);
 
-    return new ResponseEntity(HttpStatus.OK);
+    return new ResponseEntity<>(HttpStatus.OK);
   }
 
   /**
