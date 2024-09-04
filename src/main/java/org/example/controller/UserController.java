@@ -91,7 +91,6 @@ public class UserController {
     userSearchForm.setSize(
         Integer.parseInt(messageSource.getMessage("maxPageSize", null, Locale.getDefault())));
 
-
     Page<UserInfo> userList = mapUserInfo(pageable, userSearchForm);
     List<Departments> departmentList = departmentsService.findAll();
 
@@ -102,7 +101,6 @@ public class UserController {
     model.addAttribute("successMessage", message);
 
     return "person/list";
-
   }
 
   /**
@@ -129,12 +127,12 @@ public class UserController {
       userSearchForm.setNameSort("");
     }
 
-    // 前回の配列にしたフリーワードが残っている可能性があるので、nullを入れて初期化
-    userSearchForm.setAryKeywords(null);
-
     // 検索キーワードを半角、または全角区切りの配列にする
-    if (userSearchForm.getKeyword() != null && !userSearchForm.getKeyword().isEmpty()) {
+    if (!StringUtils.isEmpty(userSearchForm.getKeyword())) {
       changeAryKeywords(userSearchForm);
+    } else {
+      // 前回の配列にしたフリーワードが残っている可能性があるので、nullを入れて初期化
+      userSearchForm.setAryKeywords(null);
     }
 
     // pageableの設定
@@ -146,7 +144,6 @@ public class UserController {
 
     userSearchForm.setSize(
         Integer.parseInt(messageSource.getMessage("maxPageSize", null, Locale.getDefault())));
-
 
     Page<UserInfo> userList = mapUserInfo(pageable, userSearchForm);
     List<Departments> departmentList = departmentsService.findAll();
