@@ -24,6 +24,4 @@ public class UserSearchForm {
   private int page;
   // データの最大表示件数
   private int size;
-
-  private boolean flag;
 }

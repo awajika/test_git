@@ -24,8 +24,6 @@ import org.example.service.UsersService;
 import org.example.view.UserInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
-import org.springframework.context.MessageSourceResolvable;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -70,15 +68,18 @@ public class UserController {
   /**
    * ユーザー一覧表示機能.
    *
-   * @param message ユーザー登録・編集が成功したときのメッセージ
+   * @param messageFlag ユーザー登録・編集・一括更新が成功したときのメッセージフラグ
    * @param model   viewへ変数を渡す
    * @return list.html
    */
   @RequestMapping(path = "/person/list", method = RequestMethod.GET)
-  public String forwardList(@ModelAttribute("successMessage") String message,
+  public String forwardList(@ModelAttribute("successMessage") String messageFlag,
                             Model model) {
 
+    // 一覧表示のためformを新たに生成
     UserSearchForm userSearchForm = new UserSearchForm();
+
+    // 初期ソートの設定
     userSearchForm.setIdSort("asc");
     userSearchForm.setNameSort("");
 
@@ -93,6 +94,9 @@ public class UserController {
 
     Page<UserInfo> userList = mapUserInfo(pageable, userSearchForm);
     List<Departments> departmentList = departmentsService.findAll();
+
+    // 成功メッセージがあったときの処理
+    String message = getSuccessMessage(messageFlag);
 
     model.addAttribute("userSearchForm", userSearchForm);
     model.addAttribute("userList", userList);
@@ -119,7 +123,7 @@ public class UserController {
     入っていなければログイン画面へリダイレクト
      */
 
-    // 初期ソートの設定
+    // フリーワード、所属、権限のみで検索された際の初期表示を社員番号の昇順にするため、初期ソートの設定を行う
     if (StringUtils.isEmpty(userSearchForm.getIdSort())
         && StringUtils.isEmpty(userSearchForm.getNameSort())) {
 
@@ -288,11 +292,11 @@ public class UserController {
     if (userForm.getIsRegister()) {
       usersService.save(user);
       redirectAttributes.addFlashAttribute("successMessage",
-          messageSource.getMessage("user.save.successMessage", null, Locale.getDefault()));
+          messageSource.getMessage("register", null, Locale.getDefault()));
     } else {
       usersService.update(user);
       redirectAttributes.addFlashAttribute("successMessage",
-          messageSource.getMessage("user.edit.successMessage", null, Locale.getDefault()));
+          messageSource.getMessage("edit", null, Locale.getDefault()));
     }
     return "redirect:/person/list";
   }
@@ -371,7 +375,11 @@ public class UserController {
 
       usersService.saveFromCsvFile(userList);
 
-      return new ResponseEntity<>(HttpStatus.OK);
+      // successMessageをリクエストヘッダのmessageにセットするMapを用意
+      HashMap<String, String> success = new HashMap<>();
+      success.put("message", messageSource.getMessage("update", null, Locale.getDefault()));
+
+      return new ResponseEntity<>(success, HttpStatus.OK);
 
     } catch (IOException | CsvException e) {
       throw new RuntimeException(e);
@@ -470,104 +478,91 @@ public class UserController {
     List<String> error = new ArrayList<>();
 
     /* 社員番号 */
-    MessageSourceResolvable userId = new DefaultMessageSourceResolvable("userId");
-    MessageSourceResolvable wordCount = new DefaultMessageSourceResolvable("limitOneTwenty");
+    String wordCount = messageSource.getMessage("limitOneTwenty", null, Locale.getDefault());
+    String userId = messageSource.getMessage("userId", null, Locale.getDefault());
 
     //未入力チェック
     if (StringUtils.isEmpty(form.getUserId())) {
-      String errMsg = messageSource.getMessage("NotBlank.csvUserForm",
-          new MessageSourceResolvable[]{userId}, Locale.JAPAN);
-      error.add(count + errMsg);
+      error.add(messageSource.getMessage("NotBlank.csvUserForm",
+          new String[]{String.valueOf(count), userId}, Locale.getDefault()));
     }
     // 桁数チェック
     if (20 < form.getUserId().length()) {
-      String errMsg = messageSource.getMessage("Size.csvUserForm",
-          new MessageSourceResolvable[]{userId, wordCount}, Locale.JAPAN);
-      error.add(count + errMsg);
+      error.add(messageSource.getMessage("Size.csvUserForm",
+          new String[]{String.valueOf(count), userId, wordCount}, Locale.getDefault()));
     }
     // 社員番号の重複チェック
     Users user = usersService.findByUserId(form.getUserId());
     if (user != null) {
-      String errMsg = messageSource.getMessage("errMsg.duplicate.csvUserForm.userId",
-          new MessageSourceResolvable[]{userId}, Locale.JAPAN);
-      error.add(count + errMsg);
+      error.add(messageSource.getMessage("errMsg.duplicate",
+          new String[]{String.valueOf(count), userId}, Locale.getDefault()));
     }
 
     /* 氏名 */
-    MessageSourceResolvable name = new DefaultMessageSourceResolvable("name");
+    String name = messageSource.getMessage("name", null, Locale.getDefault());
 
     //未入力チェック
     if (StringUtils.isEmpty(form.getName())) {
-      String errMsg = messageSource.getMessage("NotBlank.csvUserForm",
-          new MessageSourceResolvable[]{name}, Locale.JAPAN);
-      error.add(count + errMsg);
+      error.add(messageSource.getMessage("NotBlank.csvUserForm",
+          new String[]{String.valueOf(count), name}, Locale.getDefault()));
     }
     // 桁数チェック
     if (20 < form.getName().length()) {
-      String errMsg = messageSource.getMessage("Size.csvUserForm",
-          new MessageSourceResolvable[]{name, wordCount}, Locale.JAPAN);
-      error.add(count + errMsg);
+      error.add(messageSource.getMessage("Size.csvUserForm",
+          new String[]{String.valueOf(count), name, wordCount}, Locale.getDefault()));
     }
 
     /* 氏名（カナ）*/
-    MessageSourceResolvable nameKana = new DefaultMessageSourceResolvable("nameKana");
+    String nameKana = messageSource.getMessage("nameKana", null, Locale.getDefault());
 
     //未入力チェック
     if (StringUtils.isEmpty(form.getNameKana())) {
-      String errMsg = messageSource.getMessage("NotBlank.csvUserForm",
-          new MessageSourceResolvable[]{nameKana}, Locale.JAPAN);
-      error.add(count + errMsg);
+      error.add(messageSource.getMessage("NotBlank.csvUserForm",
+          new String[]{String.valueOf(count), nameKana}, Locale.getDefault()));
     }
     // 桁数チェック
     if (20 < form.getNameKana().length()) {
-      String errMsg = messageSource.getMessage("Size.csvUserForm",
-          new MessageSourceResolvable[]{nameKana, wordCount}, Locale.JAPAN);
-      error.add(count + errMsg);
+      error.add(messageSource.getMessage("Size.csvUserForm",
+          new String[]{String.valueOf(count), nameKana, wordCount}, Locale.getDefault()));
     }
     // 文字種チェック
     if (!form.getNameKana().matches("^[ァ-ンヴー]*$")) {
-      String errMsg = messageSource.getMessage("Pattern.csvUserForm.nameKana",
-          new MessageSourceResolvable[]{nameKana}, Locale.JAPAN);
-      error.add(count + errMsg);
+      error.add(messageSource.getMessage("Pattern.csvUserForm.nameKana",
+          new String[]{String.valueOf(count), nameKana}, Locale.getDefault()));
     }
 
     /* パスワード */
-    MessageSourceResolvable password = new DefaultMessageSourceResolvable("password");
-    wordCount = new DefaultMessageSourceResolvable("limitEightTwenty");
+    String password = messageSource.getMessage("password", null, Locale.getDefault());
+    wordCount = messageSource.getMessage("limitEightTwenty", null, Locale.getDefault());
 
     //未入力チェック
     if (StringUtils.isEmpty(form.getPassword())) {
-      String errMsg = messageSource.getMessage("NotBlank.csvUserForm",
-          new MessageSourceResolvable[]{password}, Locale.JAPAN);
-      error.add(count + errMsg);
+      error.add(messageSource.getMessage("NotBlank.csvUserForm",
+          new String[]{String.valueOf(count), password}, Locale.getDefault()));
     }
     // 桁数チェック(8文字未満)
     if (form.getPassword().length() < 8) {
-      String errMsg = messageSource.getMessage("Size.csvUserForm",
-          new MessageSourceResolvable[]{password, wordCount}, Locale.JAPAN);
-      error.add(count + errMsg);
+      error.add(messageSource.getMessage("Size.csvUserForm",
+          new String[]{String.valueOf(count), password, wordCount}, Locale.getDefault()));
     }
     // 桁数チェック(20文字以上)
     if (20 < form.getPassword().length()) {
-      String errMsg = messageSource.getMessage("Size.csvUserForm",
-          new MessageSourceResolvable[]{password, wordCount}, Locale.JAPAN);
-      error.add(count + errMsg);
+      error.add(messageSource.getMessage("Size.csvUserForm",
+          new String[]{String.valueOf(count), password, wordCount}, Locale.getDefault()));
     }
     // 文字種チェック
     if (!form.getPassword().matches("^[0-9a-zA-Z]*$")) {
-      String errMsg = messageSource.getMessage("Pattern.csvUserForm.password",
-          new MessageSourceResolvable[]{password}, Locale.JAPAN);
-      error.add(count + errMsg);
+      error.add(messageSource.getMessage("Pattern.csvUserForm.password",
+          new String[]{String.valueOf(count), password}, Locale.getDefault()));
     }
 
     /* 所属 */
-    MessageSourceResolvable departmentId = new DefaultMessageSourceResolvable("departmentId");
+    String departmentId = messageSource.getMessage("departmentId", null, Locale.getDefault());
 
     //未入力チェック
     if (StringUtils.isEmpty(form.getDepartmentName())) {
-      String errMsg = messageSource.getMessage("NotBlank.csvUserForm",
-          new MessageSourceResolvable[]{departmentId}, Locale.JAPAN);
-      error.add(count + errMsg);
+      error.add(messageSource.getMessage("NotBlank.csvUserForm",
+          new String[]{String.valueOf(count), departmentId}, Locale.getDefault()));
     }
 
     // マスタにない所属が入力されていないかチェック
@@ -575,43 +570,39 @@ public class UserController {
       DepartmentForm departmentForm = new DepartmentForm();
       departmentForm.setName(form.getDepartmentName());
       if (departmentsService.findDepartmentId(departmentForm) == null) {
-        String errMsg = messageSource.getMessage("errMsg.invalidValueInRow",
-            new MessageSourceResolvable[]{departmentId}, Locale.JAPAN);
-        error.add(count + errMsg);
+        error.add(messageSource.getMessage("errMsg.invalidValueInRow",
+            new String[]{String.valueOf(count), departmentId}, Locale.getDefault()));
       } else {
         form.setDepartmentId(departmentsService.findDepartmentId(departmentForm).getDepartmentId());
       }
     }
 
     /* 権限 */
-    MessageSourceResolvable role = new DefaultMessageSourceResolvable("role");
+    String role = messageSource.getMessage("role", null, Locale.getDefault());
 
     //未入力チェック
     if (StringUtils.isEmpty(form.getLabel())) {
-      String errMsg = messageSource.getMessage("NotBlank.csvUserForm",
-          new MessageSourceResolvable[]{role}, Locale.JAPAN);
-      error.add(count + errMsg);
+      error.add(messageSource.getMessage("NotBlank.csvUserForm",
+          new String[]{String.valueOf(count), role}, Locale.getDefault()));
     }
 
     // マスタにない権限が入力されていないかチェック
     if (!"".equals(form.getLabel())) {
       if (findByLabel(form.getLabel()) == null) {
-        String errMsg = messageSource.getMessage("errMsg.invalidValueInRow",
-            new MessageSourceResolvable[]{role}, Locale.JAPAN);
-        error.add(count + errMsg);
+        error.add(messageSource.getMessage("errMsg.invalidValueInRow",
+            new String[]{String.valueOf(count), role}, Locale.getDefault()));
       } else {
         form.setRole(findByLabel(form.getLabel()));
       }
     }
 
     /* 状態 */
-    MessageSourceResolvable status = new DefaultMessageSourceResolvable("status");
+    String status = messageSource.getMessage("status", null, Locale.getDefault());
 
     // 削除以外の値が入力されていないかチェック
     if (!"".equals(form.getStatus()) && !"削除".equals(form.getStatus())) {
-      String errMsg = messageSource.getMessage("errMsg.invalidValueInRow",
-          new MessageSourceResolvable[]{status}, Locale.JAPAN);
-      error.add(count + errMsg);
+      error.add(messageSource.getMessage("errMsg.invalidValueInRow",
+            new String[]{String.valueOf(count), status}, Locale.getDefault()));
     }
 
     return error;
@@ -629,7 +620,7 @@ public class UserController {
 
     // ファイルがアップロードされているかチェック
     if (file == null) {
-      error.add(messageSource.getMessage("errMsg.notSelectedFile", null, Locale.JAPAN));
+      error.add(messageSource.getMessage("errMsg.notSelectedFile", null, Locale.getDefault()));
 
       // ファイルがnullだと下記のチェックをやる必要がないためreturn
       return error;
@@ -642,14 +633,14 @@ public class UserController {
       String fileExtension = fileName.substring(fileName.lastIndexOf('.'));
 
       if (!".csv".equals(fileExtension)) {
-        error.add(messageSource.getMessage("errMsg.notSelectedFile", null, Locale.JAPAN));
+        error.add(messageSource.getMessage("errMsg.notSelectedFile", null, Locale.getDefault()));
       }
     }
 
     // ファイルサイズのチェック
     if (file.getSize() > Integer.parseInt(messageSource.getMessage("maxFileSize",
         null, Locale.getDefault()))) {
-      error.add(messageSource.getMessage("errMsg.tooLargeFile", null, Locale.JAPAN));
+      error.add(messageSource.getMessage("errMsg.tooLargeFile", null, Locale.getDefault()));
     }
     return error;
   }
@@ -665,17 +656,17 @@ public class UserController {
     List<String> error = new ArrayList<>();
 
     // ヘッダーの文字列
-    String header = messageSource.getMessage("csvFile.header", null, Locale.JAPAN);
+    String header = messageSource.getMessage("csvFile.header", null, Locale.getDefault());
 
     // ヘッダーが存在するかチェック
     if (!header.equals(Arrays.toString(csvLineList.get(0)))) {
-      error.add(messageSource.getMessage("errorMsg.mismatchFormat", null, Locale.JAPAN));
+      error.add(messageSource.getMessage("errMsg.mismatchFormat", null, Locale.getDefault()));
     }
 
     // カンマが6個あるかチェック
     for (String[] line : csvLineList) {
       if (countComma(Arrays.toString(line)) != 6) {
-        error.add(messageSource.getMessage("errorMsg.mismatchFormat", null, Locale.JAPAN));
+        error.add(messageSource.getMessage("errMsg.mismatchFormat", null, Locale.getDefault()));
         break;
       }
     }
@@ -805,6 +796,30 @@ public class UserController {
     csvUserForm.setDeleteFlg("削除".equals(csvUserForm.getStatus()));
 
     return csvUserForm;
+  }
+
+  /**
+   * リクエストパラメータで受け取ったmessageFlagを元に対応したsuccessMessageを取得する.
+   * messageFlagの種類はmessage.propertiesを参照
+   *
+   * @param messageFlag リクエストパラメータで受け取ったmessageFlag
+   * @return successMessage
+   */
+  private String getSuccessMessage(String messageFlag) {
+
+    String message = "";
+
+    if ("register".equals(messageFlag)) {
+      message = messageSource.getMessage("register.successMessage", null, Locale.getDefault());
+    } else if ("edit".equals(messageFlag)) {
+      message = messageSource.getMessage("edit.successMessage", null, Locale.getDefault());
+    } else if ("update".equals(messageFlag)) {
+      message = messageSource.getMessage("update.successMessage", null, Locale.getDefault());
+    } else if ("delete".equals(messageFlag)) {
+      message = messageSource.getMessage("delete.successMessage", null, Locale.getDefault());
+    }
+
+    return message;
   }
 
   /**
