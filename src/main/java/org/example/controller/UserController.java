@@ -396,23 +396,7 @@ public class UserController {
   public ResponseEntity<Object> deleteUsers(@RequestParam(value = "lists", required = false)
                                     String[] lists) {
 
-    /*
-    セッション情報から権限をチェックする
-    セッションからログインユーザーののuser_idを取得する
-    String loginUser = ログインユーザーのuserId
-
-    削除するユーザーのuserIdがログインユーザーのuserIdと一致しないか確認
-    for (String list : lists) {
-      if (userId.equals(list)) {
-        エラー処理
-      }
-    }
-
     usersService.delete(lists);
-     */
-
-    usersService.delete(lists);
-
     return new ResponseEntity<>(HttpStatus.OK);
   }
 

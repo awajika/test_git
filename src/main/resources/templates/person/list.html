@@ -127,7 +127,7 @@
                         <tbody>
                             <tr class="align-middle" th:each="list : ${userList}">
                                 <td class="text-center">
-                                    <input th:id="${'person-id-' + list.userId}" type="checkbox"> <!-- th:if="${list.userId != loginUserId && role == T(org.example.constant.Role).ADMIN.getRoleCode()}" -->
+                                    <input th:if="${list.userId != loginUserId && role == T(org.example.constant.Role).ADMIN.getRoleCode()}" th:id="${'person-id-' + list.userId}" type="checkbox">
                                 </td>
                                 <td class="text-center" th:text="${list.userId}"></td>
                                 <td class="text-center" th:text="${list.name}"></td>
