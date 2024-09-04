@@ -84,12 +84,12 @@ public class UserController {
 
     // pageableの設定
     Pageable pageable = PageRequest.of(0,
-        Integer.parseInt(messageSource.getMessage("MAX_PAGE_SIZE", null, Locale.getDefault())));
+        Integer.parseInt(messageSource.getMessage("maxPageSize", null, Locale.getDefault())));
 
     userSearchForm.setPage(0);
 
     userSearchForm.setSize(
-        Integer.parseInt(messageSource.getMessage("MAX_PAGE_SIZE", null, Locale.getDefault())));
+        Integer.parseInt(messageSource.getMessage("maxPageSize", null, Locale.getDefault())));
 
 
     Page<UserInfo> userList = mapUserInfo(pageable, userSearchForm);
@@ -139,13 +139,13 @@ public class UserController {
 
     // pageableの設定
     Pageable pageable = PageRequest.of(page,
-        Integer.parseInt(messageSource.getMessage("MAX_PAGE_SIZE", null, Locale.getDefault())));
+        Integer.parseInt(messageSource.getMessage("maxPageSize", null, Locale.getDefault())));
 
     userSearchForm.setPage(page * Integer.parseInt(
-        messageSource.getMessage("MAX_PAGE_SIZE", null, Locale.getDefault())));
+        messageSource.getMessage("maxPageSize", null, Locale.getDefault())));
 
     userSearchForm.setSize(
-        Integer.parseInt(messageSource.getMessage("MAX_PAGE_SIZE", null, Locale.getDefault())));
+        Integer.parseInt(messageSource.getMessage("maxPageSize", null, Locale.getDefault())));
 
 
     Page<UserInfo> userList = mapUserInfo(pageable, userSearchForm);
@@ -653,7 +653,7 @@ public class UserController {
     }
 
     // ファイルサイズのチェック
-    if (file.getSize() > Integer.parseInt(messageSource.getMessage("MAX_FILE_SIZE",
+    if (file.getSize() > Integer.parseInt(messageSource.getMessage("maxFileSize",
         null, Locale.getDefault()))) {
       error.add(messageSource.getMessage("errMsg.tooLargeFile", null, Locale.JAPAN));
     }
