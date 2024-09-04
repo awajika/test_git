@@ -358,9 +358,6 @@ public class UserController {
         // validationチェック
         List<String> errorMsgList = checkPersonValidation(csvUserForm, count);
         errorList.addAll(errorMsgList);
-        if (!errorList.isEmpty()) {
-          continue;
-        }
 
         Users user = mapUsers(csvUserForm);
         userList.add(user);
@@ -721,8 +718,15 @@ public class UserController {
     user.setPassword(passwordEncoder.encode(form.getPassword()));
     user.setName(form.getName());
     user.setNameKana(form.getNameKana());
-    user.setDepartmentId(form.getDepartmentId());
-    user.setRole(form.getRole());
+
+    if (form.getDepartmentId() != null) {
+      user.setDepartmentId(form.getDepartmentId());
+    }
+
+    if (form.getRole() != null) {
+      user.setRole(form.getRole());
+    }
+
     user.setCreateUser("0001");
     user.setCreateDate(LocalDateTime.now());
     user.setUpdateUser("0001");
