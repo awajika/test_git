@@ -161,9 +161,14 @@ function uploadFile() {
       contentType : false,
       processData : false,
       dataType    : "json"
-    }).then(function () {
-      // reload()だと下のページングの数字に不具合が生じるためlocation.hrefを使ってページの再読み込み
-      location.href = "/person/list";
+    }).then(function (response) {
+
+        // リクエストヘッダのmessageに成功メッセージが存在するか確認
+        if (response.message != null) {
+            let messageFlag = response.message;
+            // reload()だと下のページングの数字に不具合が生じるためlocation.hrefを使ってページの再読み込み
+            location.href = "/person/list?successMessage=" + messageFlag;
+        }
     }, function (response) {
 
         // リクエストヘッダのmessageにエラーメッセージが存在するか確認
@@ -182,7 +187,6 @@ function uploadFile() {
             // モーダル表示
             $('#common-ng').modal('show');
         }
-
     });
 }
 
@@ -215,7 +219,7 @@ function deleteUsers() {
       dataType    : "text"
     }).then(function (response) {
         // reload()だと下のページングの数字に不具合が生じるためlocation.hrefを使ってページの再読み込み
-        location.href = "/person/list";
+        location.href = "/person/list?successMessage=delete";
     }, function () {
         const row = $(".toast-body").children("span");
         row.text("削除に失敗しました");
