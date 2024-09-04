@@ -44,8 +44,7 @@
                         <form class="row" id="userSearchForm" method="get" th:action="@{/person/search}" th:object="${userSearchForm}">
                             <input type="hidden" id="idSort" name="idSort">
                             <input type="hidden" id="nameSort" name="nameSort">
-                            <input id="page" type="hidden" name="page" value="0">
-<!--                            <input id="flag" type="hidden" name="flag" th:value="*{flag}">-->
+                            <input id="page" type="hidden" name="page" th:value="*{page/5}">
                             <input class="form-control col-5 me-1" type="text" placeholder="フリーワード(社員番号、氏名、氏名(カナ))" th:field="*{keyword}"/>
                             <select class="form-select col-2" th:field="*{departmentId}">
                                 <option value="">選択してください</option>
