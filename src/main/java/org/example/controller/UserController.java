@@ -123,12 +123,16 @@ public class UserController {
     入っていなければログイン画面へリダイレクト
      */
 
-    // フリーワード、所属、権限のみで検索された際の初期表示を社員番号の昇順にするため、初期ソートの設定を行う
+    /*
+    フリーワード、所属、権限のみで検索された際の初期表示を社員番号の昇順にするため、初期ソートの設定を行う
+    また、ページも1ページ目から始まるように設定する
+     */
     if (StringUtils.isEmpty(userSearchForm.getIdSort())
         && StringUtils.isEmpty(userSearchForm.getNameSort())) {
 
       userSearchForm.setIdSort("asc");
       userSearchForm.setNameSort("");
+      page = 0;
     }
 
     // 検索キーワードを半角、または全角区切りの配列にする
