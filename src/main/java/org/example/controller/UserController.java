@@ -651,9 +651,16 @@ public class UserController {
     // ヘッダーの文字列
     String header = messageSource.getMessage("csvFile.header", null, Locale.getDefault());
 
-    // ヘッダーが存在するかチェック
+    // 指定のヘッダーが存在するかチェック
     if (!header.equals(Arrays.toString(csvLineList.get(0)))) {
       error.add(messageSource.getMessage("errMsg.mismatchFormat", null, Locale.getDefault()));
+
+      /*
+       * 指定のヘッダーがない + カンマも6個ではないファイルがアップロードされたとき
+       * 二重にエラーメッセージを表示してしまうので、
+       * それを防ぐためのreturn
+       */
+      return error;
     }
 
     // カンマが6個あるかチェック
