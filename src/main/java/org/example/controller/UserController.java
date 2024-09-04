@@ -139,7 +139,6 @@ public class UserController {
     if (!StringUtils.isEmpty(userSearchForm.getKeyword())) {
       changeAryKeywords(userSearchForm);
     } else {
-      // 前回の配列にしたフリーワードが残っている可能性があるので、nullを入れて初期化
       userSearchForm.setAryKeywords(null);
     }
 
@@ -469,13 +468,16 @@ public class UserController {
     String wordCount = messageSource.getMessage("limitOneTwenty", null, Locale.getDefault());
     String userId = messageSource.getMessage("userId", null, Locale.getDefault());
 
+    // 最大文字数
+    String maxDigit = messageSource.getMessage("maxDigit", null, Locale.getDefault());
+
     //未入力チェック
     if (StringUtils.isEmpty(form.getUserId())) {
       error.add(messageSource.getMessage("NotBlank.csvUserForm",
           new String[]{String.valueOf(count), userId}, Locale.getDefault()));
     }
     // 桁数チェック
-    if (20 < form.getUserId().length()) {
+    if (Integer.parseInt(maxDigit) < form.getUserId().length()) {
       error.add(messageSource.getMessage("Size.csvUserForm",
           new String[]{String.valueOf(count), userId, wordCount}, Locale.getDefault()));
     }
@@ -495,7 +497,7 @@ public class UserController {
           new String[]{String.valueOf(count), name}, Locale.getDefault()));
     }
     // 桁数チェック
-    if (20 < form.getName().length()) {
+    if (Integer.parseInt(maxDigit) < form.getName().length()) {
       error.add(messageSource.getMessage("Size.csvUserForm",
           new String[]{String.valueOf(count), name, wordCount}, Locale.getDefault()));
     }
@@ -509,7 +511,7 @@ public class UserController {
           new String[]{String.valueOf(count), nameKana}, Locale.getDefault()));
     }
     // 桁数チェック
-    if (20 < form.getNameKana().length()) {
+    if (Integer.parseInt(maxDigit) < form.getNameKana().length()) {
       error.add(messageSource.getMessage("Size.csvUserForm",
           new String[]{String.valueOf(count), nameKana, wordCount}, Locale.getDefault()));
     }
@@ -523,18 +525,21 @@ public class UserController {
     String password = messageSource.getMessage("password", null, Locale.getDefault());
     wordCount = messageSource.getMessage("limitEightTwenty", null, Locale.getDefault());
 
+    // 最小文字数
+    String minDigit = messageSource.getMessage("minDigit", null, Locale.getDefault());
+
     //未入力チェック
     if (StringUtils.isEmpty(form.getPassword())) {
       error.add(messageSource.getMessage("NotBlank.csvUserForm",
           new String[]{String.valueOf(count), password}, Locale.getDefault()));
     }
     // 桁数チェック(8文字未満)
-    if (form.getPassword().length() < 8) {
+    if (form.getPassword().length() < Integer.parseInt(minDigit)) {
       error.add(messageSource.getMessage("Size.csvUserForm",
           new String[]{String.valueOf(count), password, wordCount}, Locale.getDefault()));
     }
     // 桁数チェック(20文字以上)
-    if (20 < form.getPassword().length()) {
+    if (Integer.parseInt(maxDigit) < form.getPassword().length()) {
       error.add(messageSource.getMessage("Size.csvUserForm",
           new String[]{String.valueOf(count), password, wordCount}, Locale.getDefault()));
     }
