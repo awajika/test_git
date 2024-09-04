@@ -71,13 +71,11 @@ public class UserController {
    * ユーザー一覧表示機能.
    *
    * @param message ユーザー登録・編集が成功したときのメッセージ
-   * @param page    現在何ページ目にいるのかを取得
    * @param model   viewへ変数を渡す
    * @return list.html
    */
   @RequestMapping(path = "/person/list", method = RequestMethod.GET)
   public String forwardList(@ModelAttribute("successMessage") String message,
-                            @RequestParam("page") int page,
                             Model model) {
 
     UserSearchForm userSearchForm = new UserSearchForm();
@@ -85,11 +83,10 @@ public class UserController {
     userSearchForm.setNameSort("");
 
     // pageableの設定
-    Pageable pageable = PageRequest.of(page,
+    Pageable pageable = PageRequest.of(0,
         Integer.parseInt(messageSource.getMessage("MAX_PAGE_SIZE", null, Locale.getDefault())));
 
-    userSearchForm.setPage(page * Integer.parseInt(
-        messageSource.getMessage("MAX_PAGE_SIZE", null, Locale.getDefault())));
+    userSearchForm.setPage(0);
 
     userSearchForm.setSize(
         Integer.parseInt(messageSource.getMessage("MAX_PAGE_SIZE", null, Locale.getDefault())));
@@ -266,7 +263,7 @@ public class UserController {
    * @param userForm           ユーザー登録・編集のform
    * @param model              viewへ変数を渡す
    * @param redirectAttributes リダイレクト先へ変数を渡す
-   * @return redirect:/person/list?page=0
+   * @return redirect:/person/list
    */
   @RequestMapping(path = "/person/confirm", method = RequestMethod.POST)
   public String save(UserForm userForm, Model model, RedirectAttributes redirectAttributes) {
@@ -300,7 +297,7 @@ public class UserController {
       redirectAttributes.addFlashAttribute("successMessage",
           messageSource.getMessage("user.edit.successMessage", null, Locale.getDefault()));
     }
-    return "redirect:/person/list?page=0";
+    return "redirect:/person/list";
   }
 
   /**
