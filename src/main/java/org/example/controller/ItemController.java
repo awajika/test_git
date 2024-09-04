@@ -125,7 +125,7 @@ public class ItemController {
    * @param itemForm 購入商品登録・編集form
    * @param model viewへ変数を渡す
    * @param redirectAttributes redirect先へ変数を渡す
-   * @return redirect:item/list?page=0
+   * @return redirect:item/list
    */
   @RequestMapping(path = "/item/entry_confirm", method = RequestMethod.POST)
   public String redirectItemList(ItemForm itemForm, Model model,
@@ -146,15 +146,15 @@ public class ItemController {
 
     if (itemForm.getIsRegister()) {
       ordersService.save(order);
-      redirectAttributes.addFlashAttribute(
-          messageSource.getMessage("item.save.successMessage", null, Locale.getDefault()));
+      redirectAttributes.addFlashAttribute("successMessage",
+          messageSource.getMessage("register", null, Locale.getDefault()));
     } else {
       ordersService.edit(order);
-      redirectAttributes.addFlashAttribute(
-          messageSource.getMessage("item.edit.successMessage", null, Locale.getDefault()));
+      redirectAttributes.addFlashAttribute("successMessage",
+          messageSource.getMessage("edit", null, Locale.getDefault()));
     }
 
-    return "redirect:/item/list?page=0";
+    return "redirect:/item/list";
   }
 
   /**
