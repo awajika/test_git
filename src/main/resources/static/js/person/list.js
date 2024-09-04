@@ -112,9 +112,9 @@ function nameSortButton(name, nowSort) {
     const nameSortBtn = document.getElementById("nameSortBtn");
 
     if (nowSort == "asc") {
-            nameSort.setAttribute("value", "desc");
-            nameSortBtn.setAttribute("form", "userSearchForm");
-        }
+        nameSort.setAttribute("value", "desc");
+        nameSortBtn.setAttribute("form", "userSearchForm");
+    }
 
     if (nowSort == "" || nowSort == "desc") {
         nameSort.setAttribute("value", "asc");
@@ -163,25 +163,25 @@ function uploadFile() {
       dataType    : "json"
     }).then(function () {
       // reload()だと下のページングの数字に不具合が生じるためlocation.hrefを使ってページの再読み込み
-      location.href = "/person/list?page=0";
+      location.href = "/person/list";
     }, function (response) {
 
-      // リクエストヘッダのmessageにエラーメッセージが存在するか確認
-      if (response.responseJSON.message != null) {
-        let errorList = response.responseJSON.message;
+        // リクエストヘッダのmessageにエラーメッセージが存在するか確認
+        if (response.responseJSON.message != null) {
+            let errorList = response.responseJSON.message;
 
-        // サーバから受け取ったerrorListを取り出し、モーダルに書き込む
-        let errorMessages = "";
-        $.each(errorList, function(i, error) {
-            errorMessages = errorMessages + (error + '\r\n');
-        })
+            // サーバから受け取ったerrorListを取り出し、モーダルに書き込む
+            let errorMessages = "";
+            $.each(errorList, function(i, error) {
+                errorMessages = errorMessages + (error + '\r\n');
+            })
 
-        // モーダルにエラーメッセージを追加
-        $('#common-ng-message').text(errorMessages);
+            // モーダルにエラーメッセージを追加
+            $('#common-ng-message').text(errorMessages);
 
-        // モーダル表示
-        $('#common-ng').modal('show');
-      }
+            // モーダル表示
+            $('#common-ng').modal('show');
+        }
 
     });
 }
@@ -214,11 +214,11 @@ function deleteUsers() {
       processData : false,
       dataType    : "text"
     }).then(function (response) {
-      // reload()だと下のページングの数字に不具合が生じるためlocation.hrefを使ってページの再読み込み
-      location.href = "/person/list?page=0";
+        // reload()だと下のページングの数字に不具合が生じるためlocation.hrefを使ってページの再読み込み
+        location.href = "/person/list";
     }, function () {
-      const row = $(".toast-body").children("span");
-      row.text("削除に失敗しました");
+        const row = $(".toast-body").children("span");
+        row.text("削除に失敗しました");
     });
 }
 

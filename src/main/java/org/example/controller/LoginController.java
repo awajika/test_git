@@ -32,6 +32,6 @@ public class LoginController {
 
   @RequestMapping("/person")
   public String person() {
-    return "person/list?page=0";
+    return "person/list";
   }
 }
