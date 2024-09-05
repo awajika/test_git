@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper
+3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.mapper.ItemOrdersMapper">
+<resultMap id="ItemOrders" type="org.example.domain.ItemOrders">
+    <id property="id" column="id"></id>
+    <result property="itemCode" column="item_code"></result>
+    <result property="itemName" column="item_name"></result>
+    <result property="count" column="count"></result>
+    <result property="price" column="price"></result>
+    <result property="name" column="name"></result>
+    <result property="createDate" column="create_date"></result>
+    <result property="updateUser" column="update_user"></result>
+    <result property="updateDate" column="update_date"></result>
+    <result property="isDelete" column="is_delete"></result>
+</resultMap>
+<select id="selectOrdersCount" parameterType="org.example.form.ItemSearchForm" resultType="_int">
+    SELECT count(*)
+    FROM orders AS O
+    INNER JOIN
+        items AS I
+    ON
+        O.item_code = I.item_code
+    INNER JOIN
+        users AS U
+    ON
+        O.user_id = U.user_id
+    WHERE
+        O.is_delete = 0
+</select>
+<select id="findOrders" parameterType="org.example.form.ItemSearchForm" resultMap="ItemOrders">
+    SELECT
+        O.id,
+        I.item_name,
+        O.item_code,
+        O.count,
+        I.price,
+        U.name,
+        O.create_date
+        FROM orders AS O
+    INNER JOIN
+        items AS I
+    ON
+        O.item_code = I.item_code
+    INNER JOIN
+        users AS U
+    ON
+        O.user_id = U.user_id
+    WHERE
+        O.is_delete = 0
+    <if test="itemSearchForm.idSort == 'asc'">
+        ORDER BY O.item_code
+    </if>
+    <if test="itemSearchForm.page != null and itemSearchForm.size != null">
+        LIMIT #{itemSearchForm.page}, #{itemSearchForm.size}
+    </if>
+</select>
+</mapper>

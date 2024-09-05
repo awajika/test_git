@@ -4,18 +4,28 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import org.example.constant.Role;
+import org.example.domain.ItemOrders;
 import org.example.domain.Items;
 import org.example.domain.Orders;
 import org.example.form.ItemForm;
+import org.example.form.ItemSearchForm;
+import org.example.service.ItemOrdersService;
 import org.example.service.ItemsService;
 import org.example.service.OrdersService;
+import org.example.view.ItemOrdersInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -35,7 +45,57 @@ public class ItemController {
   OrdersService ordersService;
 
   @Autowired
+  ItemOrdersService itemOrdersService;
+
+  @Autowired
   MessageSource messageSource;
+
+  /**
+   * 購入商品一覧画面へ遷移する.
+   *
+   * @param messageFlag 購入商品登録・編集が成功したときのメッセージフラグ
+   * @param model viewへ変数を渡す
+   * @return item/list.html
+   */
+  @RequestMapping(path = "/item/list", method = RequestMethod.GET)
+  public String forwardList(@ModelAttribute("successMessage") String messageFlag,
+                            Model model) {
+
+    /*
+    セッションからユーザー情報を取得
+    未ログインはログイン画面へ遷移
+    */
+
+    // 一覧表示のためformを新たに生成
+    ItemSearchForm itemSearchForm = new ItemSearchForm();
+
+    // 初期ソートは商品コードの昇順のためisSortにasc、その他は空白を設定
+    itemSearchForm.setIdSort("asc");
+    itemSearchForm.setPriceSort("");
+    itemSearchForm.setTotalSort("");
+    itemSearchForm.setCreateSort("");
+
+    // pageableの設定
+    Pageable pageable = PageRequest.of(0,
+        Integer.parseInt(messageSource.getMessage("maxPageSize", null, Locale.getDefault())));
+
+    itemSearchForm.setPage(0);
+
+    itemSearchForm.setSize(
+        Integer.parseInt(messageSource.getMessage("maxPageSize", null, Locale.getDefault())));
+
+    Page<ItemOrdersInfo> itemOrderList = mapItemOrderInfo(pageable, itemSearchForm);
+
+    // 成功メッセージがあったときの処理
+    String message = getSuccessMessage(messageFlag);
+
+    model.addAttribute("itemSearchForm", itemSearchForm);
+    model.addAttribute("itemOrderList", itemOrderList);
+    model.addAttribute("roleList", Role.values());
+    model.addAttribute("successMessage", message);
+
+    return "item/list";
+  }
 
   /**
    * 購入商品の登録formへ遷移する.
@@ -227,5 +287,55 @@ public class ItemController {
     order.setUpdateDate(LocalDateTime.now());
 
     return order;
+  }
+
+  /**
+   * ItemOrdersからItemOrdersInfoへ詰め替える.
+   *
+   * @param pageable ページネーションの設定
+   * @param form ItemSearchForm
+   * @return Page型のItemOrdersInfo
+   */
+  Page<ItemOrdersInfo> mapItemOrderInfo(Pageable pageable, ItemSearchForm form) {
+    List<ItemOrders> itemOrdersList = itemOrdersService.findOrders(form);
+
+    List<ItemOrdersInfo> itemOrdersInfoList = new ArrayList<>();
+    for (ItemOrders order : itemOrdersList) {
+      ItemOrdersInfo info = new ItemOrdersInfo();
+      info.setId(order.getId());
+      info.setItemCode(order.getItemCode());
+      info.setItemName(order.getItemName());
+      info.setCount(order.getCount());
+      info.setPrice(order.getPrice());
+      info.setTotalPrice(order.getPrice() * order.getCount());
+      info.setCreateDate(order.getCreateDate());
+      info.setName(order.getName());
+      itemOrdersInfoList.add(info);
+    }
+
+    // リストの総数
+    int count = itemOrdersService.selectOrdersCount(form);
+
+    return new PageImpl<>(itemOrdersInfoList, pageable, count);
+  }
+
+  /**
+   * リクエストパラメータで受け取ったmessageFlagを元に対応したsuccessMessageを取得する.
+   * messageFlagの種類はmessage.propertiesを参照
+   *
+   * @param messageFlag リクエストパラメータで受け取ったmessageFlag
+   * @return successMessage
+   */
+  private String getSuccessMessage(String messageFlag) {
+
+    String message = "";
+
+    if ("register".equals(messageFlag)) {
+      message = messageSource.getMessage("register.successMessage", null, Locale.getDefault());
+    } else if ("edit".equals(messageFlag)) {
+      message = messageSource.getMessage("edit.successMessage", null, Locale.getDefault());
+    }
+
+    return message;
   }
 }

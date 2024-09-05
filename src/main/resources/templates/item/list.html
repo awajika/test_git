@@ -30,7 +30,7 @@
                 </div>
 
                 <div class="mt-4">
-                    <div th:if="${successMessage} != null" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div th:if="${!#strings.isEmpty(successMessage)}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
                         <div class="toast-body">
                             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
                             <span th:text="${successMessage}"></span>
@@ -51,7 +51,7 @@
                         </form>
                     </div>
                     <div class="row bg-light m-2 p-4">
-                        <div class="col-8" th:if="${role == T(org.example.util.Role).ADMIN.getValue()}">
+                        <div class="col-8" th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}">
                             <form class="row" id="uploadForm" enctype="multipart/form-data">
                                 <input class="form-control col-7" type="file" name="file" />
                                 <button class="btn btn-secondary mx-2 col-4" onclick="uploadItem()">商品コードアップロード</button>
@@ -65,7 +65,7 @@
 
                     </div>
                     <div class="m-2 text-right">
-                        <button th:if="${role == T(org.example.util.Role).ADMIN.getValue()}" class="btn btn-danger" onclick="deleteItemList(this)">一括削除</button>
+                        <button th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}" class="btn btn-danger" onclick="deleteItemList(this)">一括削除</button>
                         <button class="btn btn-primary" onclick="entryItem()">新規登録</button>
                     </div>
                     <table class="table table-striped table-bordered h-100">
@@ -74,7 +74,7 @@
                             <th scope="col">
                                 <div class="text-center">
                                     <span class="me-auto">
-                                        <button th:if="${role == T(org.example.util.Role).ADMIN.getValue()}"
+                                        <button th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}"
                                                 class="btn btn-primary" name="allCheck" data-check="true" onclick="allCheck(this)">全選択</button>
                                     </span>
                                 </div>
@@ -143,7 +143,7 @@
                         <tbody>
                         <tr class="align-middle" th:each="list : ${itemOrderList}">
                             <td class="text-center">
-                                <input th:if="${role == T(org.example.util.Role).ADMIN.getValue()}" id="item-id-1" name="checked-id" type="checkbox" th:id="${'item-id-' + list.id}">
+                                <input th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}" id="item-id-1" name="checked-id" type="checkbox" th:id="${'item-id-' + list.id}">
                             </td>
                             <td class="text-center" th:text="${list.itemCode}"></td>
                             <td class="text-center" th:text="${list.itemName}"></td>
@@ -156,7 +156,7 @@
                                 <button class="btn btn-primary" th:data-id="${list.id}" onclick="editItem(this)">編集</button>
                             </td>
                             <td class="text-center">
-                                <button th:if="${role == T(org.example.util.Role).ADMIN.getValue()}" class="btn btn-danger" th:data-id="${list.id}" onclick="deleteItem(this)">削除</button>
+                                <button th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}" class="btn btn-danger" th:data-id="${list.id}" onclick="deleteItem(this)">削除</button>
                             </td>
                         </tr>
                         </tbody>

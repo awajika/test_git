@@ -1,11 +1,12 @@
 // 編集ボタン
 function editItem(element) {
-  window.location.href = `entry.html`;
+    const id = element.getAttribute('data-id');
+    window.location.href = `/item/entry/` + id;
 }
 
 // 新規登録ボタン
 function entryItem(element) {
-  window.location.href = `entry.html`;
+    window.location.href = `/item/entry`;
 }
 
 // toastクラスがついている要素にトーストを適用
