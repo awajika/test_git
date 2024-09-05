@@ -102,6 +102,7 @@ public class UserController {
     model.addAttribute("userList", userList);
     model.addAttribute("departmentList", departmentList);
     model.addAttribute("roleList", Role.values());
+    model.addAttribute("page", 0);
     model.addAttribute("successMessage", message);
 
     return "person/list";
@@ -139,7 +140,6 @@ public class UserController {
     if (!StringUtils.isEmpty(userSearchForm.getKeyword())) {
       changeAryKeywords(userSearchForm);
     } else {
-      // 前回の配列にしたフリーワードが残っている可能性があるので、nullを入れて初期化
       userSearchForm.setAryKeywords(null);
     }
 
@@ -160,6 +160,7 @@ public class UserController {
     model.addAttribute("userList", userList);
     model.addAttribute("departmentList", departmentList);
     model.addAttribute("roleList", Role.values());
+    model.addAttribute("page", page);
 
     return "person/list";
   }
@@ -356,6 +357,12 @@ public class UserController {
       // 現在の行数を保持する変数の初期化
       int count = 0;
 
+      // 社員番号の重複チェックをするためにuserIdだけのリストを作成
+      List<String> userIdList = new ArrayList<>(
+          readCsvList.stream()
+              .map(data -> data[0])
+              .toList());
+
       for (String[] line : readCsvList) {
 
         // 現在の行数
@@ -364,7 +371,7 @@ public class UserController {
         CsvUserForm csvUserForm = mapCsvUserForm(line);
 
         // validationチェック
-        List<String> errorMsgList = checkPersonValidation(csvUserForm, count);
+        List<String> errorMsgList = checkPersonValidation(csvUserForm, count, userIdList);
         errorList.addAll(errorMsgList);
 
         Users user = mapUsers(csvUserForm);
@@ -459,9 +466,10 @@ public class UserController {
    *
    * @param form  csvファイルから取得したデータを詰めたform
    * @param count 現在の行数
+   * @param list userIdだけのlist 社員番号の重複チェックのために使用
    * @return String型のlist エラーメッセージ
    */
-  private List<String> checkPersonValidation(CsvUserForm form, int count) {
+  private List<String> checkPersonValidation(CsvUserForm form, int count, List<String> list) {
 
     List<String> error = new ArrayList<>();
 
@@ -469,19 +477,24 @@ public class UserController {
     String wordCount = messageSource.getMessage("limitOneTwenty", null, Locale.getDefault());
     String userId = messageSource.getMessage("userId", null, Locale.getDefault());
 
+    // 最大文字数
+    String maxDigit = messageSource.getMessage("maxDigit", null, Locale.getDefault());
+
     //未入力チェック
     if (StringUtils.isEmpty(form.getUserId())) {
       error.add(messageSource.getMessage("NotBlank.csvUserForm",
           new String[]{String.valueOf(count), userId}, Locale.getDefault()));
     }
     // 桁数チェック
-    if (20 < form.getUserId().length()) {
+    if (Integer.parseInt(maxDigit) < form.getUserId().length()) {
       error.add(messageSource.getMessage("Size.csvUserForm",
           new String[]{String.valueOf(count), userId, wordCount}, Locale.getDefault()));
     }
     // 社員番号の重複チェック
-    Users user = usersService.findByUserId(form.getUserId());
-    if (user != null) {
+    List<String> userIdList = new ArrayList<>(list);
+    // 自身はチェックの対象外のため取り除く
+    userIdList.remove(count - 1);
+    if (userIdList.contains(form.getUserId())) {
       error.add(messageSource.getMessage("errMsg.duplicate",
           new String[]{String.valueOf(count), userId}, Locale.getDefault()));
     }
@@ -495,7 +508,7 @@ public class UserController {
           new String[]{String.valueOf(count), name}, Locale.getDefault()));
     }
     // 桁数チェック
-    if (20 < form.getName().length()) {
+    if (Integer.parseInt(maxDigit) < form.getName().length()) {
       error.add(messageSource.getMessage("Size.csvUserForm",
           new String[]{String.valueOf(count), name, wordCount}, Locale.getDefault()));
     }
@@ -509,7 +522,7 @@ public class UserController {
           new String[]{String.valueOf(count), nameKana}, Locale.getDefault()));
     }
     // 桁数チェック
-    if (20 < form.getNameKana().length()) {
+    if (Integer.parseInt(maxDigit) < form.getNameKana().length()) {
       error.add(messageSource.getMessage("Size.csvUserForm",
           new String[]{String.valueOf(count), nameKana, wordCount}, Locale.getDefault()));
     }
@@ -523,18 +536,21 @@ public class UserController {
     String password = messageSource.getMessage("password", null, Locale.getDefault());
     wordCount = messageSource.getMessage("limitEightTwenty", null, Locale.getDefault());
 
+    // 最小文字数
+    String minDigit = messageSource.getMessage("minDigit", null, Locale.getDefault());
+
     //未入力チェック
     if (StringUtils.isEmpty(form.getPassword())) {
       error.add(messageSource.getMessage("NotBlank.csvUserForm",
           new String[]{String.valueOf(count), password}, Locale.getDefault()));
     }
     // 桁数チェック(8文字未満)
-    if (form.getPassword().length() < 8) {
+    if (form.getPassword().length() < Integer.parseInt(minDigit)) {
       error.add(messageSource.getMessage("Size.csvUserForm",
           new String[]{String.valueOf(count), password, wordCount}, Locale.getDefault()));
     }
     // 桁数チェック(20文字以上)
-    if (20 < form.getPassword().length()) {
+    if (Integer.parseInt(maxDigit) < form.getPassword().length()) {
       error.add(messageSource.getMessage("Size.csvUserForm",
           new String[]{String.valueOf(count), password, wordCount}, Locale.getDefault()));
     }
@@ -646,9 +662,16 @@ public class UserController {
     // ヘッダーの文字列
     String header = messageSource.getMessage("csvFile.header", null, Locale.getDefault());
 
-    // ヘッダーが存在するかチェック
+    // 指定のヘッダーが存在するかチェック
     if (!header.equals(Arrays.toString(csvLineList.get(0)))) {
       error.add(messageSource.getMessage("errMsg.mismatchFormat", null, Locale.getDefault()));
+
+      /*
+       * 指定のヘッダーがない + カンマも6個ではないファイルがアップロードされたとき
+       * 二重にエラーメッセージを表示してしまうので、
+       * それを防ぐためのreturn
+       */
+      return error;
     }
 
     // カンマが6個あるかチェック
