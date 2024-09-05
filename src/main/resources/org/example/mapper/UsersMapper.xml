@@ -135,6 +135,13 @@
         #{user.createUser}, #{user.createDate}, #{user.updateUser}, #{user.updateDate}, #{user.isDelete})
     </foreach>
     ON DUPLICATE KEY UPDATE
+        password = VALUES(password),
+        name = VALUES(name),
+        name_kana = VALUES(name_kana),
+        department_id = VALUES(department_id),
+        role = VALUES(role),
+        update_user = VALUES(update_user),
+        update_date = VALUES(update_date),
         is_delete = VALUES(is_delete)
 </insert>
 </mapper>
