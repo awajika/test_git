@@ -102,6 +102,7 @@ public class UserController {
     model.addAttribute("userList", userList);
     model.addAttribute("departmentList", departmentList);
     model.addAttribute("roleList", Role.values());
+    model.addAttribute("page", 0);
     model.addAttribute("successMessage", message);
 
     return "person/list";
@@ -159,6 +160,7 @@ public class UserController {
     model.addAttribute("userList", userList);
     model.addAttribute("departmentList", departmentList);
     model.addAttribute("roleList", Role.values());
+    model.addAttribute("page", page);
 
     return "person/list";
   }
