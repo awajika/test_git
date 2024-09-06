@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper
+3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.mapper.OrdersMapper">
+<resultMap id="Orders" type="org.example.domain.Orders">
+    <id property="id" column="id"></id>
+    <result property="itemCode" column="item_code"></result>
+    <result property="count" column="count"></result>
+    <result property="userId" column="user_id"></result>
+    <result property="createDate" column="create_date"></result>
+    <result property="updateUser" column="update_user"></result>
+    <result property="updateDate" column="update_date"></result>
+    <result property="isDelete" column="is_delete"></result>
+</resultMap>
+<select id="findById" resultMap="Orders">
+    SELECT
+        id,
+        item_code,
+        count
+    FROM orders
+    WHERE id = #{id}
+</select>
+<insert id="save">
+    INSERT INTO orders
+        (id, item_code, count, user_id, create_date, update_user, update_date, is_delete)
+    VALUES
+        (#{id}, #{itemCode}, #{count}, #{userId}, #{createDate}, #{updateUser}, #{updateDate}, 0)
+</insert>
+<update id="edit">
+    UPDATE orders
+    SET
+        item_code = #{itemCode},
+        count = #{count},
+        update_user = #{updateUser},
+        update_date = #{updateDate}
+    WHERE
+        id = #{id}
+</update>
+</mapper>

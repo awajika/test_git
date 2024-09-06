@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper
+3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.mapper.ItemsMapper">
+<resultMap id="Items" type="org.example.domain.Items">
+    <id property="itemCode" column="item_code"></id>
+    <result property="itemName" column="item_name"></result>
+    <result property="price" column="price"></result>
+</resultMap>
+<select id="findByItemCode" resultMap="Items">
+    SELECT
+        item_code,
+        item_name,
+        price
+    FROM items
+    WHERE
+        item_code = #{itemCode}
+</select>
+</mapper>
