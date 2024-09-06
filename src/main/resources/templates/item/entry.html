@@ -31,7 +31,7 @@
                 <h2 th:if="${itemForm.isRegister}">購入商品登録</h2>
                 <h2 th:unless="${itemForm.isRegister}">購入商品編集</h2>
             </div>
-            <form th:action="@{/item/entry}" method="post" th:object="${itemForm}">
+            <form th:action="@{/item/form}" method="post" th:object="${itemForm}">
                 <input type="hidden" id="isRegister" name="isRegister" th:value="*{isRegister}">
                 <input type="hidden" id="id" name="id" th:value="*{id}">
                 <!--/* -->
