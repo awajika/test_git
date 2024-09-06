@@ -2,6 +2,7 @@ package org.example.repository;
 
 import java.util.List;
 import org.example.domain.Departments;
+import org.example.form.DepartmentForm;
 
 /**
  * departmentsテーブルに関連するメソッドを持つRepository.
@@ -11,14 +12,15 @@ public interface DepartmentsRepository {
   /**
    * 所属IDと所属名を全件取得する.
    *
-   * @return List型のDepartments
+   * @return ListのDepartments
    */
   List<Departments> findAll();
 
   /**
-   * 所属IDから所属を探す.
+   * 所属IDもしくは所属名から一致する所属IDを探す.
    *
+   * @param departmentForm DepartmentForm
    * @return Departments
    */
-  Departments findByDepartmentId(int departmentId);
+  Departments findByDepartmentId(DepartmentForm departmentForm);
 }

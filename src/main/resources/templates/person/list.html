@@ -34,7 +34,7 @@
                 </div>
 
                 <div class="mt-4">
-                    <div th:if="${successMessage} != null" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div th:if="${!#strings.isEmpty(successMessage)}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
                         <div class="toast-body">
                             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
                             <span th:text="${successMessage}"></span>
@@ -44,7 +44,7 @@
                         <form class="row" id="userSearchForm" method="get" th:action="@{/person/search}" th:object="${userSearchForm}">
                             <input type="hidden" id="idSort" name="idSort">
                             <input type="hidden" id="nameSort" name="nameSort">
-                            <input id="page" type="hidden" name="page" value="0">
+                            <input id="page" type="hidden" name="page" th:value="${page}">
                             <input class="form-control col-5 me-1" type="text" placeholder="フリーワード(社員番号、氏名、氏名(カナ))" th:field="*{keyword}"/>
                             <select class="form-select col-2" th:field="*{departmentId}">
                                 <option value="">選択してください</option>
@@ -64,14 +64,12 @@
                             </div>
                         </form>
                     </div>
-                    <div class="bg-light m-2 p-4" th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}">
-                        <form class="row" id="uploadForm" enctype="multipart/form-data">
-                            <input class="form-control col-5" type="file" name="file" />
-                            <button class="btn btn-primary mx-2 col-3" onclick="uploadFile()">CSV一括更新</button>
-                        </form>
+                    <div class="bg-light m-2 p-4 d-flex"> <!--th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}"-->
+                        <input class="form-control col-5" type="file" id="file">
+                        <button class="btn btn-primary mx-2 col-3" id="csv-upload-btn">CSV一括更新</button>
                     </div>
                     <div class="text-right m-2">
-                        <button class="btn btn-danger m-1" th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}" onclick="deletePersonList(this)">一括削除</button>
+                        <button class="btn btn-danger m-1" onclick="deletePersonList(this)">一括削除</button><!--th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}"-->
                         <a th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}" th:href="@{/person/form}" class="btn btn-primary m-1">新規登録</a>
                     </div>
                     <table class="table table-condensed table-striped table-bordered h-100">
@@ -80,15 +78,15 @@
                                 <th scope="col" class="col-1">
                                     <div class="text-center">
                                         <span class="me-auto">
-                                            <button th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}" class="btn btn-primary" name="allCheck" data-check="true"
-                                                onclick="allCheck(this)">全選択</button>
+                                            <button class="btn btn-primary" name="allCheck" data-check="true"
+                                                onclick="allCheck(this)">全選択</button> <!--th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}"-->
                                         </span>
                                     </div>
                                 </th>
                                 <th scope="col" class="col-2">
                                     <div class="text-center">
                                         <span class="me-auto">社員番号</span>
-                                        <button class="btn" th:onclick="|IdSortButton('category', '__${userSearchForm.idSort}__')|">
+                                        <button class="btn" id="idSortBtn" th:onclick="|IdSortButton('category', '__${userSearchForm.idSort}__')|">
                                             <i th:if="${userSearchForm.idSort} == 'desc'" class="bi bi-sort-down text-danger"></i>
                                             <i th:if="${userSearchForm.idSort} == 'asc'" class="bi bi-sort-down-alt text-danger"></i>
                                             <i th:if="${userSearchForm.idSort != 'asc' && userSearchForm.idSort != 'desc'}" class="bi bi-sort-down-alt text-secondary"></i>
@@ -98,7 +96,7 @@
                                 <th scope="col" class="col-2">
                                     <div class="text-center">
                                         <span class="me-auto">氏名</span>
-                                        <button class="btn" th:onclick="|NameSortButton('category', '__${userSearchForm.nameSort}__')|">
+                                        <button class="btn" id="nameSortBtn" th:onclick="|nameSortButton('category', '__${userSearchForm.nameSort}__')|">
                                             <i th:if="${userSearchForm.nameSort} == 'desc'" class="bi bi-sort-down text-danger"></i>
                                             <i th:if="${userSearchForm.nameSort} == 'asc'" class="bi bi-sort-down-alt text-danger"></i>
                                             <i th:if="${userSearchForm.nameSort != 'asc' && userSearchForm.nameSort != 'desc'}" class="bi bi-sort-down-alt text-secondary"></i>
@@ -158,7 +156,7 @@
                 </div>
                 <div class="mt-3 text-center" th:unless="${#lists.isEmpty(userList)}">
                     <th:block th:unless="${#lists.size(userList) == 0}">
-                        <div th:replace="common/pagination.html :: pagination(${userList}, '/person/list')"></div>
+                        <div th:replace="common/pagination.html :: pagination(${userList}, '/person/search')"></div>
                     </th:block>
                 </div>
             </main>
@@ -177,5 +175,6 @@
 <footer class="fixed-bottom bg-primary flex-md-nowrap p-0 shadow">
     <div></div>
 </footer>
-
+<meta th:name="_csrf" th:content="${_csrf.token}">
+<meta th:name="_csrf_header" th:content="${_csrf.headerName}">
 </html>

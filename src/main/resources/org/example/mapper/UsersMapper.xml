@@ -15,11 +15,27 @@
     <result property="updateDate" column="update_date"></result>
     <result property="isDelete" column="is_delete"></result>
 </resultMap>
-<select id="selectUsersCount" resultType="_int">
+<select id="selectUsersCount" parameterType="org.example.form.UserSearchForm" resultType="_int">
     SELECT count(*)
     FROM users
+    WHERE is_delete = 0
+    <if test="userSearchForm.aryKeywords != null">
+        <foreach item="keyword" collection="userSearchForm.aryKeywords">
+            AND (
+                user_id LIKE CONCAT('%', #{keyword}, '%')
+                OR name LIKE CONCAT('%', #{keyword}, '%')
+                OR name_kana LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </foreach>
+    </if>
+    <if test="userSearchForm.departmentId != null">
+        AND department_id = #{userSearchForm.departmentId}
+    </if>
+    <if test="userSearchForm.role != null">
+        AND role = #{userSearchForm.role}
+    </if>
 </select>
-<select id="findAll" parameterType="org.example.form.UserSearchForm" resultMap="Users">
+<select id="findUsers" parameterType="org.example.form.UserSearchForm" resultMap="Users">
     SELECT
         user_id,
         password,
@@ -30,8 +46,35 @@
     FROM users
     WHERE
         is_delete = 0
+    <if test="userSearchForm.aryKeywords != null">
+        <foreach item="keyword" collection="userSearchForm.aryKeywords">
+            AND (
+                user_id LIKE CONCAT('%', #{keyword}, '%')
+                OR name LIKE CONCAT('%', #{keyword}, '%')
+                OR name_kana LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </foreach>
+    </if>
+    <if test="userSearchForm.departmentId != null">
+        AND department_id = #{userSearchForm.departmentId}
+    </if>
+    <if test="userSearchForm.role != null">
+        AND role = #{userSearchForm.role}
+    </if>
+    <if test="userSearchForm.idSort == 'asc'">
+        ORDER BY user_id
+    </if>
+    <if test="userSearchForm.idSort == 'desc'">
+        ORDER BY user_id DESC
+    </if>
+    <if test="userSearchForm.nameSort == 'asc'">
+        ORDER BY name_kana
+    </if>
+    <if test="userSearchForm.nameSort == 'desc'">
+        ORDER BY name_kana DESC
+    </if>
     <if test="userSearchForm.size != null and userSearchForm.page != null">
-        limit #{userSearchForm.page}, #{userSearchForm.size}
+        LIMIT #{userSearchForm.page}, #{userSearchForm.size}
     </if>
 </select>
 <select id="findByUserId" resultMap="Users">
@@ -45,8 +88,6 @@
     FROM users
     WHERE
         user_id = #{userId}
-    AND
-        is_delete = 0
 </select>
 <insert id="save">
     INSERT INTO users
@@ -69,4 +110,38 @@
     WHERE
         user_id = #{userId}
 </update>
+<update id="delete">
+    UPDATE users
+    SET
+        is_delete = 1
+    WHERE user_id IN
+    <foreach collection="lists" item="userId" open="(" separator="," close=")">
+        #{userId}
+    </foreach>
+</update>
+<update id="test">
+    UPDATE users
+    SET
+        is_delete = 1
+    WHERE user_id = #{userId}
+</update>
+<insert id="saveFromCsvFile" parameterType="java.util.List">
+    INSERT INTO users
+        (user_id, password, name, name_kana, department_id, role,
+            create_user, create_date, update_user, update_date, is_delete)
+    VALUES
+    <foreach item="user" collection="userList" open="" separator="," close="">
+        (#{user.userId}, #{user.password}, #{user.name}, #{user.nameKana}, #{user.departmentId}, #{user.role},
+        #{user.createUser}, #{user.createDate}, #{user.updateUser}, #{user.updateDate}, #{user.isDelete})
+    </foreach>
+    ON DUPLICATE KEY UPDATE
+        password = VALUES(password),
+        name = VALUES(name),
+        name_kana = VALUES(name_kana),
+        department_id = VALUES(department_id),
+        role = VALUES(role),
+        update_user = VALUES(update_user),
+        update_date = VALUES(update_date),
+        is_delete = VALUES(is_delete)
+</insert>
 </mapper>

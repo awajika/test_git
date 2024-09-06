@@ -2,7 +2,9 @@ package org.example.mapper;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.example.domain.Departments;
+import org.example.form.DepartmentForm;
 
 /**
  * departmentsテーブルのmapper.
@@ -18,9 +20,11 @@ public interface DepartmentsMapper {
   List<Departments> findAll();
 
   /**
-   * 所属IDから所属を1件取得する.
+   * 所属IDもしくは所属名から一致する所属IDを探す.
    *
+   * @param departmentForm DepartmentForm
    * @return Departments
    */
-  Departments findByDepartmentId(int departmentId);
+  Departments findByDepartmentId(@Param("departmentForm")DepartmentForm departmentForm);
+
 }

@@ -26,13 +26,6 @@ function removeLoading() {
     overlay.style.display = 'none';
 }
 
-// エラーメッセージPOPUPを表示
-function showError(response) {
-  let errorMessage = response.responseJSON.message;
-  $('#common-ng-message').text(errorMessage);
-  $('#common-ng').modal('show');
-}
-
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 };

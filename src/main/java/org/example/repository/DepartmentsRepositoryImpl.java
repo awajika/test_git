@@ -2,6 +2,7 @@ package org.example.repository;
 
 import java.util.List;
 import org.example.domain.Departments;
+import org.example.form.DepartmentForm;
 import org.example.mapper.DepartmentsMapper;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ public class DepartmentsRepositoryImpl implements DepartmentsRepository {
   /**
    * 所属IDと所属名を全件取得する.
    *
-   * @return List型のDepartments
+   * @return ListのDepartments
    */
   @Override
   public List<Departments> findAll() {
@@ -27,13 +28,14 @@ public class DepartmentsRepositoryImpl implements DepartmentsRepository {
   }
 
   /**
-   * 所属IDから所属を探す.
+   * 所属IDもしくは所属名から一致する所属IDを探す.
    *
+   * @param departmentForm DepartmentForm
    * @return Departments
    */
   @Override
-  public Departments findByDepartmentId(int departmentId) {
+  public Departments findByDepartmentId(DepartmentForm departmentForm) {
     return this.sqlSessionTemplate.getMapper(DepartmentsMapper.class)
-        .findByDepartmentId(departmentId);
+        .findByDepartmentId(departmentForm);
   }
 }
