@@ -43,7 +43,7 @@ public class ItemController {
    * @param model viewへ変数を渡す
    * @return entry.html
    */
-  @RequestMapping(path = "/item/entry", method = RequestMethod.GET)
+  @RequestMapping(path = "/item/form", method = RequestMethod.GET)
   public String forwardEntry(Model model) {
 
     /*
@@ -67,7 +67,7 @@ public class ItemController {
    * @param model viewへ変数を渡す
    * @return entry.html
    */
-  @RequestMapping(path = "/item/entry/{id}", method = RequestMethod.GET)
+  @RequestMapping(path = "/item/form/{id}", method = RequestMethod.GET)
   public String forwardEntry(@PathVariable int id, Model model) {
 
     /*
@@ -93,7 +93,7 @@ public class ItemController {
    * @param model viewへ変数を渡す
    * @return success: item/entry_confirm, error: item/entry.html
    */
-  @RequestMapping(path = "/item/entry", method = RequestMethod.POST)
+  @RequestMapping(path = "/item/form", method = RequestMethod.POST)
   public String forwardEntryConfirm(@Validated ItemForm itemForm,
                                     BindingResult bindingResult, Model model) {
 
@@ -127,7 +127,7 @@ public class ItemController {
    * @param redirectAttributes redirect先へ変数を渡す
    * @return redirect:item/list
    */
-  @RequestMapping(path = "/item/entry_confirm", method = RequestMethod.POST)
+  @RequestMapping(path = "/item/confirm", method = RequestMethod.POST)
   public String redirectItemList(ItemForm itemForm, Model model,
                                  RedirectAttributes redirectAttributes) {
 
