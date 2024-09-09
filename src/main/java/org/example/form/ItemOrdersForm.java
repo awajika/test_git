@@ -1,18 +1,19 @@
 package org.example.form;
 
+import java.sql.Date;
 import lombok.Data;
 
 /**
- * 購入商品検索form.
+ * ItemSearchFormのデータをItemOrdersMapperへ持っていくためのform.
  */
 @Data
-public class ItemSearchForm {
+public class ItemOrdersForm {
   // フリーワード
-  private String keyword;
+  private String[] keywords;
   // 開始日
-  private String startAt;
+  private Date startAt;
   // 終了日
-  private String endAt;
+  private Date endAt;
   // 商品コードソート
   private String idSort;
   // 単価ソート
@@ -21,4 +22,8 @@ public class ItemSearchForm {
   private String totalSort;
   // 購入日時ソート
   private String createSort;
+  // ユーザーが現在いるページ
+  private int page;
+  // データの最大表示件数
+  private int size;
 }

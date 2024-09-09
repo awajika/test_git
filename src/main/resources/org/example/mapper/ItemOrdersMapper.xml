@@ -14,7 +14,7 @@
     <result property="updateDate" column="update_date"></result>
     <result property="isDelete" column="is_delete"></result>
 </resultMap>
-<select id="selectOrdersCount" parameterType="org.example.form.ItemSearchForm" resultType="_int">
+<select id="selectOrdersCount" parameterType="org.example.form.ItemOrdersForm" resultType="_int">
     SELECT count(*)
     FROM orders AS O
     INNER JOIN
@@ -27,14 +27,33 @@
         O.user_id = U.user_id
     WHERE
         O.is_delete = 0
+    <if test="form.keywords != null">
+        <foreach collection="form.keywords" item="keyword" open="" separator="" close="">
+            AND(
+            O.item_code LIKE CONCAT('%', #{keyword}, '%') OR
+            I.item_name LIKE CONCAT('%', #{keyword}, '%') OR
+            U.name LIKE CONCAT('%', #{keyword}, '%') OR
+            U.name_kana LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </foreach>
+    </if>
+    <if test="form.startAt != null">
+        <![CDATA[AND DATE(O.create_date) >= #{form.startAt}]]>
+    </if>
+    <if test="form.endAt != null">
+        <![CDATA[AND DATE(O.create_date) <= #{form.endAt}]]>
+    </if>
 </select>
-<select id="findOrders" parameterType="org.example.form.ItemSearchForm" resultMap="ItemOrders">
+<select id="findOrders" parameterType="org.example.form.ItemOrdersForm" resultMap="ItemOrders">
     SELECT
         O.id,
         I.item_name,
         O.item_code,
         O.count,
         I.price,
+    <if test="form.totalSort == 'asc' or form.totalSort == 'desc'">
+        SUM(O.count * I.price) AS total,
+    </if>
         U.name,
         O.create_date
         FROM orders AS O
@@ -48,11 +67,51 @@
         O.user_id = U.user_id
     WHERE
         O.is_delete = 0
-    <if test="itemSearchForm.idSort == 'asc'">
+    <if test="form.keywords != null">
+        <foreach collection="form.keywords" item="keyword" open="" separator="" close="">
+            AND(
+                O.item_code LIKE CONCAT('%', #{keyword}, '%') OR
+                I.item_name LIKE CONCAT('%', #{keyword}, '%') OR
+                U.name LIKE CONCAT('%', #{keyword}, '%') OR
+                U.name_kana LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </foreach>
+    </if>
+    <if test="form.startAt != null">
+        <![CDATA[AND DATE(O.create_date) >= #{form.startAt}]]>
+    </if>
+    <if test="form.endAt != null">
+        <![CDATA[AND DATE(O.create_date) <= #{form.endAt}]]>
+    </if>
+    <if test="form.totalSort == 'asc' or form.totalSort == 'desc'">
+        GROUP BY O.id
+    </if>
+    <if test="form.idSort == 'asc'">
         ORDER BY O.item_code
     </if>
-    <if test="itemSearchForm.page != null and itemSearchForm.size != null">
-        LIMIT #{itemSearchForm.page}, #{itemSearchForm.size}
+    <if test="form.idSort == 'desc'">
+        ORDER BY O.item_code DESC
+    </if>
+    <if test="form.priceSort == 'asc'">
+        ORDER BY I.price
+    </if>
+    <if test="form.priceSort == 'desc'">
+        ORDER BY I.price DESC
+    </if>
+    <if test="form.totalSort == 'asc'">
+        ORDER BY total
+    </if>
+    <if test="form.totalSort == 'desc'">
+        ORDER BY total DESC
+    </if>
+    <if test="form.createSort == 'asc'">
+        ORDER BY O.create_date
+    </if>
+    <if test="form.createSort == 'desc'">
+        ORDER BY O.create_date DESC
+    </if>
+    <if test="form.page != null and form.size != null">
+        LIMIT #{form.page}, #{form.size}
     </if>
 </select>
 </mapper>

@@ -43,20 +43,20 @@
                             <div class="text-right mt-2">
                                 <button class="btn btn-primary col-2" type="submit">検索</button>
                             </div>
-                            <input id="idSort" type="hidden" name="idSort" value="">
-                            <input id="priceSort" type="hidden" name="priceSort" value="">
-                            <input id="totalSort" type="hidden" name="totalSort" value="">
-                            <input id="createSort" type="hidden" name="createSort" value="">
-                            <input id="page" type="hidden" name="page" value="0">
+                            <input id="idSort" type="hidden" name="idSort">
+                            <input id="priceSort" type="hidden" name="priceSort">
+                            <input id="totalSort" type="hidden" name="totalSort">
+                            <input id="createSort" type="hidden" name="createSort">
+                            <input id="page" type="hidden" name="page" th:value="${page}">
                         </form>
                     </div>
                     <div class="row bg-light m-2 p-4">
-                        <div class="col-8" th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}">
+<!--                todo　管理者権限        <div class="col-8" th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}">-->
                             <form class="row" id="uploadForm" enctype="multipart/form-data">
                                 <input class="form-control col-7" type="file" name="file" />
                                 <button class="btn btn-secondary mx-2 col-4" onclick="uploadItem()">商品コードアップロード</button>
                             </form>
-                        </div>
+<!--                        </div>-->
                         <div class="col-4">
                             <form class="row" id="csvform" method="post" th:action="@{/item/download}">
                                 <button class="btn btn-secondary col-8">商品コードダウンロード</button>
@@ -65,98 +65,100 @@
 
                     </div>
                     <div class="m-2 text-right">
-                        <button th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}" class="btn btn-danger" onclick="deleteItemList(this)">一括削除</button>
                         <button class="btn btn-primary" onclick="entryItem()">新規登録</button>
                     </div>
                     <table class="table table-striped table-bordered h-100">
-                        <thead class="">
-                        <tr>
-                            <th scope="col">
+                        <thead>
+                        <tr class="row">
+                            <th scope="col" class="col">
                                 <div class="text-center">
                                     <span class="me-auto">
-                                        <button th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}"
+                                        <button
                                                 class="btn btn-primary" name="allCheck" data-check="true" onclick="allCheck(this)">全選択</button>
+<!--                                    todo 管理者権限    th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}"-->
                                     </span>
                                 </div>
                             </th>
-                            <th scope="col">
+                            <th scope="col" class="col-2">
                                 <div class="text-center">
                                     <span class="me-auto">商品コード</span>
-                                    <button class="btn" th:onclick="|IdSortButton('category', '__${itemSearchForm.idSort}__')|">
+                                    <button class="btn" id="idSortBtn" th:onclick="|IdSortButton('category', '__${itemSearchForm.idSort}__')|">
                                         <i th:if="${itemSearchForm.idSort} == 'desc'" class="bi bi-sort-down text-danger"></i>
                                         <i th:if="${itemSearchForm.idSort} == 'asc'" class="bi bi-sort-down-alt text-danger"></i>
                                         <i th:if="${itemSearchForm.idSort != 'asc' && itemSearchForm.idSort != 'desc'}" class="bi bi-sort-down-alt text-secondary"></i>
                                     </button>
                                 </div>
                             </th>
-                            <th scope="col">
+                            <th scope="col" class="col-2">
                                 <div class="text-center">
                                     <span class="me-auto">商品名</span>
                                 </div>
                             </th>
-                            <th scope="col">
+                            <th scope="col" class="col">
                                 <div class="text-center">
                                     <span class="me-auto">数量</span>
                                 </div>
                             </th>
-                            <th scope="col">
+                            <th scope="col" class="col">
                                 <div class="text-center">
                                     <span class="me-auto">単価</span>
-                                    <button class="btn" th:onclick="|PriceSortButton('category', '__${itemSearchForm.priceSort}__')|">
+                                    <button class="btn" id="priceSortBtn" th:onclick="|PriceSortButton('category', '__${itemSearchForm.priceSort}__')|">
                                         <i th:if="${itemSearchForm.priceSort} == 'desc'" class="bi bi-sort-down text-danger"></i>
                                         <i th:if="${itemSearchForm.priceSort} == 'asc'" class="bi bi-sort-down-alt text-danger"></i>
                                         <i th:if="${itemSearchForm.priceSort != 'asc' && itemSearchForm.priceSort != 'desc'}" class="bi bi-sort-down-alt text-secondary"></i>
                                     </button>
                                 </div>
                             </th>
-                            <th scope="col">
+                            <th scope="col" class="col">
                                 <div class="text-center">
                                     <span class="me-auto">合計</span>
-                                    <button class="btn" th:onclick="|TotalSortButton('category', '__${itemSearchForm.totalSort}__')|">
+                                    <button class="btn" id="totalSortBtn" th:onclick="|TotalSortButton('category', '__${itemSearchForm.totalSort}__')|">
                                         <i th:if="${itemSearchForm.totalSort} == 'desc'" class="bi bi-sort-down text-danger"></i>
                                         <i th:if="${itemSearchForm.totalSort} == 'asc'" class="bi bi-sort-down-alt text-danger"></i>
                                         <i th:if="${itemSearchForm.totalSort != 'asc' && itemSearchForm.totalSort != 'desc'}" class="bi bi-sort-down-alt text-secondary"></i>
                                     </button>
                                 </div>
                             </th>
-                            <th scope="col">
+                            <th scope="col" class="col-2">
                                 <div class="text-center">
                                     <span class="me-auto">購入日時</span>
-                                    <button class="btn" th:onclick="|CreateSortButton('category', '__${itemSearchForm.createSort}__')|">
+                                    <button class="btn" id="createSortBtn" th:onclick="|CreateSortButton('category', '__${itemSearchForm.createSort}__')|">
                                         <i th:if="${itemSearchForm.createSort} == 'desc'" class="bi bi-sort-down text-danger"></i>
                                         <i th:if="${itemSearchForm.createSort} == 'asc'" class="bi bi-sort-down-alt text-danger"></i>
                                         <i th:if="${itemSearchForm.createSort != 'asc' && itemSearchForm.createSort != 'desc'}" class="bi bi-sort-down-alt text-secondary"></i>
                                     </button>
                                 </div>
                             </th>
-                            <th scope="col">
+                            <th scope="col" class="col">
                                 <div class="text-center">
                                     <span class="me-auto">購入者</span>
                                 </div>
                             </th>
-                            <th scope="col">
+                            <th scope="col" class="col">
                             </th>
-                            <th scope="col" class="col-1">
+                            <th scope="col" class="col">
                             </th>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr class="align-middle" th:each="list : ${itemOrderList}">
-                            <td class="text-center">
-                                <input th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}" id="item-id-1" name="checked-id" type="checkbox" th:id="${'item-id-' + list.id}">
+                        <tr class="align-middle row" th:each="list : ${itemOrderList}">
+                            <td class="text-center col">
+                                <input  id="item-id-1" name="checked-id" type="checkbox" th:id="${'item-id-' + list.id}">
+<!--                            todo 管理者権限    th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}"-->
                             </td>
-                            <td class="text-center" th:text="${list.itemCode}"></td>
-                            <td class="text-center" th:text="${list.itemName}"></td>
-                            <td class="text-center" th:text="${list.count < 100 ? list.count : #numbers.formatInteger(list.count, 3, 'COMMA')}"></td>
-                            <td class="text-center" th:text="${list.price < 100 ? list.price : #numbers.formatInteger(list.price, 3, 'COMMA')}"></td>
-                            <td class="text-center" th:text="${list.totalPrice < 100 ? list.totalPrice : #numbers.formatInteger(list.totalPrice, 3, 'COMMA')}"></td>
-                            <td class="text-center" th:text="${#temporals.format(list.createDate,'yyyy/MM/dd HH:mm')}"></td>
-                            <td class="text-center" th:text="${list.name}"></td>
-                            <td class="text-center">
+                            <td class="text-center col-2" th:text="${list.itemCode}"></td>
+                            <td class="text-center col-2" th:text="${list.itemName}"></td>
+                            <td class="text-center col" th:text="${list.count < 100 ? list.count : #numbers.formatInteger(list.count, 3, 'COMMA')}"></td>
+                            <td class="text-center col" th:text="${list.price < 100 ? list.price : #numbers.formatInteger(list.price, 3, 'COMMA')}"></td>
+                            <td class="text-center col" th:text="${list.totalPrice < 100 ? list.totalPrice : #numbers.formatInteger(list.totalPrice, 3, 'COMMA')}"></td>
+                            <td class="text-center col-2" th:text="${#temporals.format(list.createDate,'yyyy/MM/dd HH:mm')}"></td>
+                            <td class="text-center col" th:text="${list.name}"></td>
+                            <td class="text-center col">
                                 <button class="btn btn-primary" th:data-id="${list.id}" onclick="editItem(this)">編集</button>
                             </td>
-                            <td class="text-center">
-                                <button th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}" class="btn btn-danger" th:data-id="${list.id}" onclick="deleteItem(this)">削除</button>
+                            <td class="text-center col">
+                                <button  class="btn btn-danger" th:data-id="${list.id}" onclick="deleteItem(this)">削除</button>
+<!--                     todo 管理者権限           th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}"-->
                             </td>
                         </tr>
                         </tbody>

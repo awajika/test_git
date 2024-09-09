@@ -104,3 +104,67 @@ async function downloadItem() {
   await sleep(1000);
   removeLoading();
 }
+
+// 商品コードソートボタン押下
+function IdSortButton(name, nowSort) {
+    const idSort = document.getElementById("idSort");
+    const idSortBtn = document.getElementById("idSortBtn");
+
+    if (nowSort == "asc") {
+        idSort.setAttribute("value", "desc");
+        idSortBtn.setAttribute("form", "itemSearchForm")
+    }
+
+    if (nowSort == "" || nowSort == "desc") {
+        idSort.setAttribute("value", "asc");
+        idSortBtn.setAttribute("form", "itemSearchForm")
+    }
+}
+
+// 単価ソートボタン押下
+function PriceSortButton(name, nowSort) {
+    const priceSort = document.getElementById("priceSort");
+    const priceSortBtn = document.getElementById("priceSortBtn");
+
+    if (nowSort == "asc") {
+        priceSort.setAttribute("value", "desc");
+        priceSortBtn.setAttribute("form", "itemSearchForm");
+    }
+
+    if (nowSort == "" || nowSort == "desc") {
+        priceSort.setAttribute("value", "asc");
+        priceSortBtn.setAttribute("form", "itemSearchForm");
+    }
+}
+
+// 合計ソートボタン押下
+function TotalSortButton(name, nowSort) {
+    const totalSort = document.getElementById("totalSort");
+    const totalSortBtn = document.getElementById("totalSortBtn");
+
+    if (nowSort == "asc") {
+        totalSort.setAttribute("value", "desc");
+        totalSortBtn.setAttribute("form", "itemSearchForm");
+    }
+
+    if (nowSort == "" || nowSort == "desc") {
+        totalSort.setAttribute("value", "asc");
+        totalSortBtn.setAttribute("form", "itemSearchForm");
+    }
+}
+
+// 購入日時ソートボタン押下
+function CreateSortButton(name, nowSort) {
+    const createSort = document.getElementById("createSort");
+    const createSortBtn = document.getElementById("createSortBtn");
+
+    if (nowSort == "asc") {
+        createSort.setAttribute("value", "desc");
+        createSortBtn.setAttribute("form", "itemSearchForm");
+    }
+
+    if (nowSort == "" || nowSort == "desc") {
+        createSort.setAttribute("value", "asc");
+        createSortBtn.setAttribute("form", "itemSearchForm");
+    }
+}

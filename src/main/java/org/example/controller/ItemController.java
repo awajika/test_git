@@ -1,5 +1,6 @@
 package org.example.controller;
 
+import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +10,7 @@ import org.example.domain.ItemOrders;
 import org.example.domain.Items;
 import org.example.domain.Orders;
 import org.example.form.ItemForm;
+import org.example.form.ItemOrdersForm;
 import org.example.form.ItemSearchForm;
 import org.example.service.ItemOrdersService;
 import org.example.service.ItemsService;
@@ -29,6 +31,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.thymeleaf.util.StringUtils;
 
@@ -36,6 +40,7 @@ import org.thymeleaf.util.StringUtils;
  * 購入商品に関する処理を行うcontroller.
  */
 @Controller
+@SessionAttributes(types = ItemSearchForm.class)
 public class ItemController {
 
   @Autowired
@@ -75,16 +80,18 @@ public class ItemController {
     itemSearchForm.setTotalSort("");
     itemSearchForm.setCreateSort("");
 
+    ItemOrdersForm form = mapItemOrdersForm(itemSearchForm);
+
     // pageableの設定
     Pageable pageable = PageRequest.of(0,
         Integer.parseInt(messageSource.getMessage("maxPageSize", null, Locale.getDefault())));
 
-    itemSearchForm.setPage(0);
+    form.setPage(0);
 
-    itemSearchForm.setSize(
-        Integer.parseInt(messageSource.getMessage("maxPageSize", null, Locale.getDefault())));
+    form.setSize(Integer.parseInt(
+        messageSource.getMessage("maxPageSize", null, Locale.getDefault())));
 
-    Page<ItemOrdersInfo> itemOrderList = mapItemOrderInfo(pageable, itemSearchForm);
+    Page<ItemOrdersInfo> itemOrderList = mapItemOrderInfo(pageable, form);
 
     // 成功メッセージがあったときの処理
     String message = getSuccessMessage(messageFlag);
@@ -92,7 +99,63 @@ public class ItemController {
     model.addAttribute("itemSearchForm", itemSearchForm);
     model.addAttribute("itemOrderList", itemOrderList);
     model.addAttribute("roleList", Role.values());
+    model.addAttribute("page", 0);
     model.addAttribute("successMessage", message);
+
+    return "item/list";
+  }
+
+  /**
+   * 購入商品検索機能.
+   *
+   * @param page 現在いるページ
+   * @param itemSearchForm 検索form
+   * @param model viewへ変数を渡す
+   * @return item/list.html
+   */
+  @RequestMapping(path = "/item/search", method = RequestMethod.GET)
+  public String search(@RequestParam("page") int page,
+                       ItemSearchForm itemSearchForm, Model model) {
+
+    /*
+    セッションからユーザー情報を取得
+    未ログインはログイン画面へ遷移
+    */
+
+    /*
+    フリーワードおよび購入日時で検索した際の表示を商品コードの昇順にするための設定を行う
+    また、ページも1ページ目から始まるように設定する
+     */
+    if (StringUtils.isEmpty(itemSearchForm.getIdSort())
+        && StringUtils.isEmpty(itemSearchForm.getPriceSort())
+        && StringUtils.isEmpty(itemSearchForm.getTotalSort())
+        && StringUtils.isEmpty(itemSearchForm.getCreateSort())) {
+
+      itemSearchForm.setIdSort("asc");
+      itemSearchForm.setPriceSort("");
+      itemSearchForm.setTotalSort("");
+      itemSearchForm.setCreateSort("");
+      page = 0;
+    }
+
+    ItemOrdersForm form = mapItemOrdersForm(itemSearchForm);
+
+    // pageableの設定
+    Pageable pageable = PageRequest.of(page,
+        Integer.parseInt(messageSource.getMessage("maxPageSize", null, Locale.getDefault())));
+
+    form.setPage(page * Integer.parseInt(
+        messageSource.getMessage("maxPageSize", null, Locale.getDefault())));
+
+    form.setSize(Integer.parseInt(
+        messageSource.getMessage("maxPageSize", null, Locale.getDefault())));
+
+    Page<ItemOrdersInfo> itemOrderList = mapItemOrderInfo(pageable, form);
+
+    model.addAttribute("itemSearchForm", itemSearchForm);
+    model.addAttribute("itemOrderList", itemOrderList);
+    model.addAttribute("roleList", Role.values());
+    model.addAttribute("page", page);
 
     return "item/list";
   }
@@ -296,7 +359,7 @@ public class ItemController {
    * @param form ItemSearchForm
    * @return Page型のItemOrdersInfo
    */
-  Page<ItemOrdersInfo> mapItemOrderInfo(Pageable pageable, ItemSearchForm form) {
+  Page<ItemOrdersInfo> mapItemOrderInfo(Pageable pageable, ItemOrdersForm form) {
     List<ItemOrders> itemOrdersList = itemOrdersService.findOrders(form);
 
     List<ItemOrdersInfo> itemOrdersInfoList = new ArrayList<>();
@@ -320,6 +383,35 @@ public class ItemController {
   }
 
   /**
+   * ItemSearchFormからItemOrdersFormへ詰め替える.
+   *
+   * @param itemSearchForm 検索form
+   * @return ItemOrdersForm
+   */
+  private ItemOrdersForm mapItemOrdersForm(ItemSearchForm itemSearchForm) {
+    ItemOrdersForm form = new ItemOrdersForm();
+
+    if (itemSearchForm.getKeyword() != null) {
+      form.setKeywords(changeAryKeywords(itemSearchForm));
+    }
+
+    if (!StringUtils.isEmpty(itemSearchForm.getStartAt())) {
+      form.setStartAt(Date.valueOf(itemSearchForm.getStartAt()));
+    }
+
+    if (!StringUtils.isEmpty(itemSearchForm.getEndAt())) {
+      form.setEndAt(Date.valueOf(itemSearchForm.getEndAt()));
+    }
+
+    form.setIdSort(itemSearchForm.getIdSort());
+    form.setPriceSort(itemSearchForm.getPriceSort());
+    form.setTotalSort(itemSearchForm.getTotalSort());
+    form.setCreateSort(itemSearchForm.getCreateSort());
+
+    return form;
+  }
+
+  /**
    * リクエストパラメータで受け取ったmessageFlagを元に対応したsuccessMessageを取得する.
    * messageFlagの種類はmessage.propertiesを参照
    *
@@ -337,5 +429,20 @@ public class ItemController {
     }
 
     return message;
+  }
+
+  /**
+   * フリーワードが複数入力されている場合、半角または全角で区切る.
+   */
+  private String[] changeAryKeywords(ItemSearchForm form) {
+    String[] keyword;
+
+    // フリーワードが複数あるか確認
+    if (form.getKeyword().matches(".*[\\s|　+].*")) {
+      keyword = form.getKeyword().split("\\s|　+");
+    } else {
+      keyword = new String[]{form.getKeyword()};
+    }
+    return keyword;
   }
 }
