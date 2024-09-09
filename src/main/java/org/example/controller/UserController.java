@@ -492,7 +492,7 @@ public class UserController {
     }
     // 社員番号の重複チェック
     List<String> userIdList = new ArrayList<>(list);
-    // 自身はチェックの対象外のため取り除く
+    // 現在チェックしている行を取り除く
     userIdList.remove(count - 1);
     if (userIdList.contains(form.getUserId())) {
       error.add(messageSource.getMessage("errMsg.duplicate",
