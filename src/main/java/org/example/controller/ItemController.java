@@ -313,8 +313,9 @@ public class ItemController {
     HashMap<String, List<String>> error = new HashMap<>();
 
     // ファイルのvalidationチェック
-    String formatComma = messageSource.getMessage("item.formatComma", null, Locale.getDefault());
-    CsvUtil csvUtil = new CsvUtil(file, formatComma, messageSource);
+    // 商品マスタのフォーマットでフォーマットチェックを行うよう判別フラグをセットする
+    String flag = messageSource.getMessage("flag.itemMaster", null, Locale.getDefault());
+    CsvUtil csvUtil = new CsvUtil(file, flag, messageSource);
     List<String> errorList = csvUtil.checkCsvFileValidation();
     if (!errorList.isEmpty()) {
       error.put("message", errorList);

@@ -24,23 +24,22 @@ public class CsvUtil {
   // アップロードされたCSVファイル
   private MultipartFile file;
 
-  // 規定のフォーマットに定められたカンマの数
-  private String formatComma;
+  // どのフォーマットを用いてフォーマットチェックを行うのか判別するフラグ
+  // flagの種類はValidationMessage.propertiesを参照
+  private String flag;
 
   MessageSource messageSource;
-
-  // コンストラクタ
 
   /**
    * CsvUtilクラスのコンストラクタ.
    *
    * @param file CSVファイル
-   * @param formatComma 規定のフォーマットに定められたカンマの数
+   * @param flag 判別フラグ
    * @param messageSource messageSource
    */
-  public CsvUtil(MultipartFile file, String formatComma, MessageSource messageSource) {
+  public CsvUtil(MultipartFile file, String flag, MessageSource messageSource) {
     this.file = file;
-    this.formatComma = formatComma;
+    this.flag = flag;
     this.messageSource = messageSource;
   }
 
@@ -63,7 +62,7 @@ public class CsvUtil {
 
       // フォーマットのvalidationチェック
       List<String[]> readCsvList = csvReader.readAll();
-      errorList = checkCsvFileValidation(readCsvList, formatComma);
+      errorList = checkCsvFileValidation(readCsvList, flag);
 
       return errorList;
 
@@ -114,20 +113,25 @@ public class CsvUtil {
    * CSVファイルのフォーマットチェックを行う.
    *
    * @param readCsvList 読み込んだCSVファイルのlist
-   * @param formatComma 規定のフォーマットに定められたカンマの数
+   * @param flag どのフォーマットを用いてフォーマットチェックを行うのか判別するフラグ
    * @return String型のlist エラーメッセージ
    * @throws CsvException 例外
    * @throws IOException 例外
    */
-  private List<String> checkCsvFileValidation(List<String[]> readCsvList, String formatComma)
+  private List<String> checkCsvFileValidation(List<String[]> readCsvList, String flag)
       throws CsvException, IOException {
 
     List<String> errorList = new ArrayList<>();
-    int comma = Integer.parseInt(formatComma);
+    String header = "";
+    int comma = 0;
+
+    if ("itemMaster".equals(flag)) {
+      header = messageSource.getMessage("itemMaster.header", null, Locale.getDefault());
+      comma = Integer.parseInt(messageSource.getMessage("itemMaster.formatComma",
+          null, Locale.getDefault()));
+    }
 
     // ヘッダー行のチェック
-    String header = messageSource.getMessage("itemMaster.header", null, Locale.getDefault());
-
     if (!header.equals(Arrays.toString(readCsvList.get(0)))) {
       errorList.add(messageSource.getMessage("errMsg.mismatchFormat", null, Locale.getDefault()));
       /*
