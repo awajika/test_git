@@ -396,13 +396,13 @@ public class ItemController {
 
       // 未入力チェック
       if (StringUtils.isEmpty(form.getItemCode())) {
-        errorList.add(messageSource.getMessage("NotBlank.csvDateForm",
+        errorList.add(messageSource.getMessage("NotBlank.csvDataForm",
             new String[]{String.valueOf(count), itemCode}, Locale.getDefault()));
       }
 
       // 桁数チェック
       if (Integer.parseInt(maxDigit) < form.getItemCode().length()) {
-        errorList.add(messageSource.getMessage("Size.csvDateForm",
+        errorList.add(messageSource.getMessage("Size.csvDataForm",
             new String[]{String.valueOf(count), itemCode, wordCount}, Locale.getDefault()));
       }
 
@@ -433,13 +433,13 @@ public class ItemController {
 
       // 未入力チェック
       if (StringUtils.isEmpty(form.getItemName())) {
-        errorList.add(messageSource.getMessage("NotBlank.csvDateForm",
+        errorList.add(messageSource.getMessage("NotBlank.csvDataForm",
             new String[]{String.valueOf(count), itemName}, Locale.getDefault()));
       }
 
       // 桁数チェック
       if (Integer.parseInt(maxDigit) < form.getItemName().length()) {
-        errorList.add(messageSource.getMessage("Size.csvDateForm",
+        errorList.add(messageSource.getMessage("Size.csvDataForm",
             new String[]{String.valueOf(count), itemName, wordCount}, Locale.getDefault()));
       }
 
@@ -448,7 +448,7 @@ public class ItemController {
 
       // 未入力チェックSize.csvDateForm
       if (StringUtils.isEmpty(form.getPrice())) {
-        errorList.add(messageSource.getMessage("NotBlank.csvDateForm",
+        errorList.add(messageSource.getMessage("NotBlank.csvDataForm",
             new String[]{String.valueOf(count), price}, Locale.getDefault()));
       }
       // 文字種チェック
