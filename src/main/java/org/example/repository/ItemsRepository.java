@@ -1,5 +1,7 @@
 package org.example.repository;
 
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
 import org.example.domain.Items;
 
 /**
@@ -14,4 +16,11 @@ public interface ItemsRepository {
    * @return 商品
    */
   Items findByItemCode(String itemCode);
+
+  /**
+   * CSVファイルから取得した商品マスタを登録、または更新する.
+   *
+   * @param itemList CSVファイルから取得した商品マスタ
+   */
+  void saveFromCsvItemMaster(@Param("itemList") List<Items> itemList);
 }

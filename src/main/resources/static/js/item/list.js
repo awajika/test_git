@@ -168,3 +168,69 @@ function CreateSortButton(name, nowSort) {
         createSortBtn.setAttribute("form", "itemSearchForm");
     }
 }
+
+// 商品コードアップロードボタン押下
+async function uploadItem() {
+
+    // ローディング表示
+    showLoading();
+    await sleep(1000);
+    removeLoading();
+
+    uploadFile();
+};
+
+// 商品マスタ一括登録処理
+function uploadFile() {
+
+    // ファイルを取得
+    let file = $("#file")[0].files[0];
+
+    // フォームデータを取得
+    let formData = new FormData();
+    formData.append("file", file);
+
+    //　SpringSecurityの閲覧禁止を回避するために、csrf情報をセット
+    let token = $("meta[name='_csrf']").attr("content");
+    let header = $("meta[name='_csrf_header']").attr("content");
+
+    // Ajax通信時に、リクエストヘッダにトークンを埋め込むよう記述
+    $(document).ajaxSend(function(e, xhr, options){
+        xhr.setRequestHeader(header, token);
+    });
+
+    $.ajax({
+        type: "post",
+        url: "/item/upload",
+        data: formData,
+        cache       : false,
+        contentType : false,
+        processData : false,
+        dataType    : "json"
+    }).then(function (response) {
+        // リクエストヘッダのmessageにメッセージがあるか確認
+        if (response.message != null) {
+            let messageFlag = response.message;
+            // reload()だと下のページングの数字に不具合が生じるためlocation.hrefを使ってページの再読み込み
+            location.href = "/item/list?successMessage=" + messageFlag;
+        }
+
+    }, function (response) {
+        // リクエストヘッダのmessageにメッセージがあるか確認
+        if (response.responseJSON.message != null) {
+            let errorList = response.responseJSON.message;
+
+             // サーバから受け取ったerrorListを取り出し、モーダルに書き込む
+             let errorMessage = "";
+             $.each(errorList, function(i, error) {
+                errorMessage = errorMessage + (error + '\r\n')
+             });
+
+             // モーダルにエラーメッセージを追加
+             $("#common-ng-message").text(errorMessage);
+
+             // モーダル表示
+             $("#common-ng").modal("show");
+        }
+    });
+}

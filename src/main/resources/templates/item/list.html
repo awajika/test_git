@@ -52,11 +52,9 @@
                     </div>
                     <div class="row bg-light m-2 p-4">
 <!--                todo　管理者権限        <div class="col-8" th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}">-->
-                            <form class="row" id="uploadForm" enctype="multipart/form-data">
-                                <input class="form-control col-7" type="file" name="file" />
-                                <button class="btn btn-secondary mx-2 col-4" onclick="uploadItem()">商品コードアップロード</button>
-                            </form>
-<!--                        </div>-->
+                            <input class="form-control col-7" type="file" id="file" />
+                            <button class="btn btn-secondary mx-2 col-4" onclick="uploadItem()">商品コードアップロード</button>
+<!--                    </div>-->
                         <div class="col-4">
                             <form class="row" id="csvform" method="post" th:action="@{/item/download}">
                                 <button class="btn btn-secondary col-8">商品コードダウンロード</button>
@@ -182,4 +180,6 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 </body>
+<meta th:name="_csrf" th:content="${_csrf.token}">
+<meta th:name="_csrf_header" th:content="${_csrf.headerName}">
 </html>

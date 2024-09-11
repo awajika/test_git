@@ -1,20 +1,30 @@
 package org.example.controller;
 
+import com.opencsv.CSVReader;
+import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
+import com.opencsv.exceptions.CsvException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import org.example.constant.Role;
 import org.example.domain.ItemOrders;
 import org.example.domain.Items;
 import org.example.domain.Orders;
+import org.example.form.CsvItemMasterForm;
 import org.example.form.ItemForm;
 import org.example.form.ItemOrdersForm;
 import org.example.form.ItemSearchForm;
 import org.example.service.ItemOrdersService;
 import org.example.service.ItemsService;
 import org.example.service.OrdersService;
+import org.example.util.CsvUtil;
 import org.example.view.ItemOrdersInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -22,6 +32,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -33,6 +45,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.thymeleaf.util.StringUtils;
 
@@ -281,6 +294,64 @@ public class ItemController {
   }
 
   /**
+   * 商品マスタ一括登録機能.
+   *
+   * @param file アップロードされたCSVファイル
+   * @return success: ステータスコード200, messageFlag　　fail: ステータスコード400, エラーメッセージ
+   */
+  @RequestMapping(path = "/item/upload", method = RequestMethod.POST)
+  public ResponseEntity<Object> updateItems(@RequestParam(value = "file", required = false)
+                                              MultipartFile file) {
+
+    /*
+    セッション情報から権限をチェックする
+    セッションから作成者のuser_idを取得する
+    userForm.setAuthor(作成者のuser_id)
+     */
+
+    // エラーメッセージをリクエストヘッダのmessageにセットするMapを用意
+    HashMap<String, List<String>> error = new HashMap<>();
+
+    // ファイルのvalidationチェック
+    String formatComma = messageSource.getMessage("item.formatComma", null, Locale.getDefault());
+    CsvUtil csvUtil = new CsvUtil(file, formatComma, messageSource);
+    List<String> errorList = csvUtil.checkCsvFileValidation();
+    if (!errorList.isEmpty()) {
+      error.put("message", errorList);
+      return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    try (InputStream inputStream = file.getInputStream();
+         CSVReader csvReader = new CSVReader(new InputStreamReader(inputStream))) {
+
+      // CsvItemMasterFormに詰め替える
+      List<CsvItemMasterForm> itemMasters = readCsvFile(csvReader);
+
+      // validationチェック
+      List<String> errorMessageList = checkItemValidation(itemMasters);
+      errorList.addAll(errorMessageList);
+
+      // validationチェックでerrorがあった際の処理
+      if (!errorList.isEmpty()) {
+        error.put("message", errorList);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+      }
+
+      List<Items> itemList = mapItems(itemMasters);
+      itemsService.saveFromCsvItemMaster(itemList);
+
+      // successMessageをリクエストヘッダのmessageにセット
+      HashMap<String, String> success = new HashMap<>();
+      success.put("message", messageSource.getMessage("upload", null, Locale.getDefault()));
+
+      return new ResponseEntity<>(success, HttpStatus.OK);
+
+    } catch (IOException | CsvException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
    * 商品登録・編集画面で入力された値のvalidationチェックを行う.
    *
    * @param itemForm 商品登録・編集画面で入力されたform
@@ -300,6 +371,93 @@ public class ItemController {
       }
     }
     return error;
+  }
+
+  /**
+   * CSVファイルから読み込んだ商品マスタのvalidationチェックを行う.
+   *
+   * @param itemMasters CSVファイルから読み込んだ商品マスタ
+   * @return String型のlist エラーメッセージ
+   */
+  private List<String> checkItemValidation(List<CsvItemMasterForm> itemMasters) {
+
+    List<String> errorList = new ArrayList<>();
+    int count = 0;
+
+    for (CsvItemMasterForm form : itemMasters) {
+
+      // 現在の行
+      count++;
+
+      /* 商品コード */
+      String itemCode = messageSource.getMessage("itemCode", null, Locale.getDefault());
+      String wordCount = messageSource.getMessage("limitOneTwenty", null, Locale.getDefault());
+      String maxDigit = messageSource.getMessage("maxDigit", null, Locale.getDefault());
+
+      // 未入力チェック
+      if (StringUtils.isEmpty(form.getItemCode())) {
+        errorList.add(messageSource.getMessage("NotBlank.csvDateForm",
+            new String[]{String.valueOf(count), itemCode}, Locale.getDefault()));
+      }
+
+      // 桁数チェック
+      if (Integer.parseInt(maxDigit) < form.getItemCode().length()) {
+        errorList.add(messageSource.getMessage("Size.csvDateForm",
+            new String[]{String.valueOf(count), itemCode, wordCount}, Locale.getDefault()));
+      }
+
+      // 重複チェック
+      /*
+       * 商品コードだけのリストを生成する
+       * 現在チェックしている行と商品コードだけのリストを比較する
+       * このとき、商品コードだけのリストの中には現在チェックしている行の商品コードも含まれているため、
+       * 必ずduplicateItemCodeは1以上となる
+       *
+       * duplicateItemCode=1    重複なし
+       * duplicateItemCode=2以上 重複あり
+       */
+      long duplicateItemCode = itemMasters.stream()
+          .map(CsvItemMasterForm::getItemCode)
+          .filter(code -> form.getItemCode().equals(code))
+          .count();
+
+      if (duplicateItemCode != 1) {
+        errorList.add(messageSource.getMessage("errMsg.duplicate",
+            new String[]{String.valueOf(count), itemCode}, Locale.getDefault()));
+      }
+
+      /* 商品名 */
+      String itemName = messageSource.getMessage("itemName", null, Locale.getDefault());
+      wordCount = messageSource.getMessage("limitOneTwoHundred", null, Locale.getDefault());
+      maxDigit = messageSource.getMessage("maxDigit.itemName", null, Locale.getDefault());
+
+      // 未入力チェック
+      if (StringUtils.isEmpty(form.getItemName())) {
+        errorList.add(messageSource.getMessage("NotBlank.csvDateForm",
+            new String[]{String.valueOf(count), itemName}, Locale.getDefault()));
+      }
+
+      // 桁数チェック
+      if (Integer.parseInt(maxDigit) < form.getItemName().length()) {
+        errorList.add(messageSource.getMessage("Size.csvDateForm",
+            new String[]{String.valueOf(count), itemName, wordCount}, Locale.getDefault()));
+      }
+
+      /* 単価 */
+      String price = messageSource.getMessage("price", null, Locale.getDefault());
+
+      // 未入力チェックSize.csvDateForm
+      if (StringUtils.isEmpty(form.getPrice())) {
+        errorList.add(messageSource.getMessage("NotBlank.csvDateForm",
+            new String[]{String.valueOf(count), price}, Locale.getDefault()));
+      }
+      // 文字種チェック
+      if (!form.getPrice().matches("^[0-9]+$")) {
+        errorList.add(messageSource.getMessage("Pattern.csvItemMasterForm.price",
+            new String[]{String.valueOf(count), price}, Locale.getDefault()));
+      }
+    }
+    return errorList;
   }
 
   /**
@@ -412,6 +570,37 @@ public class ItemController {
   }
 
   /**
+   * CSVファイルを読み込みCsvItemMasterFormへ詰め替える.
+   *
+   * @param csvReader csvReader
+   * @return ListのCsvItemMasterForm
+   */
+  private List<CsvItemMasterForm> readCsvFile(CSVReader csvReader)
+      throws CsvException, IOException {
+    // ヘッダー行を飛ばす処理
+    csvReader.readNext();
+
+    // CsvItemMasterFormへ詰め替える
+    CsvToBean<CsvItemMasterForm> csvToBean =
+        new CsvToBeanBuilder<CsvItemMasterForm>(csvReader)
+            .withType(CsvItemMasterForm.class).build();
+
+    return csvToBean.parse();
+  }
+
+  private List<Items> mapItems(List<CsvItemMasterForm> form) {
+    List<Items> itemList = new ArrayList<>();
+    form.forEach(itemMaster -> {
+      Items item = new Items();
+      item.setItemCode(itemMaster.getItemCode());
+      item.setItemName(itemMaster.getItemName());
+      item.setPrice(Integer.parseInt(itemMaster.getPrice()));
+      itemList.add(item);
+    });
+    return itemList;
+  }
+
+  /**
    * リクエストパラメータで受け取ったmessageFlagを元に対応したsuccessMessageを取得する.
    * messageFlagの種類はmessage.propertiesを参照
    *
@@ -426,6 +615,8 @@ public class ItemController {
       message = messageSource.getMessage("register.successMessage", null, Locale.getDefault());
     } else if ("edit".equals(messageFlag)) {
       message = messageSource.getMessage("edit.successMessage", null, Locale.getDefault());
+    } else if ("upload".equals(messageFlag)) {
+      message = messageSource.getMessage("upload.successMessage", null, Locale.getDefault());
     }
 
     return message;

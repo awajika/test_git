@@ -1,5 +1,6 @@
 package org.example.service;
 
+import java.util.List;
 import org.example.domain.Items;
 import org.example.repository.ItemsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,5 +24,15 @@ public class ItemsServiceImpl implements ItemsService {
   @Override
   public Items findByItemCode(String itemCode) {
     return itemsRepository.findByItemCode(itemCode);
+  }
+
+  /**
+   * CSVファイルから取得した商品マスタを登録、または更新する.
+   *
+   * @param itemList CSVファイルから取得した商品マスタ
+   */
+  @Override
+  public void saveFromCsvItemMaster(List<Items> itemList) {
+    itemsRepository.saveFromCsvItemMaster(itemList);
   }
 }
