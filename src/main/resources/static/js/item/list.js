@@ -288,7 +288,11 @@ function downloadFile() {
         link.click();
 
     }, function () {
-        alert("error");
+        // モーダルにエラーメッセージを追加
+        $("#common-ng-message").text("商品コードダウンロードに失敗しました");
+
+        // モーダル表示
+        $("#common-ng").modal("show");
     });
 }
 
@@ -306,18 +310,18 @@ function formatDate() {
 
     let date = String(currentDate.getDate());
     if (date.length == 1) {
-            date = "0" + date;
-        }
+        date = "0" + date;
+    }
 
     let hours = String(currentDate.getHours());
     if (hours.length == 1) {
-            hours = "0" + hours;
-        }
+        hours = "0" + hours;
+    }
 
     let minutes = String(currentDate.getMinutes());
     if (minutes.length == 1) {
-            minutes = "0" + minutes;
-        }
+        minutes = "0" + minutes;
+    }
 
     let seconds = String(currentDate.getSeconds());
     if (seconds.length == 1) {
