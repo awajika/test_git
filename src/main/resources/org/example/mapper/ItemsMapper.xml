@@ -7,6 +7,13 @@
     <result property="itemName" column="item_name"></result>
     <result property="price" column="price"></result>
 </resultMap>
+<select id="findAll" resultMap="Items">
+    SELECT
+        item_code,
+        item_name,
+        price
+    FROM items
+</select>
 <select id="findByItemCode" resultMap="Items">
     SELECT
         item_code,

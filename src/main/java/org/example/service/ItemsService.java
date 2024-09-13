@@ -10,6 +10,13 @@ import org.example.domain.Items;
 public interface ItemsService {
 
   /**
+   * 現在登録されている商品マスタを全て取得する.
+   *
+   * @return 現在登録されている商品マスタ
+   */
+  List<Items> findAll();
+
+  /**
    * 商品コードから商品を探す.
    *
    * @param itemCode 商品コード

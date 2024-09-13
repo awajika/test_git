@@ -234,3 +234,96 @@ function uploadFile() {
         }
     });
 }
+
+// 商品コードダウンロードボタン押下
+async function downloadItem() {
+
+    // ローディング表示
+    showLoading();
+    await sleep(1000);
+    removeLoading();
+
+    downloadFile();
+}
+
+// 商品マスタダウンロード処理
+function downloadFile() {
+
+    //　SpringSecurityの閲覧禁止を回避するために、csrf情報をセット
+    let token = $("meta[name='_csrf']").attr("content");
+    let header = $("meta[name='_csrf_header']").attr("content");
+
+    // Ajax通信時に、リクエストヘッダにトークンを埋め込むよう記述
+    $(document).ajaxSend(function(e, xhr, options){
+        xhr.setRequestHeader(header, token);
+    });
+
+    $.ajax({
+        type: "post",
+        url: "/item/download",
+        cache       : false,
+        contentType : false,
+        processData : false,
+        dataType    : "html"
+    }).then(function(data) {
+
+        // 現在日時を取得
+        let currentDate = formatDate();
+        // ファイル名　item_yyyyMMddHHmmss.csv
+        let fileName = "item_" + currentDate +".csv";
+
+        // 受け取ったデータのままCSVファイルにするとExcelで開いたときに文字化けするのでBOM付きUTF-8にする
+        let bom  = new Uint8Array([0xEF, 0xBB, 0xBF]);
+        let blob = new Blob([bom, data], {type: 'text/csv'});
+
+        let objURL = window.URL.createObjectURL(blob);
+
+        // 新しくリンクを生成
+        let link = document.createElement("a");
+        document.body.appendChild(link);
+        link.href = objURL;
+        link.download = fileName;
+
+        // ファイルダウンロード
+        link.click();
+
+    }, function () {
+        alert("error");
+    });
+}
+
+// 現在日時を取得し、フォーマットを整える
+function formatDate() {
+
+    let currentDate = new Date();
+
+    let year = String(currentDate.getFullYear());
+
+    let mouth = String(currentDate.getMonth() + 1);
+    if (mouth.length == 1) {
+        mouth = "0" + mouth;
+    }
+
+    let date = String(currentDate.getDate());
+    if (date.length == 1) {
+            date = "0" + date;
+        }
+
+    let hours = String(currentDate.getHours());
+    if (hours.length == 1) {
+            hours = "0" + hours;
+        }
+
+    let minutes = String(currentDate.getMinutes());
+    if (minutes.length == 1) {
+            minutes = "0" + minutes;
+        }
+
+    let seconds = String(currentDate.getSeconds());
+    if (seconds.length == 1) {
+        seconds = "0" + seconds;
+    }
+
+    let formatDate = year + mouth + date + hours + minutes + seconds;
+    return formatDate;
+}

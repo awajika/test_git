@@ -16,6 +16,16 @@ public class ItemsServiceImpl implements ItemsService {
   ItemsRepository itemsRepository;
 
   /**
+   * 現在登録されている商品マスタを全て取得する.
+   *
+   * @return 現在登録されている商品マスタ
+   */
+  @Override
+  public List<Items> findAll() {
+    return itemsRepository.findAll();
+  }
+
+  /**
    * 商品コードから商品を探す.
    *
    * @param itemCode 商品コード

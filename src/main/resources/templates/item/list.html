@@ -56,9 +56,7 @@
                             <button class="btn btn-secondary mx-2 col-4" onclick="uploadItem()">商品コードアップロード</button>
 <!--                    </div>-->
                         <div class="col-4">
-                            <form class="row" id="csvform" method="post" th:action="@{/item/download}">
-                                <button class="btn btn-secondary col-8">商品コードダウンロード</button>
-                            </form>
+                            <button class="btn btn-secondary col-8" onclick="downloadItem()">商品コードダウンロード</button>
                         </div>
 
                     </div>

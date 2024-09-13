@@ -1,12 +1,23 @@
 package org.example.controller;
 
 import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
+import com.opencsv.bean.StatefulBeanToCsv;
+import com.opencsv.bean.StatefulBeanToCsvBuilder;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -24,6 +35,7 @@ import org.example.form.ItemSearchForm;
 import org.example.service.ItemOrdersService;
 import org.example.service.ItemsService;
 import org.example.service.OrdersService;
+import org.example.strategy.CustomMappingStrategy;
 import org.example.util.CsvUtil;
 import org.example.view.ItemOrdersInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -353,6 +365,45 @@ public class ItemController {
   }
 
   /**
+   * 商品マスタダウンロード機能.
+   *
+   * @param response レスポンス
+   */
+  @RequestMapping(path = "/item/download", method = RequestMethod.POST)
+  public void downloadItemMaster(HttpServletResponse response) {
+
+    // DBから商品マスタを取得
+    List<CsvItemMasterForm> itemMasterList = getItemMaster();
+
+    // 空のファイルを作成
+    String filePath = messageSource.getMessage("filePath", null, Locale.getDefault());
+    File file = new File(filePath);
+
+    // DBから取ってきたレコードを空ファイルへ書き込む
+    writeCsvFile(itemMasterList, file);
+
+    try (OutputStream outputStream = response.getOutputStream()) {
+
+      // CSVファイルをbyte[]に変換する
+      byte[] downloadFile =  Files.readAllBytes(Path.of(filePath));
+
+      // クライアントにファイルをダウンロードさせるための処理
+      response.setContentType("application/octet-stream");
+      response.setHeader("Content-Disposition", "attachment; filename=itemMaster.csv");
+      response.setContentLength(downloadFile.length);
+
+      outputStream.write(downloadFile);
+      outputStream.flush();
+
+      // 不要になったファイルを削除
+      Files.deleteIfExists(file.toPath());
+
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
    * 商品登録・編集画面で入力された値のvalidationチェックを行う.
    *
    * @param itemForm 商品登録・編集画面で入力されたform
@@ -624,6 +675,26 @@ public class ItemController {
   }
 
   /**
+   * DBから商品マスタを取得し、ListのCsvItemMasterFormに詰め替える.
+   *
+   * @return listのCsvItemMasterForm　商品マスタ
+   */
+  private List<CsvItemMasterForm> getItemMaster() {
+    List<Items> itemList = itemsService.findAll();
+
+    List<CsvItemMasterForm> itemMasterList = new ArrayList<>();
+    itemList.forEach(data -> {
+      CsvItemMasterForm form = new CsvItemMasterForm();
+      form.setItemCode(data.getItemCode());
+      form.setItemName(data.getItemName());
+      form.setPrice(String.valueOf(data.getPrice()));
+      itemMasterList.add(form);
+    });
+
+    return itemMasterList;
+  }
+
+  /**
    * フリーワードが複数入力されている場合、半角または全角で区切る.
    */
   private String[] changeAryKeywords(ItemSearchForm form) {
@@ -636,5 +707,31 @@ public class ItemController {
       keyword = new String[]{form.getKeyword()};
     }
     return keyword;
+  }
+
+  /**
+   * DBから取得した商品マスタをCSVファイルへ書き込む.
+   *
+   * @param itemMasterList DBから取得した商品マスタ
+   * @param file 空のファイル
+   */
+  private void writeCsvFile(List<CsvItemMasterForm> itemMasterList, File file) {
+    try (CSVWriter csvWriter = new CSVWriter(new FileWriter(file))) {
+
+      // CsvBindByNameとCsvBindByPositionを紐づける処理
+      CustomMappingStrategy<CsvItemMasterForm> mappingStrategy = new CustomMappingStrategy<>();
+      mappingStrategy.setType(CsvItemMasterForm.class);
+
+      // CSVファイルへ書き込み
+      StatefulBeanToCsv<CsvItemMasterForm> beanToCsv
+          = new StatefulBeanToCsvBuilder<CsvItemMasterForm>(csvWriter)
+          .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
+          .withApplyQuotesToAll(false)
+          .withMappingStrategy(mappingStrategy)
+          .build();
+      beanToCsv.write(itemMasterList);
+    } catch (IOException | CsvRequiredFieldEmptyException | CsvDataTypeMismatchException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

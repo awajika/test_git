@@ -17,6 +17,16 @@ public class ItemsRepositoryImpl implements ItemsRepository {
   SqlSessionTemplate sqlSessionTemplate;
 
   /**
+   * 現在登録されている商品マスタを全て取得する.
+   *
+   * @return 現在登録されている商品マスタ
+   */
+  @Override
+  public List<Items> findAll() {
+    return this.sqlSessionTemplate.getMapper(ItemsMapper.class).findAll();
+  }
+
+  /**
    * 商品コードから商品を探す.
    *
    * @param itemCode 商品コード
