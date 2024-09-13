@@ -64,12 +64,8 @@
                         <button class="btn btn-primary" onclick="entryItem()">新規登録</button>
                     </div>
                     <table class="table table-striped table-bordered h-100">
-<!--   todo テーブルのはみ出ていた箇所はcolを動的にしても直らなかったのでスルーしています。
-            商品名のカラムは名前の長さによって幅が変化してしまうため、
-            商品コード、購入日時のカラムは商品名のカラムを固定した影響でレイアウト上固定しないと綺麗に表示されなかったので
-            col-2で固定しています。-->
                         <thead>
-                        <tr class="row">
+                        <tr>
                             <th scope="col" class="col-2">
                                 <div class="text-center">
                                     <span class="me-auto">商品コード</span>
@@ -85,12 +81,12 @@
                                     <span class="me-auto">商品名</span>
                                 </div>
                             </th>
-                            <th scope="col" class="col">
+                            <th scope="col" class="col-1">
                                 <div class="text-center">
                                     <span class="me-auto">数量</span>
                                 </div>
                             </th>
-                            <th scope="col" class="col">
+                            <th scope="col" class="col-1">
                                 <div class="text-center">
                                     <span class="me-auto">単価</span>
                                     <button class="btn" id="priceSortBtn" th:onclick="|PriceSortButton('category', '__${itemSearchForm.priceSort}__')|">
@@ -100,7 +96,7 @@
                                     </button>
                                 </div>
                             </th>
-                            <th scope="col" class="col">
+                            <th scope="col" class="col-1">
                                 <div class="text-center">
                                     <span class="me-auto">合計</span>
                                     <button class="btn" id="totalSortBtn" th:onclick="|TotalSortButton('category', '__${itemSearchForm.totalSort}__')|">
@@ -120,25 +116,25 @@
                                     </button>
                                 </div>
                             </th>
-                            <th scope="col" class="col">
+                            <th scope="col" class="col-1">
                                 <div class="text-center">
                                     <span class="me-auto">購入者</span>
                                 </div>
                             </th>
-                            <th scope="col" class="col">
+                            <th scope="col" class="col-1">
                             </th>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr class="align-middle row" th:each="list : ${itemOrderList}">
+                        <tr class="align-middle" th:each="list : ${itemOrderList}">
                             <td class="text-center col-2" th:text="${list.itemCode}"></td>
                             <td class="text-center col-2" th:text="${list.itemName}"></td>
-                            <td class="text-center col" th:text="${list.count < 100 ? list.count : #numbers.formatInteger(list.count, 3, 'COMMA')}"></td>
-                            <td class="text-center col" th:text="${list.price < 100 ? list.price : #numbers.formatInteger(list.price, 3, 'COMMA')}"></td>
-                            <td class="text-center col" th:text="${list.totalPrice < 100 ? list.totalPrice : #numbers.formatInteger(list.totalPrice, 3, 'COMMA')}"></td>
+                            <td class="text-center col-1" th:text="${list.count < 100 ? list.count : #numbers.formatInteger(list.count, 3, 'COMMA')}"></td>
+                            <td class="text-center col-1" th:text="${list.price < 100 ? list.price : #numbers.formatInteger(list.price, 3, 'COMMA')}"></td>
+                            <td class="text-center col-1" th:text="${list.totalPrice < 100 ? list.totalPrice : #numbers.formatInteger(list.totalPrice, 3, 'COMMA')}"></td>
                             <td class="text-center col-2" th:text="${#temporals.format(list.createDate,'yyyy/MM/dd HH:mm')}"></td>
-                            <td class="text-center col" th:text="${list.name}"></td>
-                            <td class="text-center col">
+                            <td class="text-center col-1" th:text="${list.name}"></td>
+                            <td class="text-center col-1">
                                 <button class="btn btn-primary" th:data-id="${list.id}" onclick="editItem(this)">編集</button>
                             </td>
                         </tr>
