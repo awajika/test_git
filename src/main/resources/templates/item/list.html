@@ -70,15 +70,6 @@
             col-2で固定しています。-->
                         <thead>
                         <tr class="row">
-                            <th scope="col" class="col">
-                                <div class="text-center">
-                                    <span class="me-auto">
-                                        <button
-                                                class="btn btn-primary" name="allCheck" data-check="true" onclick="allCheck(this)">全選択</button>
-<!--                                    todo 管理者権限    th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}"-->
-                                    </span>
-                                </div>
-                            </th>
                             <th scope="col" class="col-2">
                                 <div class="text-center">
                                     <span class="me-auto">商品コード</span>
@@ -136,16 +127,10 @@
                             </th>
                             <th scope="col" class="col">
                             </th>
-                            <th scope="col" class="col">
-                            </th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr class="align-middle row" th:each="list : ${itemOrderList}">
-                            <td class="text-center col">
-                                <input  id="item-id-1" name="checked-id" type="checkbox" th:id="${'item-id-' + list.id}">
-<!--                            todo 管理者権限    th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}"-->
-                            </td>
                             <td class="text-center col-2" th:text="${list.itemCode}"></td>
                             <td class="text-center col-2" th:text="${list.itemName}"></td>
                             <td class="text-center col" th:text="${list.count < 100 ? list.count : #numbers.formatInteger(list.count, 3, 'COMMA')}"></td>
@@ -155,10 +140,6 @@
                             <td class="text-center col" th:text="${list.name}"></td>
                             <td class="text-center col">
                                 <button class="btn btn-primary" th:data-id="${list.id}" onclick="editItem(this)">編集</button>
-                            </td>
-                            <td class="text-center col">
-                                <button  class="btn btn-danger" th:data-id="${list.id}" onclick="deleteItem(this)">削除</button>
-<!--                     todo 管理者権限           th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}"-->
                             </td>
                         </tr>
                         </tbody>
