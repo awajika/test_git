@@ -331,3 +331,21 @@ function formatDate() {
     let formatDate = year + mouth + date + hours + minutes + seconds;
     return formatDate;
 }
+
+// 日付チェック
+const btn = document.getElementById("searchBtn");
+btn.addEventListener('click', function() {
+    const startAtValue = document.getElementById("startAt").value;
+    const endAtValue = document.getElementById("endAt").value;
+
+    // 日付が入力されていたときチェック
+    if (startAtValue != "" && endAtValue != "" && endAtValue < startAtValue) {
+        // モーダルにエラーメッセージを追加
+        $("#common-ng-message").text("日付の開始日と終了日が逆転しています");
+
+        // モーダル表示
+        $("#common-ng").modal("show");
+    } else {
+        btn.setAttribute("type", "submit");
+    }
+});

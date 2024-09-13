@@ -41,7 +41,7 @@
                             <input class="form-control col-5 me-1" type="text" placeholder="フリーワード(商品コード、商品名、購入者)" th:field="*{keyword}"/>
                             <input class="form-control col-3" type="date" th:field="*{startAt}"> 〜 <input class="form-control col-3" type="date" th:field="*{endAt}">
                             <div class="text-right mt-2">
-                                <button class="btn btn-primary col-2" type="submit">検索</button>
+                                <button class="btn btn-primary col-2" type="button" id="searchBtn">検索</button>
                             </div>
                             <input id="idSort" type="hidden" name="idSort">
                             <input id="priceSort" type="hidden" name="priceSort">
