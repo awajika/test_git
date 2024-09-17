@@ -272,10 +272,7 @@ function downloadFile() {
         // ファイル名　item_yyyyMMddHHmmss.csv
         let fileName = "item_" + currentDate +".csv";
 
-        // 受け取ったデータのままCSVファイルにするとExcelで開いたときに文字化けするのでBOM付きUTF-8にする
-        let bom  = new Uint8Array([0xEF, 0xBB, 0xBF]);
-        let blob = new Blob([bom, data], {type: 'text/csv'});
-
+        let blob = new Blob([data]);
         let objURL = window.URL.createObjectURL(blob);
 
         // 新しくリンクを生成
