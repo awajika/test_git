@@ -107,67 +107,93 @@ async function downloadItem() {
 
 // 商品コードソートボタン押下
 function IdSortButton(name, nowSort) {
-    const idSort = document.getElementById("idSort");
-    const idSortBtn = document.getElementById("idSortBtn");
+    const result = checkDate();
 
-    if (nowSort == "asc") {
-        idSort.setAttribute("value", "desc");
-        idSortBtn.setAttribute("form", "itemSearchForm")
-    }
+    if (result) {
+        const idSort = document.getElementById("idSort");
+        const idSortBtn = document.getElementById("idSortBtn");
 
-    if (nowSort == "" || nowSort == "desc") {
-        idSort.setAttribute("value", "asc");
-        idSortBtn.setAttribute("form", "itemSearchForm")
+        if (nowSort == "asc") {
+            idSort.setAttribute("value", "desc");
+            idSortBtn.setAttribute("form", "itemSearchForm");
+        }
+
+        if (nowSort == "" || nowSort == "desc") {
+            idSort.setAttribute("value", "asc");
+            idSortBtn.setAttribute("form", "itemSearchForm");
+        }
     }
 }
 
 // 単価ソートボタン押下
 function PriceSortButton(name, nowSort) {
-    const priceSort = document.getElementById("priceSort");
-    const priceSortBtn = document.getElementById("priceSortBtn");
+    const result = checkDate();
 
-    if (nowSort == "asc") {
-        priceSort.setAttribute("value", "desc");
-        priceSortBtn.setAttribute("form", "itemSearchForm");
-    }
+    if (result) {
+        const priceSort = document.getElementById("priceSort");
+        const priceSortBtn = document.getElementById("priceSortBtn");
 
-    if (nowSort == "" || nowSort == "desc") {
-        priceSort.setAttribute("value", "asc");
-        priceSortBtn.setAttribute("form", "itemSearchForm");
+        if (nowSort == "asc") {
+            priceSort.setAttribute("value", "desc");
+            priceSortBtn.setAttribute("form", "itemSearchForm");
+        }
+
+        if (nowSort == "" || nowSort == "desc") {
+            priceSort.setAttribute("value", "asc");
+            priceSortBtn.setAttribute("form", "itemSearchForm");
+        }
     }
 }
 
 // 合計ソートボタン押下
 function TotalSortButton(name, nowSort) {
-    const totalSort = document.getElementById("totalSort");
-    const totalSortBtn = document.getElementById("totalSortBtn");
+    const result = checkDate();
 
-    if (nowSort == "asc") {
-        totalSort.setAttribute("value", "desc");
-        totalSortBtn.setAttribute("form", "itemSearchForm");
-    }
+    if (result) {
+        const totalSort = document.getElementById("totalSort");
+        const totalSortBtn = document.getElementById("totalSortBtn");
 
-    if (nowSort == "" || nowSort == "desc") {
-        totalSort.setAttribute("value", "asc");
-        totalSortBtn.setAttribute("form", "itemSearchForm");
+        if (nowSort == "asc") {
+            totalSort.setAttribute("value", "desc");
+            totalSortBtn.setAttribute("form", "itemSearchForm");
+        }
+
+        if (nowSort == "" || nowSort == "desc") {
+            totalSort.setAttribute("value", "asc");
+            totalSortBtn.setAttribute("form", "itemSearchForm");
+        }
     }
 }
 
 // 購入日時ソートボタン押下
 function CreateSortButton(name, nowSort) {
-    const createSort = document.getElementById("createSort");
-    const createSortBtn = document.getElementById("createSortBtn");
+    const result = checkDate();
 
-    if (nowSort == "asc") {
-        createSort.setAttribute("value", "desc");
-        createSortBtn.setAttribute("form", "itemSearchForm");
-    }
+    if (result) {
+        const createSort = document.getElementById("createSort");
+        const createSortBtn = document.getElementById("createSortBtn");
 
-    if (nowSort == "" || nowSort == "desc") {
-        createSort.setAttribute("value", "asc");
-        createSortBtn.setAttribute("form", "itemSearchForm");
+        if (nowSort == "asc") {
+            createSort.setAttribute("value", "desc");
+            createSortBtn.setAttribute("form", "itemSearchForm");
+        }
+
+        if (nowSort == "" || nowSort == "desc") {
+            createSort.setAttribute("value", "asc");
+            createSortBtn.setAttribute("form", "itemSearchForm");
+        }
     }
 }
+
+// 購入日時を設定した状態で検索ボタン押下
+const btn = document.getElementById("searchBtn");
+btn.addEventListener('click', function() {
+    const result = checkDate()
+
+    if (result) {
+        btn.setAttribute("type", "submit");
+    }
+});
 
 // 商品コードアップロードボタン押下
 async function uploadItem() {
@@ -330,8 +356,8 @@ function formatDate() {
 }
 
 // 日付チェック
-const btn = document.getElementById("searchBtn");
-btn.addEventListener('click', function() {
+// 入力された日付が正常な場合はtrue、エラーの場合はfalseを返す
+function checkDate() {
     const startAtValue = document.getElementById("startAt").value;
     const endAtValue = document.getElementById("endAt").value;
 
@@ -342,7 +368,8 @@ btn.addEventListener('click', function() {
 
         // モーダル表示
         $("#common-ng").modal("show");
+        return false;
     } else {
-        btn.setAttribute("type", "submit");
+        return true;
     }
-});
+}
