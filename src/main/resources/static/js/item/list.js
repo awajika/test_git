@@ -338,7 +338,7 @@ btn.addEventListener('click', function() {
     // 日付が入力されていたときチェック
     if (startAtValue != "" && endAtValue != "" && endAtValue < startAtValue) {
         // モーダルにエラーメッセージを追加
-        $("#common-ng-message").text("日付の開始日と終了日が逆転しています");
+        $("#common-ng-message").text("開始日は終了日よりも前の日付を設定してください");
 
         // モーダル表示
         $("#common-ng").modal("show");
