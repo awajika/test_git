@@ -559,9 +559,9 @@ public class ItemController {
     order.setId(form.getId());
     order.setItemCode(form.getItemCode());
     order.setCount(Integer.parseInt(form.getCount()));
-    order.setUserId("0001");
+    order.setUserId(securitySession.getUserId());
     order.setCreateDate(LocalDateTime.now());
-    order.setUpdateUser("0001");
+    order.setUpdateUser(securitySession.getUserId());
     order.setUpdateDate(LocalDateTime.now());
 
     return order;
