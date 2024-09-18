@@ -88,6 +88,8 @@
     FROM users
     WHERE
         user_id = #{userId}
+    AND
+        is_delete = 0
 </select>
 <insert id="save">
     INSERT INTO users

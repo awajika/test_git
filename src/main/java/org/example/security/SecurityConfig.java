@@ -18,7 +18,11 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableWebSecurity
 public class SecurityConfig {
 
-  //フォームの値と比較するDBから取得したパスワードは暗号化されているのでフォームの値も暗号化するために利用
+  /**
+   * パスワードをハッシュ化（暗号化）する.
+   *
+   * @return ハッシュ化したパスワード
+   */
   @Bean
   public BCryptPasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
@@ -31,8 +35,10 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/**").permitAll()
                 .requestMatchers("/top").permitAll()
+                .requestMatchers("/person/update").hasAuthority("ADMIN")
+                .requestMatchers("/person/delete").hasAuthority("ADMIN")
+                .requestMatchers("/item/upload").hasAuthority("ADMIN")
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                 .anyRequest().authenticated()
         )
@@ -41,7 +47,7 @@ public class SecurityConfig {
             .loginProcessingUrl("/sign_in")
             .usernameParameter("userId")
             .passwordParameter("password")
-            .defaultSuccessUrl("/person")
+            .defaultSuccessUrl("/person/list")
             .failureUrl("/top?error")
             .permitAll()
         )

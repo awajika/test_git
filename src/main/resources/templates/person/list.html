@@ -64,22 +64,22 @@
                             </div>
                         </form>
                     </div>
-                    <div class="bg-light m-2 p-4 d-flex"> <!--th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}"-->
+                    <div class="bg-light m-2 p-4 d-flex" th:if="${userRole == T(org.example.constant.Role).ADMIN.getUserRole()}">
                         <input class="form-control col-5" type="file" id="file">
                         <button class="btn btn-primary mx-2 col-3" id="csv-upload-btn">CSV一括更新</button>
                     </div>
-                    <div class="text-right m-2">
-                        <button class="btn btn-danger m-1" onclick="deletePersonList(this)">一括削除</button><!--th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}"-->
-                        <a th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}" th:href="@{/person/form}" class="btn btn-primary m-1">新規登録</a>
+                    <div class="text-right m-2" th:if="${userRole == T(org.example.constant.Role).ADMIN.getUserRole()}">
+                        <button class="btn btn-danger m-1" onclick="deletePersonList(this)">一括削除</button>
+                        <a th:if="${userRole == T(org.example.constant.Role).ADMIN.getUserRole()}" th:href="@{/person/form}" class="btn btn-primary m-1">新規登録</a>
                     </div>
                     <table class="table table-condensed table-striped table-bordered h-100">
                         <thead class="">
                             <tr>
                                 <th scope="col" class="col-1">
                                     <div class="text-center">
-                                        <span class="me-auto">
+                                        <span class="me-auto" th:if="${userRole == T(org.example.constant.Role).ADMIN.getUserRole()}">
                                             <button class="btn btn-primary" name="allCheck" data-check="true"
-                                                onclick="allCheck(this)">全選択</button> <!--th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}"-->
+                                                onclick="allCheck(this)">全選択</button>
                                         </span>
                                     </div>
                                 </th>
@@ -127,7 +127,7 @@
                         <tbody>
                             <tr class="align-middle" th:each="list : ${userList}">
                                 <td class="text-center">
-                                    <input th:if="${list.userId != loginUserId && role == T(org.example.constant.Role).ADMIN.getRoleCode()}" th:id="${'person-id-' + list.userId}" type="checkbox">
+                                    <input th:if="${list.userId != loginUserId && userRole == T(org.example.constant.Role).ADMIN.getUserRole()}" th:id="${'person-id-' + list.userId}" type="checkbox">
                                 </td>
                                 <td class="text-center" th:text="${list.userId}"></td>
                                 <td class="text-center" th:text="${list.name}"></td>
@@ -141,7 +141,7 @@
                                     th:if="${role.getRoleCode() == list.role}"
                                     th:text="${role.getLabel()}"></td>
                                 <td class="text-center table-button">
-                                    <a th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode() || list.userId == loginUserId}"
+                                    <a th:if="${userRole == T(org.example.constant.Role).ADMIN.getUserRole() || list.userId == loginUserId}"
                                        th:href="@{/person/form/{userId}(userId=${list.userId})}" class="btn btn-primary">編集</a>
                                 </td>
                                 <td class="text-center table-button">

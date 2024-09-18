@@ -37,6 +37,7 @@ import org.example.service.ItemsService;
 import org.example.service.OrdersService;
 import org.example.strategy.CustomMappingStrategy;
 import org.example.util.CsvUtil;
+import org.example.util.SecuritySession;
 import org.example.view.ItemOrdersInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -79,6 +80,9 @@ public class ItemController {
 
   @Autowired
   MessageSource messageSource;
+
+  @Autowired
+  SecuritySession securitySession;
 
   /**
    * 購入商品一覧画面へ遷移する.
@@ -126,6 +130,7 @@ public class ItemController {
     model.addAttribute("roleList", Role.values());
     model.addAttribute("page", 0);
     model.addAttribute("successMessage", message);
+    model.addAttribute("userRole", securitySession.getRole());
 
     return "item/list";
   }

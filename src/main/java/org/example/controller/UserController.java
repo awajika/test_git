@@ -21,6 +21,7 @@ import org.example.form.UserForm;
 import org.example.form.UserSearchForm;
 import org.example.service.DepartmentsService;
 import org.example.service.UsersService;
+import org.example.util.SecuritySession;
 import org.example.view.UserInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -65,6 +66,9 @@ public class UserController {
   @Autowired
   MessageSource messageSource;
 
+  @Autowired
+  SecuritySession securitySession;
+
   /**
    * ユーザー一覧表示機能.
    *
@@ -104,6 +108,8 @@ public class UserController {
     model.addAttribute("roleList", Role.values());
     model.addAttribute("page", 0);
     model.addAttribute("successMessage", message);
+    model.addAttribute("userRole", securitySession.getRole());
+    model.addAttribute("loginUserId", securitySession.getUserId());
 
     return "person/list";
   }
@@ -118,11 +124,6 @@ public class UserController {
   @RequestMapping(path = "/person/search", method = RequestMethod.GET)
   public String search(@RequestParam("page") int page,
                        UserSearchForm userSearchForm, Model model) {
-
-    /*
-    セッションにログインユーザー情報が入っているか確認
-    入っていなければログイン画面へリダイレクト
-     */
 
     /*
     フリーワード、所属、権限のみで検索された際の初期表示を社員番号の昇順にするため、初期ソートの設定を行う
@@ -161,6 +162,8 @@ public class UserController {
     model.addAttribute("departmentList", departmentList);
     model.addAttribute("roleList", Role.values());
     model.addAttribute("page", page);
+    model.addAttribute("userRole", securitySession.getRole());
+    model.addAttribute("loginUserId", securitySession.getUserId());
 
     return "person/list";
   }
@@ -175,6 +178,9 @@ public class UserController {
   public String forwardEntry(Model model) {
 
     // セッション情報から権限をチェックする
+    if (!Role.ADMIN.getUserRole().equals(securitySession.getRole())) {
+      return "redirect:/person/list";
+    }
 
     UserForm userForm = new UserForm();
     userForm.setIsRegister(true);
@@ -199,10 +205,11 @@ public class UserController {
   @RequestMapping(path = "/person/form/{userId}", method = RequestMethod.GET)
   public String forwardEntry(@PathVariable String userId, Model model) {
 
-    /*
-    セッション情報から権限をチェックする
-    ログインユーザーのID＝パラメータのID
-     */
+    // セッション情報から権限をチェックする
+    if ((!securitySession.getRole().equals(Role.ADMIN.getUserRole()))
+        && (!securitySession.getUserId().equals(userId))) {
+      return "redirect:/person/list";
+    }
 
     // ユーザー編集のリクエストのため判断フラグにfalseをセット
     Users user = usersService.editUserByUserId(userId);
@@ -234,10 +241,11 @@ public class UserController {
   public String forwardEntryConfirm(@Validated @ModelAttribute UserForm userForm,
                                     BindingResult bindingResult, Model model) {
 
-    /*
-    セッション情報から権限をチェックする
-    ログインユーザーのID＝パラメータのID
-     */
+    // セッション情報から権限をチェックする
+    if ((!securitySession.getRole().equals(Role.ADMIN.getUserRole()))
+        && (!securitySession.getUserId().equals(userForm.getUserId()))) {
+      return "redirect:/person/list";
+    }
 
     List<Departments> departmentList = departmentsService.findAll();
 
@@ -280,6 +288,11 @@ public class UserController {
     セッションから作成者のuser_idを取得する
     userForm.setAuthor(作成者のuser_id)
      */
+    // セッション情報から権限をチェックする
+    if ((!securitySession.getRole().equals(Role.ADMIN.getUserRole()))
+        && (!securitySession.getUserId().equals(userForm.getUserId()))) {
+      return "redirect:/person/list";
+    }
 
     // entry.htmlで戻るボタンが押下されたとき
     if (userForm.getBackFlg() != 0) {
