@@ -712,9 +712,9 @@ public class UserController {
     user.setNameKana(form.getNameKana());
     user.setDepartmentId(form.getDepartmentId());
     user.setRole(form.getRole());
-    user.setCreateUser("0001");
+    user.setCreateUser(securitySession.getUserId());
     user.setCreateDate(LocalDateTime.now());
-    user.setUpdateUser("0001");
+    user.setUpdateUser(securitySession.getUserId());
     user.setUpdateDate(LocalDateTime.now());
 
     return user;
@@ -742,9 +742,9 @@ public class UserController {
       user.setRole(form.getRole());
     }
 
-    user.setCreateUser("0001");
+    user.setCreateUser(securitySession.getUserId());
     user.setCreateDate(LocalDateTime.now());
-    user.setUpdateUser("0001");
+    user.setUpdateUser(securitySession.getUserId());
     user.setUpdateDate(LocalDateTime.now());
     user.setDelete(form.isDeleteFlg());
 
@@ -814,7 +814,7 @@ public class UserController {
     csvUserForm.setDepartmentName(line[4]);
     csvUserForm.setLabel((line[5]));
     csvUserForm.setStatus(line[6]);
-    csvUserForm.setAuthor("0001");
+    csvUserForm.setAuthor(securitySession.getUserId());
 
     // 状態に削除が入っていたら削除フラグを建てる
     csvUserForm.setDeleteFlg("削除".equals(csvUserForm.getStatus()));
