@@ -186,6 +186,7 @@ public class ItemController {
     model.addAttribute("itemOrderList", itemOrderList);
     model.addAttribute("roleList", Role.values());
     model.addAttribute("page", page);
+    model.addAttribute("userRole", securitySession.getRole());
 
     return "item/list";
   }
