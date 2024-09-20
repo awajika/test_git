@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper
+3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.mapper.ItemOrdersMapper">
+<resultMap id="ItemOrders" type="org.example.domain.ItemOrders">
+    <id property="id" column="id"></id>
+    <result property="itemCode" column="item_code"></result>
+    <result property="itemName" column="item_name"></result>
+    <result property="count" column="count"></result>
+    <result property="price" column="price"></result>
+    <result property="name" column="name"></result>
+    <result property="createDate" column="create_date"></result>
+    <result property="updateUser" column="update_user"></result>
+    <result property="updateDate" column="update_date"></result>
+    <result property="isDelete" column="is_delete"></result>
+</resultMap>
+<select id="selectOrdersCount" parameterType="org.example.form.ItemOrdersForm" resultType="_int">
+    SELECT count(*)
+    FROM orders AS O
+    INNER JOIN
+        items AS I
+    ON
+        O.item_code = I.item_code
+    INNER JOIN
+        users AS U
+    ON
+        O.user_id = U.user_id
+    WHERE
+        O.is_delete = 0
+    <if test="form.keywords != null">
+        <foreach collection="form.keywords" item="keyword" open="" separator="" close="">
+            AND(
+            O.item_code LIKE CONCAT('%', #{keyword}, '%') OR
+            I.item_name LIKE CONCAT('%', #{keyword}, '%') OR
+            U.name LIKE CONCAT('%', #{keyword}, '%') OR
+            U.name_kana LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </foreach>
+    </if>
+    <if test="form.startAt != null">
+        <![CDATA[AND DATE(O.create_date) >= #{form.startAt}]]>
+    </if>
+    <if test="form.endAt != null">
+        <![CDATA[AND DATE(O.create_date) <= #{form.endAt}]]>
+    </if>
+</select>
+<select id="findOrders" parameterType="org.example.form.ItemOrdersForm" resultMap="ItemOrders">
+    SELECT
+        O.id,
+        I.item_name,
+        O.item_code,
+        O.count,
+        I.price,
+    <if test="form.totalSort == 'asc' or form.totalSort == 'desc'">
+        SUM(O.count * I.price) AS total,
+    </if>
+        U.name,
+        O.create_date
+        FROM orders AS O
+    INNER JOIN
+        items AS I
+    ON
+        O.item_code = I.item_code
+    INNER JOIN
+        users AS U
+    ON
+        O.user_id = U.user_id
+    WHERE
+        O.is_delete = 0
+    <if test="form.keywords != null">
+        <foreach collection="form.keywords" item="keyword" open="" separator="" close="">
+            AND(
+                O.item_code LIKE CONCAT('%', #{keyword}, '%') OR
+                I.item_name LIKE CONCAT('%', #{keyword}, '%') OR
+                U.name LIKE CONCAT('%', #{keyword}, '%') OR
+                U.name_kana LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </foreach>
+    </if>
+    <if test="form.startAt != null">
+        <![CDATA[AND DATE(O.create_date) >= #{form.startAt}]]>
+    </if>
+    <if test="form.endAt != null">
+        <![CDATA[AND DATE(O.create_date) <= #{form.endAt}]]>
+    </if>
+    <if test="form.totalSort == 'asc' or form.totalSort == 'desc'">
+        GROUP BY O.id
+    </if>
+    <if test="form.idSort == 'asc'">
+        ORDER BY O.item_code
+    </if>
+    <if test="form.idSort == 'desc'">
+        ORDER BY O.item_code DESC
+    </if>
+    <if test="form.priceSort == 'asc'">
+        ORDER BY I.price
+    </if>
+    <if test="form.priceSort == 'desc'">
+        ORDER BY I.price DESC
+    </if>
+    <if test="form.totalSort == 'asc'">
+        ORDER BY total
+    </if>
+    <if test="form.totalSort == 'desc'">
+        ORDER BY total DESC
+    </if>
+    <if test="form.createSort == 'asc'">
+        ORDER BY O.create_date
+    </if>
+    <if test="form.createSort == 'desc'">
+        ORDER BY O.create_date DESC
+    </if>
+    <if test="form.page != null and form.size != null">
+        LIMIT #{form.page}, #{form.size}
+    </if>
+</select>
+</mapper>

@@ -1,5 +1,6 @@
 package org.example.repository;
 
+import java.util.List;
 import org.example.domain.Items;
 import org.example.mapper.ItemsMapper;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -16,6 +17,16 @@ public class ItemsRepositoryImpl implements ItemsRepository {
   SqlSessionTemplate sqlSessionTemplate;
 
   /**
+   * 現在登録されている商品マスタを全て取得する.
+   *
+   * @return 現在登録されている商品マスタ
+   */
+  @Override
+  public List<Items> findAll() {
+    return this.sqlSessionTemplate.getMapper(ItemsMapper.class).findAll();
+  }
+
+  /**
    * 商品コードから商品を探す.
    *
    * @param itemCode 商品コード
@@ -24,5 +35,15 @@ public class ItemsRepositoryImpl implements ItemsRepository {
   @Override
   public Items findByItemCode(String itemCode) {
     return this.sqlSessionTemplate.getMapper(ItemsMapper.class).findByItemCode(itemCode);
+  }
+
+  /**
+   * CSVファイルから取得した商品マスタを登録、または更新する.
+   *
+   * @param itemList CSVファイルから取得した商品マスタ
+   */
+  @Override
+  public void saveFromCsvItemMaster(List<Items> itemList) {
+    this.sqlSessionTemplate.getMapper(ItemsMapper.class).saveFromCsvItemMaster(itemList);
   }
 }

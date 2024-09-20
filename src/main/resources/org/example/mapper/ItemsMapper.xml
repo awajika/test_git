@@ -7,6 +7,13 @@
     <result property="itemName" column="item_name"></result>
     <result property="price" column="price"></result>
 </resultMap>
+<select id="findAll" resultMap="Items">
+    SELECT
+        item_code,
+        item_name,
+        price
+    FROM items
+</select>
 <select id="findByItemCode" resultMap="Items">
     SELECT
         item_code,
@@ -16,4 +23,15 @@
     WHERE
         item_code = #{itemCode}
 </select>
+<insert id="saveFromCsvItemMaster" parameterType="java.util.List">
+    INSERT INTO items
+        (item_code, item_name, price)
+    VALUES
+    <foreach collection="itemList" item="item" open="" separator="," close="">
+        (#{item.itemCode}, #{item.itemName}, #{item.price})
+    </foreach>
+    ON DUPLICATE KEY UPDATE
+        item_name =  VALUES(item_name),
+        price = VALUES(price)
+</insert>
 </mapper>
