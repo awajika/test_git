@@ -129,6 +129,10 @@ public class CsvUtil {
       header = messageSource.getMessage("itemMaster.header", null, Locale.getDefault());
       comma = Integer.parseInt(messageSource.getMessage("itemMaster.formatComma",
           null, Locale.getDefault()));
+    } else if ("user".equals(flag)) {
+      header = messageSource.getMessage("user.header", null, Locale.getDefault());
+      comma = Integer.parseInt(messageSource.getMessage("user.formatComma",
+          null, Locale.getDefault()));
     }
 
     // ヘッダー行のチェック
