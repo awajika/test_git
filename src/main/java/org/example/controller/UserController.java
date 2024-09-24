@@ -1,14 +1,12 @@
 package org.example.controller;
 
 import com.opencsv.CSVReader;
-import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.exceptions.CsvException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -22,6 +20,7 @@ import org.example.form.UserSearchForm;
 import org.example.service.DepartmentsService;
 import org.example.service.UsersService;
 import org.example.util.SecuritySession;
+import org.example.util.CsvUtil;
 import org.example.view.UserInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -338,7 +337,10 @@ public class UserController {
     HashMap<String, List<String>> error = new HashMap<>();
 
     // ファイルのvalidationチェック
-    List<String> errorList = checkCsvFileValidation(file);
+    // ユーザー一括登録のフォーマットでフォーマットチェックを行うよう判別フラグをセットする
+    String flag = messageSource.getMessage("flag.user", null, Locale.getDefault());
+    CsvUtil csvUtil = new CsvUtil(file, flag, messageSource);
+    List<String> errorList = csvUtil.checkCsvFileValidation();
     if (!errorList.isEmpty()) {
       error.put("message", errorList);
       return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
@@ -348,18 +350,7 @@ public class UserController {
     try (InputStream inputStream = file.getInputStream();
          CSVReader csvReader = new CSVReader(new InputStreamReader(inputStream))) {
 
-      CsvToBeanBuilder<CsvUserForm> builder = new CsvToBeanBuilder<>(csvReader);
-      builder.withType(CsvUserForm.class);
-
-
-      // ファイルのフォーマットチェック
       List<String[]> readCsvList = csvReader.readAll();
-      errorList = checkCsvFileValidation(readCsvList);
-
-      if (!errorList.isEmpty()) {
-        error.put("message", errorList);
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-      }
 
       // ヘッダー行を取り除く
       readCsvList.remove(0);
@@ -495,12 +486,12 @@ public class UserController {
 
     //未入力チェック
     if (StringUtils.isEmpty(form.getUserId())) {
-      error.add(messageSource.getMessage("NotBlank.csvUserForm",
+      error.add(messageSource.getMessage("NotBlank.csvDataForm",
           new String[]{String.valueOf(count), userId}, Locale.getDefault()));
     }
     // 桁数チェック
     if (Integer.parseInt(maxDigit) < form.getUserId().length()) {
-      error.add(messageSource.getMessage("Size.csvUserForm",
+      error.add(messageSource.getMessage("Size.csvDataForm",
           new String[]{String.valueOf(count), userId, wordCount}, Locale.getDefault()));
     }
     // 社員番号の重複チェック
@@ -517,12 +508,12 @@ public class UserController {
 
     //未入力チェック
     if (StringUtils.isEmpty(form.getName())) {
-      error.add(messageSource.getMessage("NotBlank.csvUserForm",
+      error.add(messageSource.getMessage("NotBlank.csvDataForm",
           new String[]{String.valueOf(count), name}, Locale.getDefault()));
     }
     // 桁数チェック
     if (Integer.parseInt(maxDigit) < form.getName().length()) {
-      error.add(messageSource.getMessage("Size.csvUserForm",
+      error.add(messageSource.getMessage("Size.csvDataForm",
           new String[]{String.valueOf(count), name, wordCount}, Locale.getDefault()));
     }
 
@@ -531,12 +522,12 @@ public class UserController {
 
     //未入力チェック
     if (StringUtils.isEmpty(form.getNameKana())) {
-      error.add(messageSource.getMessage("NotBlank.csvUserForm",
+      error.add(messageSource.getMessage("NotBlank.csvDataForm",
           new String[]{String.valueOf(count), nameKana}, Locale.getDefault()));
     }
     // 桁数チェック
     if (Integer.parseInt(maxDigit) < form.getNameKana().length()) {
-      error.add(messageSource.getMessage("Size.csvUserForm",
+      error.add(messageSource.getMessage("Size.csvDataForm",
           new String[]{String.valueOf(count), nameKana, wordCount}, Locale.getDefault()));
     }
     // 文字種チェック
@@ -554,17 +545,17 @@ public class UserController {
 
     //未入力チェック
     if (StringUtils.isEmpty(form.getPassword())) {
-      error.add(messageSource.getMessage("NotBlank.csvUserForm",
+      error.add(messageSource.getMessage("NotBlank.csvDataForm",
           new String[]{String.valueOf(count), password}, Locale.getDefault()));
     }
     // 桁数チェック(8文字未満)
     if (form.getPassword().length() < Integer.parseInt(minDigit)) {
-      error.add(messageSource.getMessage("Size.csvUserForm",
+      error.add(messageSource.getMessage("Size.csvDataForm",
           new String[]{String.valueOf(count), password, wordCount}, Locale.getDefault()));
     }
     // 桁数チェック(20文字以上)
     if (Integer.parseInt(maxDigit) < form.getPassword().length()) {
-      error.add(messageSource.getMessage("Size.csvUserForm",
+      error.add(messageSource.getMessage("Size.csvDataForm",
           new String[]{String.valueOf(count), password, wordCount}, Locale.getDefault()));
     }
     // 文字種チェック
@@ -578,7 +569,7 @@ public class UserController {
 
     //未入力チェック
     if (StringUtils.isEmpty(form.getDepartmentName())) {
-      error.add(messageSource.getMessage("NotBlank.csvUserForm",
+      error.add(messageSource.getMessage("NotBlank.csvDataForm",
           new String[]{String.valueOf(count), departmentId}, Locale.getDefault()));
     }
 
@@ -599,7 +590,7 @@ public class UserController {
 
     //未入力チェック
     if (StringUtils.isEmpty(form.getLabel())) {
-      error.add(messageSource.getMessage("NotBlank.csvUserForm",
+      error.add(messageSource.getMessage("NotBlank.csvDataForm",
           new String[]{String.valueOf(count), role}, Locale.getDefault()));
     }
 
@@ -622,78 +613,6 @@ public class UserController {
             new String[]{String.valueOf(count), status}, Locale.getDefault()));
     }
 
-    return error;
-  }
-
-  /**
-   * csvファイルのフォーマットチェック以外のチェックを行う.
-   *
-   * @param file csvファイル
-   * @return String型のlist エラーメッセージ
-   */
-  private List<String> checkCsvFileValidation(MultipartFile file) {
-
-    List<String> error = new ArrayList<>();
-
-    // ファイルがアップロードされているかチェック
-    if (file == null) {
-      error.add(messageSource.getMessage("errMsg.notSelectedFile", null, Locale.getDefault()));
-
-      // ファイルがnullだと下記のチェックをやる必要がないためreturn
-      return error;
-    }
-
-    // CSVファイルかチェック
-    String fileName = file.getOriginalFilename();
-
-    if (fileName != null) {
-      String fileExtension = fileName.substring(fileName.lastIndexOf('.'));
-
-      if (!".csv".equals(fileExtension)) {
-        error.add(messageSource.getMessage("errMsg.notSelectedFile", null, Locale.getDefault()));
-      }
-    }
-
-    // ファイルサイズのチェック
-    if (file.getSize() > Integer.parseInt(messageSource.getMessage("maxFileSize",
-        null, Locale.getDefault()))) {
-      error.add(messageSource.getMessage("errMsg.tooLargeFile", null, Locale.getDefault()));
-    }
-    return error;
-  }
-
-  /**
-   * csvファイルのフォーマットチェックを行う.
-   *
-   * @param csvLineList csvファイルを読み込んだlist
-   * @return String型のlist エラーメッセージ
-   */
-  private List<String> checkCsvFileValidation(List<String[]> csvLineList) {
-
-    List<String> error = new ArrayList<>();
-
-    // ヘッダーの文字列
-    String header = messageSource.getMessage("csvFile.header", null, Locale.getDefault());
-
-    // 指定のヘッダーが存在するかチェック
-    if (!header.equals(Arrays.toString(csvLineList.get(0)))) {
-      error.add(messageSource.getMessage("errMsg.mismatchFormat", null, Locale.getDefault()));
-
-      /*
-       * 指定のヘッダーがない + カンマも6個ではないファイルがアップロードされたとき
-       * 二重にエラーメッセージを表示してしまうので、
-       * それを防ぐためのreturn
-       */
-      return error;
-    }
-
-    // カンマが6個あるかチェック
-    for (String[] line : csvLineList) {
-      if (countComma(Arrays.toString(line)) != 6) {
-        error.add(messageSource.getMessage("errMsg.mismatchFormat", null, Locale.getDefault()));
-        break;
-      }
-    }
     return error;
   }
 
@@ -874,17 +793,5 @@ public class UserController {
       return Role.GENERAL.getRoleCode();
     }
     return null;
-  }
-
-  /**
-   * csvファイルから読み込んだデータに含まれるカンマの数を数える.
-   *
-   * @param line csvファイルから読み込んだデータ
-   * @return カンマの数
-   */
-  private static long countComma(String line) {
-    return line.chars()
-        .filter(c -> c == ',')
-        .count();
   }
 }
