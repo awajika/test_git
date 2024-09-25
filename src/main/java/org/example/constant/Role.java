@@ -9,15 +9,17 @@ import lombok.Getter;
 @Getter
 public enum Role {
 
-  ADMIN(0, "管理者"),
-  GENERAL(1, "一般");
+  ADMIN(0, "管理者", "[ADMIN]"),
+  GENERAL(1, "一般", "[GENERAL]");
 
   private final int roleCode;
   private final String label;
+  private final String userRole;
 
-  Role(int roleCode, String label) {
+  Role(int roleCode, String label, String userRole) {
     this.roleCode = roleCode;
     this.label = label;
+    this.userRole = userRole;
   }
 
   /**

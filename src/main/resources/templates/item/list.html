@@ -51,14 +51,13 @@
                         </form>
                     </div>
                     <div class="row bg-light m-2 p-4">
-<!--                todo　管理者権限        <div class="col-8" th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode()}">-->
+                        <div class="col-8" th:if="${userRole == T(org.example.constant.Role).ADMIN.getUserRole()}">
                             <input class="form-control col-7" type="file" id="file" />
                             <button class="btn btn-secondary mx-2 col-4" onclick="uploadItem()">商品コードアップロード</button>
-<!--                    </div>-->
+                        </div>
                         <div class="col-4">
                             <button class="btn btn-secondary col-8" onclick="downloadItem()">商品コードダウンロード</button>
                         </div>
-
                     </div>
                     <div class="m-2 text-right">
                         <button class="btn btn-primary" onclick="entryItem()">新規登録</button>

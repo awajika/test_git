@@ -37,6 +37,7 @@ import org.example.service.ItemsService;
 import org.example.service.OrdersService;
 import org.example.strategy.CustomMappingStrategy;
 import org.example.util.CsvUtil;
+import org.example.util.SecuritySession;
 import org.example.view.ItemOrdersInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -79,6 +80,9 @@ public class ItemController {
 
   @Autowired
   MessageSource messageSource;
+
+  @Autowired
+  SecuritySession securitySession;
 
   /**
    * 購入商品一覧画面へ遷移する.
@@ -126,6 +130,7 @@ public class ItemController {
     model.addAttribute("roleList", Role.values());
     model.addAttribute("page", 0);
     model.addAttribute("successMessage", message);
+    model.addAttribute("userRole", securitySession.getRole());
 
     return "item/list";
   }
@@ -181,6 +186,7 @@ public class ItemController {
     model.addAttribute("itemOrderList", itemOrderList);
     model.addAttribute("roleList", Role.values());
     model.addAttribute("page", page);
+    model.addAttribute("userRole", securitySession.getRole());
 
     return "item/list";
   }
@@ -554,9 +560,9 @@ public class ItemController {
     order.setId(form.getId());
     order.setItemCode(form.getItemCode());
     order.setCount(Integer.parseInt(form.getCount()));
-    order.setUserId("0001");
+    order.setUserId(securitySession.getUserId());
     order.setCreateDate(LocalDateTime.now());
-    order.setUpdateUser("0001");
+    order.setUpdateUser(securitySession.getUserId());
     order.setUpdateDate(LocalDateTime.now());
 
     return order;
