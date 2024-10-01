@@ -19,8 +19,8 @@ import org.example.form.UserForm;
 import org.example.form.UserSearchForm;
 import org.example.service.DepartmentsService;
 import org.example.service.UsersService;
-import org.example.util.SecuritySession;
 import org.example.util.CsvUtil;
+import org.example.util.SecuritySession;
 import org.example.view.UserInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -36,6 +36,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -319,6 +320,16 @@ public class UserController {
   }
 
   /**
+   * /person/updateへ直接アクセスしようとした際の対処をする.
+   *
+   * @return  redirect:/person/list(ユーザー一覧画面)へ遷移
+   */
+  @GetMapping("/person/update")
+  public String accessedByGeneral() {
+    return "redirect:/person/list";
+  }
+
+  /**
    * csvファイルを読み込んでユーザー一括登録または削除を行う.
    *
    * @param file アップロードされたファイル
@@ -327,11 +338,11 @@ public class UserController {
   @RequestMapping(path = "/person/update", method = RequestMethod.POST)
   public ResponseEntity<Object> updateUsers(@RequestParam(value = "file", required = false)
                                     MultipartFile file) {
-    /*
-    セッション情報から権限をチェックする
-    セッションから作成者のuser_idを取得する
-    userForm.setAuthor(作成者のuser_id)
-     */
+
+    // セッション情報から権限をチェックする
+    if ((!securitySession.getRole().equals(Role.ADMIN.getUserRole()))) {
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
 
     // エラーをリクエストヘッダのmessageにセットするMapを用意
     HashMap<String, List<String>> error = new HashMap<>();
