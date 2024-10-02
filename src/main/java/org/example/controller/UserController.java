@@ -423,7 +423,18 @@ public class UserController {
                                     String[] lists) {
 
     usersService.delete(lists);
-    return new ResponseEntity<>(HttpStatus.OK);
+
+    // 削除のとき
+    if (lists.length == 1) {
+      HashMap<String, String> success = new HashMap<>();
+      success.put("message", messageSource.getMessage("delete", null, Locale.getDefault()));
+      return new ResponseEntity<>(success, HttpStatus.OK);
+    }
+
+    // 一括削除のとき
+    HashMap<String, String> success = new HashMap<>();
+    success.put("message", messageSource.getMessage("deleteAll", null, Locale.getDefault()));
+    return new ResponseEntity<>(success, HttpStatus.OK);
   }
 
   /**
@@ -771,6 +782,8 @@ public class UserController {
       message = messageSource.getMessage("update.successMessage", null, Locale.getDefault());
     } else if ("delete".equals(messageFlag)) {
       message = messageSource.getMessage("delete.successMessage", null, Locale.getDefault());
+    } else if ("deleteAll".equals(messageFlag)) {
+      message = messageSource.getMessage("deleteAll.successMessage", null, Locale.getDefault());
     }
 
     return message;
