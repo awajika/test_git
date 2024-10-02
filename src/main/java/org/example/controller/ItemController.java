@@ -325,7 +325,7 @@ public class ItemController {
     if ((!securitySession.getRole().equals(Role.ADMIN.getUserRole()))) {
       HashMap<String, String> forbidden = new HashMap<>();
       forbidden.put("message", "forbidden");
-      return new ResponseEntity<>(forbidden, HttpStatus.BAD_REQUEST);
+      return new ResponseEntity<>(forbidden, HttpStatus.OK);
     }
 
     // エラーメッセージをリクエストヘッダのmessageにセットするMapを用意
