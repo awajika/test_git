@@ -93,7 +93,7 @@
                         <button class="btn btn-secondary w-25" onclick="BackButton()">戻る</button>
                         <!--戻るボタン押下を判断するためのフラグ-->
                         <input type="hidden" id="backFlg" name="backFlg" value="0">
-                        <button class="btn btn-primary w-25" type="submit">登録</button>
+                        <button class="btn btn-primary w-25" type="submit" th:text="*{isRegister} ? '登録' : '編集'">登録</button>
                     </div>
                 </div>
             </form>
