@@ -36,7 +36,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -320,16 +319,6 @@ public class UserController {
   }
 
   /**
-   * /person/updateへ直接アクセスしようとした際の対処をする.
-   *
-   * @return  redirect:/person/list(ユーザー一覧画面)へ遷移
-   */
-  @GetMapping("/person/update")
-  public String accessedByGeneral() {
-    return "redirect:/person/list";
-  }
-
-  /**
    * csvファイルを読み込んでユーザー一括登録または削除を行う.
    *
    * @param file アップロードされたファイル
@@ -341,7 +330,9 @@ public class UserController {
 
     // セッション情報から権限をチェックする
     if ((!securitySession.getRole().equals(Role.ADMIN.getUserRole()))) {
-      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+      HashMap<String, String> forbidden = new HashMap<>();
+      forbidden.put("message", "forbidden");
+      return new ResponseEntity<>(forbidden, HttpStatus.BAD_REQUEST);
     }
 
     // エラーをリクエストヘッダのmessageにセットするMapを用意

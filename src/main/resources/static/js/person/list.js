@@ -171,6 +171,11 @@ function uploadFile() {
         }
     }, function (response) {
 
+        // 権限のないユーザーが/person/updateにアクセスしたときの処理
+        if (response.responseJSON.message == "forbidden") {
+            window.location.href = "http://localhost:8080/person/list";
+        }
+
         // リクエストヘッダのmessageにエラーメッセージが存在するか確認
         if (response.responseJSON.message != null) {
             let errorList = response.responseJSON.message;
