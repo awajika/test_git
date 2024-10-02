@@ -37,7 +37,6 @@ public class SecurityConfig {
     http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/top").permitAll()
                 .requestMatchers("/person/delete").hasAuthority("ADMIN")
-                .requestMatchers("/item/upload").hasAuthority("ADMIN")
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                 .anyRequest().authenticated()
         )

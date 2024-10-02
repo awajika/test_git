@@ -52,6 +52,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -312,6 +313,16 @@ public class ItemController {
   }
 
   /**
+   * /item/uploadへ権限を持たないユーザーが直接アクセスしようとした際の対処をする.
+   *
+   * @return  redirect:/item/list(購入商品一覧画面)へ遷移
+   */
+  @GetMapping("/item/upload")
+  public String accessedByGeneral() {
+    return "redirect:/item/list";
+  }
+
+  /**
    * 商品マスタ一括登録機能.
    *
    * @param file アップロードされたCSVファイル
@@ -321,11 +332,10 @@ public class ItemController {
   public ResponseEntity<Object> updateItems(@RequestParam(value = "file", required = false)
                                               MultipartFile file) {
 
-    /*
-    セッション情報から権限をチェックする
-    セッションから作成者のuser_idを取得する
-    userForm.setAuthor(作成者のuser_id)
-     */
+    // セッション情報から権限をチェックする
+    if ((!securitySession.getRole().equals(Role.ADMIN.getUserRole()))) {
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
 
     // エラーメッセージをリクエストヘッダのmessageにセットするMapを用意
     HashMap<String, List<String>> error = new HashMap<>();
