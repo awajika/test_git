@@ -163,18 +163,23 @@ function uploadFile() {
       dataType    : "json"
     }).then(function (response) {
 
+        // 権限のないユーザーが/person/updateにアクセスしたときの処理
+        if (response.message == "forbidden") {
+            window.location.href = "http://localhost:8080/person/list";
+
+            // URLがhttp://localhost:8080/person/list?successMessage=forbiddenとなるのを
+            //　防ぐためのreturn
+            return;
+        }
+
         // リクエストヘッダのmessageに成功メッセージが存在するか確認
         if (response.message != null) {
             let messageFlag = response.message;
             // reload()だと下のページングの数字に不具合が生じるためlocation.hrefを使ってページの再読み込み
             location.href = "/person/list?successMessage=" + messageFlag;
         }
-    }, function (response) {
 
-        // 権限のないユーザーが/person/updateにアクセスしたときの処理
-        if (response.responseJSON.message == "forbidden") {
-            window.location.href = "http://localhost:8080/person/list";
-        }
+    }, function (response) {
 
         // リクエストヘッダのmessageにエラーメッセージが存在するか確認
         if (response.responseJSON.message != null) {
