@@ -41,7 +41,6 @@ public class UserForm {
   private String password;
   // パスワード（再入力）
   @NotBlank
-  @Pattern(regexp = "^[0-9a-zA-Z]*$")
   @Size(min = 8, max = 20)
   private String passwordConfirm;
   // 所属
