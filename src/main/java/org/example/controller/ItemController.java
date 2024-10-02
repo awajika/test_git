@@ -52,7 +52,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -313,16 +312,6 @@ public class ItemController {
   }
 
   /**
-   * /item/uploadへ権限を持たないユーザーが直接アクセスしようとした際の対処をする.
-   *
-   * @return  redirect:/item/list(購入商品一覧画面)へ遷移
-   */
-  @GetMapping("/item/upload")
-  public String accessedByGeneral() {
-    return "redirect:/item/list";
-  }
-
-  /**
    * 商品マスタ一括登録機能.
    *
    * @param file アップロードされたCSVファイル
@@ -334,7 +323,9 @@ public class ItemController {
 
     // セッション情報から権限をチェックする
     if ((!securitySession.getRole().equals(Role.ADMIN.getUserRole()))) {
-      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+      HashMap<String, String> forbidden = new HashMap<>();
+      forbidden.put("message", "forbidden");
+      return new ResponseEntity<>(forbidden, HttpStatus.BAD_REQUEST);
     }
 
     // エラーメッセージをリクエストヘッダのmessageにセットするMapを用意

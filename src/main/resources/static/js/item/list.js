@@ -242,6 +242,12 @@ function uploadFile() {
         }
 
     }, function (response) {
+
+        // 権限のないユーザーが/item/uploadにアクセスしたときの処理
+        if (response.responseJSON.message == "forbidden") {
+            window.location.href = "http://localhost:8080/item/list";
+        }
+
         // リクエストヘッダのmessageにメッセージがあるか確認
         if (response.responseJSON.message != null) {
             let errorList = response.responseJSON.message;
