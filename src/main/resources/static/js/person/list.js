@@ -163,12 +163,22 @@ function uploadFile() {
       dataType    : "json"
     }).then(function (response) {
 
+        // 権限のないユーザーが/person/updateにアクセスしたときの処理
+        if (response.message == "forbidden") {
+            window.location.href = "http://localhost:8080/person/list";
+
+            // URLがhttp://localhost:8080/person/list?successMessage=forbiddenとなるのを
+            //　防ぐためのreturn
+            return;
+        }
+
         // リクエストヘッダのmessageに成功メッセージが存在するか確認
         if (response.message != null) {
             let messageFlag = response.message;
             // reload()だと下のページングの数字に不具合が生じるためlocation.hrefを使ってページの再読み込み
             location.href = "/person/list?successMessage=" + messageFlag;
         }
+
     }, function (response) {
 
         // リクエストヘッダのmessageにエラーメッセージが存在するか確認
@@ -193,9 +203,6 @@ function uploadFile() {
 // 一括削除処理
 function deleteUsers() {
 
-    // 選択されたユーザーのuserIdが入ったlist
-    lists = getSelectedPersonId();
-
     // フォームデータを取得
     let formData = new FormData();
     formData.append("lists", lists);
@@ -216,10 +223,16 @@ function deleteUsers() {
       cache       : false,
       contentType : false,
       processData : false,
-      dataType    : "text"
+      dataType    : "json"
     }).then(function (response) {
-        // reload()だと下のページングの数字に不具合が生じるためlocation.hrefを使ってページの再読み込み
-        location.href = "/person/list?successMessage=delete";
+
+        // リクエストヘッダのmessageに成功メッセージが存在するか確認
+        if (response.message != null) {
+            let messageFlag = response.message;
+            // reload()だと下のページングの数字に不具合が生じるためlocation.hrefを使ってページの再読み込み
+            location.href = "/person/list?successMessage=" + messageFlag;
+        }
+
     }, function () {
         const row = $(".toast-body").children("span");
         row.text("削除に失敗しました");

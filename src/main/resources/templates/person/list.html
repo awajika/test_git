@@ -145,7 +145,7 @@
                                        th:href="@{/person/form/{userId}(userId=${list.userId})}" class="btn btn-primary">編集</a>
                                 </td>
                                 <td class="text-center table-button">
-                                    <button th:if="${role == T(org.example.constant.Role).ADMIN.getRoleCode() && list.userId != loginUserId}"
+                                    <button th:if="${userRole == T(org.example.constant.Role).ADMIN.getUserRole() && list.userId != loginUserId}"
                                        class="btn btn-danger"
                                        th:data-id="${list.userId}"
                                        onclick="deletePerson(this)">削除</button>

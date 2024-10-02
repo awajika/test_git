@@ -234,6 +234,16 @@ function uploadFile() {
         processData : false,
         dataType    : "json"
     }).then(function (response) {
+
+        // 権限のないユーザーが/item/uploadにアクセスしたときの処理
+        if (response.message == "forbidden") {
+            window.location.href = "http://localhost:8080/item/list";
+
+            // URLがhttp://localhost:8080/item/list?successMessage=forbiddenとなるのを
+            //　防ぐためのreturn
+            return;
+        }
+
         // リクエストヘッダのmessageにメッセージがあるか確認
         if (response.message != null) {
             let messageFlag = response.message;
@@ -242,6 +252,7 @@ function uploadFile() {
         }
 
     }, function (response) {
+
         // リクエストヘッダのmessageにメッセージがあるか確認
         if (response.responseJSON.message != null) {
             let errorList = response.responseJSON.message;

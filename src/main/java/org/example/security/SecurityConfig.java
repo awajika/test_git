@@ -36,9 +36,7 @@ public class SecurityConfig {
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/top").permitAll()
-                .requestMatchers("/person/update").hasAuthority("ADMIN")
                 .requestMatchers("/person/delete").hasAuthority("ADMIN")
-                .requestMatchers("/item/upload").hasAuthority("ADMIN")
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                 .anyRequest().authenticated()
         )

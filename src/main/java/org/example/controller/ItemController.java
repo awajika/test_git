@@ -321,11 +321,12 @@ public class ItemController {
   public ResponseEntity<Object> updateItems(@RequestParam(value = "file", required = false)
                                               MultipartFile file) {
 
-    /*
-    セッション情報から権限をチェックする
-    セッションから作成者のuser_idを取得する
-    userForm.setAuthor(作成者のuser_id)
-     */
+    // セッション情報から権限をチェックする
+    if ((!securitySession.getRole().equals(Role.ADMIN.getUserRole()))) {
+      HashMap<String, String> forbidden = new HashMap<>();
+      forbidden.put("message", "forbidden");
+      return new ResponseEntity<>(forbidden, HttpStatus.OK);
+    }
 
     // エラーメッセージをリクエストヘッダのmessageにセットするMapを用意
     HashMap<String, List<String>> error = new HashMap<>();

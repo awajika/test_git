@@ -19,8 +19,8 @@ import org.example.form.UserForm;
 import org.example.form.UserSearchForm;
 import org.example.service.DepartmentsService;
 import org.example.service.UsersService;
-import org.example.util.SecuritySession;
 import org.example.util.CsvUtil;
+import org.example.util.SecuritySession;
 import org.example.view.UserInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -327,11 +327,13 @@ public class UserController {
   @RequestMapping(path = "/person/update", method = RequestMethod.POST)
   public ResponseEntity<Object> updateUsers(@RequestParam(value = "file", required = false)
                                     MultipartFile file) {
-    /*
-    セッション情報から権限をチェックする
-    セッションから作成者のuser_idを取得する
-    userForm.setAuthor(作成者のuser_id)
-     */
+
+    // セッション情報から権限をチェックする
+    if ((!securitySession.getRole().equals(Role.ADMIN.getUserRole()))) {
+      HashMap<String, String> forbidden = new HashMap<>();
+      forbidden.put("message", "forbidden");
+      return new ResponseEntity<>(forbidden, HttpStatus.OK);
+    }
 
     // エラーをリクエストヘッダのmessageにセットするMapを用意
     HashMap<String, List<String>> error = new HashMap<>();
@@ -412,7 +414,18 @@ public class UserController {
                                     String[] lists) {
 
     usersService.delete(lists);
-    return new ResponseEntity<>(HttpStatus.OK);
+
+    // 削除のとき
+    if (lists.length == 1) {
+      HashMap<String, String> success = new HashMap<>();
+      success.put("message", messageSource.getMessage("delete", null, Locale.getDefault()));
+      return new ResponseEntity<>(success, HttpStatus.OK);
+    }
+
+    // 一括削除のとき
+    HashMap<String, String> success = new HashMap<>();
+    success.put("message", messageSource.getMessage("deleteAll", null, Locale.getDefault()));
+    return new ResponseEntity<>(success, HttpStatus.OK);
   }
 
   /**
@@ -760,6 +773,8 @@ public class UserController {
       message = messageSource.getMessage("update.successMessage", null, Locale.getDefault());
     } else if ("delete".equals(messageFlag)) {
       message = messageSource.getMessage("delete.successMessage", null, Locale.getDefault());
+    } else if ("deleteAll".equals(messageFlag)) {
+      message = messageSource.getMessage("deleteAll.successMessage", null, Locale.getDefault());
     }
 
     return message;
