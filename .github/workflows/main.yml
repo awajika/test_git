@@ -1,0 +1,20 @@
+name: Sync Backlog to GitHub
+
+on:
+  schedule:
+    - cron: "0 * * * *" # 毎時実行
+  push:
+    branches:
+      - main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone Backlog repository
+        run: |
+          git clone --mirror https://relsys.backlog.com/git/REL_TRAINING_0001/task02.git
+      - name: Push to GitHub
+        run: |
+          cd task02
+          git push --mirror https://github.com/awajika/test_git.git
